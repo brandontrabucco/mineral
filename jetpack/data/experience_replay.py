@@ -2,86 +2,127 @@
 
 
 import numpy as np
-import tensorflow as tf
-from abc import ABC, abstractmethod
-from jetpack.networks.policy import Policy
+import jetpack as jp
+from jetpack.data.buffer import Buffer
+from jetpack.wrappers.proxy_env import ProxyEnv
+from jetpack.core.policy import Policy
 
 
-class ExperienceReplay(ABC):
-
-    @staticmethod
-    def nested_apply(
-        function,
-        *structures,
-    ):
-        if (isinstance(structures[0], np.ndarray) or 
-                isinstance(structures[0], tf.Tensor) or not 
-                isinstance(structures[0], list) or not 
-                isinstance(structures[0], tuple) or not 
-                isinstance(structures[0], set) or not
-                isinstance(structures[0], dict)):
-            return function(*structures)
-        elif isinstance(structures[0], list):
-            return [
-                ExperienceReplay.nested_apply(
-                    function,
-                    *x,
-                )
-                for x in zip(*structures)
-            ]
-        elif isinstance(structures[0], tuple):
-            return tuple(
-                ExperienceReplay.nested_apply(
-                    function,
-                    *x,
-                )
-                for x in zip(*structures)
-            )
-        elif isinstance(structures[0], set):
-            return {
-                ExperienceReplay.nested_apply(
-                    function,
-                    *x,
-                )
-                for x in zip(*structures)
-            }
-        elif isinstance(structures[0], dict):
-            keys_list = [structures[0].keys()]
-            values_list = [y.values() for y in structures]
-            merged_list = keys_list + values_list
-            return {
-                key: ExperienceReplay.nested_apply(
-                    function,
-                    *values,
-                )
-                for key, *values in zip(*merged_list)
-            }
+class ExperienceReplay(Buffer):
 
     def __init__(
-        self, 
-        env,
+        self,
+        selector,
+        env: ProxyEnv,
         policy: Policy,
     ):
-        self.env = env
-        self.policy = policy
+        ExperienceReplay.__init__(
+            self, 
+            env,
+            policy,
+        )
+        self.selector = selector
 
-    @abstractmethod
     def reset(
         self,
         max_size,
     ):
-        return NotImplemented
+        self.max_size = max_size
+        self.size = 0
+        self.head = 0
 
-    @abstractmethod
     def collect(
         self,
+        num_paths_to_collect,
         max_path_length,
     ):
-        return NotImplemented
+        num_paths_collected = 0
+        while num_paths_collected < num_paths_to_collect:
+            observation = self.env.reset()
+            for i in range(max_path_length):
+                selected_observation = self.selector(observation)
+                action = self.policy.get_stochastic_actions(
+                    selected_observation[np.newaxis, ...],
+                ).numpy()[0, ...]
+                next_observation, reward, done, info = self.env.step(
+                    action,
+                )
+                if self.size == 0:
+                    def create(x): 
+                        return np.zeros([
+                            self.max_size, 
+                            *x.shape,
+                        ])
+                    self.observations = jp.nested_apply(
+                        create,
+                        observation,
+                    )
+                    self.actions = jp.nested_apply(
+                        create,
+                        action,
+                    )
+                    self.rewards = jp.nested_apply(
+                        create,
+                        reward,
+                    )
+                    self.next_observations = jp.nested_apply(
+                        create,
+                        next_observation,
+                    )
+                def put(x, y):
+                    x[self.head, ...] = y
+                jp.nested_apply(
+                    put,
+                    self.observations,
+                    observation,
+                )
+                jp.nested_apply(
+                    put,
+                    self.actions,
+                    action,
+                )
+                jp.nested_apply(
+                    put,
+                    self.rewards,
+                    reward,
+                )
+                jp.nested_apply(
+                    put,
+                    self.next_observations,
+                    next_observation,
+                )
+                self.head = (self.head + 1) % self.max_size
+                self.size = min(self.size + 1, self.max_size)
+                if done:
+                    break
+            num_paths_collected += 1
+                
 
-    @abstractmethod
     def sample(
         self,
         batch_size,
     ):
-        return NotImplemented
+        indices = np.random.choice(
+            self.size, 
+            size=batch_size, 
+            replace=(self.size < batch_size),
+        )
+        select = lambda x: x[indices, ...]
+        return (
+            jp.nested_apply(
+                select,
+                self.observations,
+            ),
+            jp.nested_apply(
+                select,
+                self.actions,
+            ),
+            jp.nested_apply(
+                select,
+                self.rewards,
+            ),
+            jp.nested_apply(
+                select,
+                self.next_observations,
+            ),
+        )

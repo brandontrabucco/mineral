@@ -1,29 +1,23 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+from abc import ABC, abstractmethod
 from jetpack.algorithms.base import Base
-from jetpack.data.experience_replay import ExperienceReplay
+from jetpack.data.buffer import Buffer
 
 
-class Trainer(object):
+class Trainer(ABC):
 
     def __init__(
         self,
-        replay: ExperienceReplay,
+        buffer: Buffer,
         algorithm: Base,
     ):
-        self.replay = replay
+        self.buffer = buffer
         self.algorithm = algorithm
 
+    @abstractmethod
     def train(
         self,
-        max_size,
-        num_steps,
-        max_path_length,
-        batch_size,
     ):
-        self.replay.reset(max_size)
-        for i in range(num_steps):
-            self.replay.collect(max_path_length)
-            batch = self.replay.sample(batch_size)
-            self.algorithm.gradient_update(*batch)
+        return NotImplemented
