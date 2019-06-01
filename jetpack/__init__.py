@@ -10,11 +10,11 @@ def nested_apply(
     *structures,
 ):
     if (isinstance(structures[0], np.ndarray) or 
-            isinstance(structures[0], tf.Tensor) or not 
-            isinstance(structures[0], list) or not 
-            isinstance(structures[0], tuple) or not 
-            isinstance(structures[0], set) or not
-            isinstance(structures[0], dict)):
+            isinstance(structures[0], tf.Tensor) or not (
+            isinstance(structures[0], list) or 
+            isinstance(structures[0], tuple) or 
+            isinstance(structures[0], set) or
+            isinstance(structures[0], dict))):
         return function(*structures)
     elif isinstance(structures[0], list):
         return [
