@@ -28,6 +28,7 @@ class ProxyEnv(Env):
         observation, reward, done, info = self.wrapped_env.step(
             action
         )
+        observation = np.array(observation)
         reward = np.array(reward)
         return observation, reward, done, info
 
