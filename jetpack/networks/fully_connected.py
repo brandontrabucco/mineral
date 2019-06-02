@@ -24,7 +24,6 @@ class FullyConnectedMLP(MLP):
         self,
         observations,
     ):
-        x = jp.flatten(observations)
         x = self.layers[0](x)
         for layer in self.layers[1:]:
             x = layer(tf.nn.relu(x))
@@ -44,14 +43,14 @@ class FullyConnectedPolicy(FullyConnectedMLP, Policy):
         self,
         observations,
     ):
-        x = self(observations)
+        x = self(jp.flatten(observations))
         return x + tf.random.normal(x.shape)
 
     def get_deterministic_actions(
         self,
         observations,
     ):
-        return self(observations)
+        return self(jp.flatten(observations))
 
 
 class FullyConnectedQF(FullyConnectedMLP, QF):
