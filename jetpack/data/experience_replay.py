@@ -14,18 +14,18 @@ class ExperienceReplay(Buffer):
         self,
         selector,
         env: ProxyEnv,
-        policy: Policy,
+        policy: Policy
     ):
-        ExperienceReplay.__init__(
+        Buffer.__init__(
             self, 
             env,
-            policy,
+            policy
         )
         self.selector = selector
 
     def reset(
         self,
-        max_size,
+        max_size
     ):
         self.max_size = max_size
         self.size = 0
@@ -34,7 +34,7 @@ class ExperienceReplay(Buffer):
     def collect(
         self,
         num_paths_to_collect,
-        max_path_length,
+        max_path_length
     ):
         num_paths_collected = 0
         while num_paths_collected < num_paths_to_collect:
@@ -42,54 +42,54 @@ class ExperienceReplay(Buffer):
             for i in range(max_path_length):
                 selected_observation = self.selector(observation)
                 action = self.policy.get_stochastic_actions(
-                    selected_observation[np.newaxis, ...],
+                    selected_observation[np.newaxis, ...]
                 ).numpy()[0, ...]
                 next_observation, reward, done, info = self.env.step(
-                    action,
+                    action
                 )
                 if self.size == 0:
                     def create(x): 
                         return np.zeros([
                             self.max_size, 
-                            *x.shape,
+                            *x.shape
                         ])
                     self.observations = jp.nested_apply(
                         create,
-                        observation,
+                        observation
                     )
                     self.actions = jp.nested_apply(
                         create,
-                        action,
+                        action
                     )
                     self.rewards = jp.nested_apply(
                         create,
-                        reward,
+                        reward
                     )
                     self.next_observations = jp.nested_apply(
                         create,
-                        next_observation,
+                        next_observation
                     )
                 def put(x, y):
                     x[self.head, ...] = y
                 jp.nested_apply(
                     put,
                     self.observations,
-                    observation,
+                    observation
                 )
                 jp.nested_apply(
                     put,
                     self.actions,
-                    action,
+                    action
                 )
                 jp.nested_apply(
                     put,
                     self.rewards,
-                    reward,
+                    reward
                 )
                 jp.nested_apply(
                     put,
                     self.next_observations,
-                    next_observation,
+                    next_observation
                 )
                 self.head = (self.head + 1) % self.max_size
                 self.size = min(self.size + 1, self.max_size)
@@ -100,29 +100,29 @@ class ExperienceReplay(Buffer):
 
     def sample(
         self,
-        batch_size,
+        batch_size
     ):
         indices = np.random.choice(
             self.size, 
             size=batch_size, 
-            replace=(self.size < batch_size),
+            replace=(self.size < batch_size)
         )
         select = lambda x: x[indices, ...]
         return (
             jp.nested_apply(
                 select,
-                self.observations,
+                self.observations
             ),
             jp.nested_apply(
                 select,
-                self.actions,
+                self.actions
             ),
             jp.nested_apply(
                 select,
-                self.rewards,
+                self.rewards
             ),
             jp.nested_apply(
                 select,
-                self.next_observations,
+                self.next_observations
             ),
         )

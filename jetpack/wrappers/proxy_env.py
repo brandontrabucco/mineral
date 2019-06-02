@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import numpy as np
 from gym import Env
 
 
@@ -8,7 +9,7 @@ class ProxyEnv(Env):
 
     def __init__(
         self, 
-        wrapped_env,
+        wrapped_env
     ):
         self.wrapped_env = wrapped_env
         self.action_space = self.wrapped_env.action_space
@@ -16,53 +17,57 @@ class ProxyEnv(Env):
 
     def reset(
         self, 
-        **kwargs,
+        **kwargs
     ):
         return self.wrapped_env.reset(**kwargs)
 
     def step(
         self, 
-        action,
+        action
     ):
-        return self.wrapped_env.step(action)
+        observation, reward, done, info = self.wrapped_env.step(
+            action
+        )
+        reward = np.array(reward)
+        return observation, reward, done, info
 
     def render(
         self, 
         *args, 
-        **kwargs,
+        **kwargs
     ):
         return self.wrapped_env.render(
             *args, 
-            **kwargs,
+            **kwargs
         )
 
     def terminate(
-        self,
+        self
     ):
         if hasattr(self.wrapped_env, "terminate"):
             self.wrapped_env.terminate()
 
     def __getattr__(
         self, 
-        attr,
+        attr
     ):
         return getattr(self.wrapped_env, attr)
 
     def __getstate__(
-        self,
+        self
     ):
         return self.__dict__
 
     def __setstate__(
         self, 
-        state,
+        state
     ):
         self.__dict__.update(state)
 
     def __str__(
-        self,
+        self
     ):
         return '{}({})'.format(
             type(self).__name__, 
-            self.wrapped_env,
+            self.wrapped_env
         )

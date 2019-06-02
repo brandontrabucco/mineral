@@ -11,13 +11,13 @@ class Trainer(ABC):
     def __init__(
         self,
         buffer: Buffer,
-        algorithm: Base,
+        algorithm: Base
     ):
         self.buffer = buffer
         self.algorithm = algorithm
 
     @abstractmethod
     def train(
-        self,
+        self
     ):
         return NotImplemented

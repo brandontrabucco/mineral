@@ -5,38 +5,38 @@ import gym
 from jetpack.networks.fully_connected import FullyConnectedPolicy, FullyConnectedQF
 from jetpack.wrappers.proxy_env import ProxyEnv
 from jetpack.data.experience_replay import ExperienceReplay
-from jetpack.algorthms.td3 import TD3
+from jetpack.algorithms.td3 import TD3
 from jetpack.core.batch_trainer import BatchTrainer
 
 
 if __name__ == "__main__":
 
     env = ProxyEnv(
-        gym.make("BipedalWalker-v2"),
+        gym.make("MountainCarContinuous-v0")
     )
 
     policy = FullyConnectedPolicy(
-        [16, 16, 4],
+        [16, 16, 1]
     )
 
     qf1 = FullyConnectedQF(
-        [32, 32],
+        [32, 32]
     )
 
     qf2 = FullyConnectedQF(
-        [32, 32],
+        [32, 32]
     )
 
     target_policy = FullyConnectedPolicy(
-        [16, 16, 4],
+        [16, 16, 1]
     )
 
     target_qf1 = FullyConnectedQF(
-        [32, 32],
+        [32, 32]
     )
 
     target_qf2 = FullyConnectedQF(
-        [32, 32],
+        [32, 32]
     )
 
     selector = lambda x: x
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     replay = ExperienceReplay(
         selector,
         env,
-        policy,
+        policy
     )
 
     algorithm = TD3(
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         clip_radius=1.0,
         sigma=1.0,
         gamma=1.0,
-        actor_delay=10,
+        actor_delay=10
     )
     
     max_size = 100
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         batch_size,
         num_trains_per_step,
         replay,
-        algorithm,
+        algorithm
     )
 
     trainer.train()

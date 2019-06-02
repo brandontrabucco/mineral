@@ -10,6 +10,6 @@ class QF(ABC):
     def get_qvalues(
         self,
         observations,
-        actions,
+        actions
     ):
         return NotImplemented

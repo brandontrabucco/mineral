@@ -11,7 +11,7 @@ class Buffer(ABC):
     def __init__(
         self, 
         env: ProxyEnv,
-        policy: Policy,
+        policy: Policy
     ):
         self.env = env
         self.policy = policy
@@ -19,20 +19,20 @@ class Buffer(ABC):
     @abstractmethod
     def reset(
         self,
-        max_size,
+        max_size
     ):
         return NotImplemented
 
     @abstractmethod
     def collect(
         self,
-        max_path_length,
+        max_path_length
     ):
         return NotImplemented
 
     @abstractmethod
     def sample(
         self,
-        batch_size,
+        batch_size
     ):
         return NotImplemented

@@ -17,12 +17,12 @@ class BatchTrainer(Trainer):
         batch_size,
         num_trains_per_step,
         buffer: Buffer,
-        algorithm: Base,
+        algorithm: Base
     ):
         Trainer.__init__(
             self, 
             buffer, 
-            algorithm,
+            algorithm
         )
         self.max_size = max_size
         self.num_steps = num_steps
@@ -32,13 +32,13 @@ class BatchTrainer(Trainer):
         self.num_trains_per_step = num_trains_per_step
 
     def train(
-        self,
+        self
     ):
         self.buffer.reset(self.max_size)
         for i in range(self.num_steps):
             self.buffer.collect(
                 self.num_paths_to_collect,
-                self.max_path_length,
+                self.max_path_length
             )
             for j in range(self.num_trains_per_step):
                 batch = self.buffer.sample(self.batch_size)

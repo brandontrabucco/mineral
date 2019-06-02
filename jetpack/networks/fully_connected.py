@@ -13,19 +13,19 @@ class FullyConnectedMLP(MLP):
     def __init__(
         self,
         hidden_sizes,
-        **kwargs,
+        **kwargs
     ):
         MLP.__init__(self, **kwargs)
-        self.layers = [
+        self.hidden_layers = [
             tf.keras.layers.Dense(size) for size in hidden_sizes
         ]
 
     def __call__(
         self,
-        observations,
+        observations
     ):
-        x = self.layers[0](x)
-        for layer in self.layers[1:]:
+        x = self.hidden_layers[0](observations)
+        for layer in self.hidden_layers[1:]:
             x = layer(tf.nn.relu(x))
         return x
 
@@ -35,20 +35,20 @@ class FullyConnectedPolicy(FullyConnectedMLP, Policy):
     def __init__(
         self,
         hidden_sizes,
-        **kwargs,
+        **kwargs
     ):
         FullyConnectedMLP.__init__(self, hidden_sizes, **kwargs)
 
     def get_stochastic_actions(
         self,
-        observations,
+        observations
     ):
         x = self(jp.flatten(observations))
-        return x + tf.random.normal(x.shape)
+        return x + tf.random.normal(x.shape, dtype=x.dtype)
 
     def get_deterministic_actions(
         self,
-        observations,
+        observations
     ):
         return self(jp.flatten(observations))
 
@@ -58,16 +58,16 @@ class FullyConnectedQF(FullyConnectedMLP, QF):
     def __init__(
         self,
         hidden_sizes,
-        **kwargs,
+        **kwargs
     ):
         FullyConnectedMLP.__init__(self, hidden_sizes + [1], **kwargs)
 
     def get_qvalues(
         self,
         observations,
-        actions,
+        actions
     ):
         return self(tf.concat([
             jp.flatten(observations), 
-            jp.flatten(actions),
+            jp.flatten(actions)
         ], 1))

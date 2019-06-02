@@ -10,9 +10,9 @@ class MLP(tf.keras.models.Model, ABC):
     def __init__(
         self,
         tau=0.01,
-        optimizer: tf.train.Optimizer=tf.train.GradientDescentOptimizer(
-            learning_rate=0.01,
-        ),
+        optimizer=tf.keras.optimizers.SGD(
+            0.01
+        )
     ):
         super(MLP, self).__init__()
         self.tau = tau
@@ -20,7 +20,7 @@ class MLP(tf.keras.models.Model, ABC):
 
     def soft_update(
         self, 
-        weights,
+        weights
     ):
         self.set_weights([
             self.tau * w + (1.0 - self.tau) * w_self
@@ -32,18 +32,18 @@ class MLP(tf.keras.models.Model, ABC):
 
     def apply_gradients(
         self, 
-        gradients,
+        gradients
     ):
         self.optimizer.apply_gradients(
             zip(
                 gradients,
-                self.trainable_variables,
+                self.trainable_variables
             ),
         )
 
     @abstractmethod
     def __call__(
         self, 
-        *inputs,
+        *inputs
     ):
         return NotImplemented

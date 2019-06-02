@@ -6,7 +6,7 @@ import tensorflow as tf
 
 
 def flatten(
-    x,
+    x
 ):
     return tf.reshape(
         x, 
@@ -16,7 +16,7 @@ def flatten(
 
 def nested_apply(
     function,
-    *structures,
+    *structures
 ):
     if (isinstance(structures[0], np.ndarray) or 
             isinstance(structures[0], tf.Tensor) or not (
@@ -27,7 +27,7 @@ def nested_apply(
         return function(*structures)
     elif isinstance(structures[0], list):
         return [
-            ExperienceReplay.nested_apply(
+            nested_apply.nested_apply(
                 function,
                 *x,
             )
@@ -35,7 +35,7 @@ def nested_apply(
         ]
     elif isinstance(structures[0], tuple):
         return tuple(
-            ExperienceReplay.nested_apply(
+            nested_apply.nested_apply(
                 function,
                 *x,
             )
@@ -43,7 +43,7 @@ def nested_apply(
         )
     elif isinstance(structures[0], set):
         return {
-            ExperienceReplay.nested_apply(
+            nested_apply.nested_apply(
                 function,
                 *x,
             )
@@ -54,7 +54,7 @@ def nested_apply(
         values_list = [y.values() for y in structures]
         merged_list = keys_list + values_list
         return {
-            key: ExperienceReplay.nested_apply(
+            key: nested_apply.nested_apply(
                 function,
                 *values,
             )
