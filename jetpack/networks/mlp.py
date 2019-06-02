@@ -10,7 +10,9 @@ class MLP(tf.keras.models.Model, ABC):
     def __init__(
         self,
         tau=0.9,
-        optimizer=tf.keras.optimizers.Adam()
+        optimizer=tf.keras.optimizers.Adam(
+            lr=0.00001
+        )
     ):
         super(MLP, self).__init__()
         self.tau = tau

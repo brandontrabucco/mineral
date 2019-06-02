@@ -123,12 +123,12 @@ class TD3(Base):
                 observations,
                 policy_actions
             )
-            loss_policy = -0.5 * (
+            negative_loss_policy = 0.5 * (
                 tf.reduce_mean(policy_qvalue1) + 
                 tf.reduce_mean(policy_qvalue2)
             )
         gradients_policy = tape_policy.gradient(
-            loss_policy, 
+            negative_loss_policy, 
             self.policy.trainable_variables
         )
         self.policy.apply_gradients(gradients_policy)
