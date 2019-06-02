@@ -2,21 +2,13 @@
 
 
 import tensorflow as tf
+import jetpack as jp
 from jetpack.networks.mlp import MLP
 from jetpack.core.policy import Policy
 from jetpack.core.qf import QF
 
 
 class FullyConnectedMLP(MLP):
-
-    @staticmethod
-    def flatten(
-        x,
-    ):
-        return tf.reshape(
-            x, 
-            (x.shape[0], -1),
-        )
 
     def __init__(
         self,
@@ -32,7 +24,7 @@ class FullyConnectedMLP(MLP):
         self,
         observations,
     ):
-        x = FullyConnectedMLP.flatten(observations)
+        x = jp.flatten(observations)
         x = self.layers[0](x)
         for layer in self.layers[1:]:
             x = layer(tf.nn.relu(x))
@@ -59,8 +51,7 @@ class FullyConnectedPolicy(FullyConnectedMLP, Policy):
         self,
         observations,
     ):
-        x = self(observations)
-        return x
+        return self(observations)
 
 
 class FullyConnectedQF(FullyConnectedMLP, QF):
@@ -77,5 +68,7 @@ class FullyConnectedQF(FullyConnectedMLP, QF):
         observations,
         actions,
     ):
-        x = self(tf.concat([observations, actions], 1))
-        return x
+        return self(tf.concat([
+            jp.flatten(observations), 
+            jp.flatten(actions),
+        ], 1))

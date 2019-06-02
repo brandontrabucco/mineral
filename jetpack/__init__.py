@@ -5,6 +5,15 @@ import numpy as np
 import tensorflow as tf
 
 
+def flatten(
+    x,
+):
+    return tf.reshape(
+        x, 
+        (x.shape[0], -1),
+    )
+
+
 def nested_apply(
     function,
     *structures,
