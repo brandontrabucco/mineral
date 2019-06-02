@@ -160,3 +160,4 @@ class TD3(Base):
             self.target_policy.soft_update(self.policy.get_weights())
             self.target_qf1.soft_update(self.qf1.get_weights())
             self.target_qf2.soft_update(self.qf2.get_weights())
+

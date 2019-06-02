@@ -9,10 +9,8 @@ class MLP(tf.keras.models.Model, ABC):
 
     def __init__(
         self,
-        tau=0.01,
-        optimizer=tf.keras.optimizers.SGD(
-            0.01
-        )
+        tau=0.9,
+        optimizer=tf.keras.optimizers.Adam()
     ):
         super(MLP, self).__init__()
         self.tau = tau
@@ -38,7 +36,7 @@ class MLP(tf.keras.models.Model, ABC):
             zip(
                 gradients,
                 self.trainable_variables
-            ),
+            )
         )
 
     @abstractmethod

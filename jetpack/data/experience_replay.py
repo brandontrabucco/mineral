@@ -37,8 +37,10 @@ class ExperienceReplay(Buffer):
         max_path_length
     ):
         num_paths_collected = 0
+        all_returns = []
         while num_paths_collected < num_paths_to_collect:
             observation = self.env.reset()
+            path_return = 0.0
             for i in range(max_path_length):
                 selected_observation = self.selector(observation)
                 action = self.policy.get_stochastic_actions(
@@ -47,6 +49,7 @@ class ExperienceReplay(Buffer):
                 next_observation, reward, done, info = self.env.step(
                     action
                 )
+                path_return = path_return + reward
                 if self.size == 0:
                     def create(x): 
                         return np.zeros([
@@ -95,7 +98,9 @@ class ExperienceReplay(Buffer):
                 self.size = min(self.size + 1, self.max_size)
                 if done:
                     break
+            all_returns.append(path_return)
             num_paths_collected += 1
+        return np.mean(all_returns)
                 
 
     def sample(

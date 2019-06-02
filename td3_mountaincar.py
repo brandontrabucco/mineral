@@ -54,21 +54,23 @@ if __name__ == "__main__":
         target_policy,
         target_qf1,
         target_qf2,
-        clip_radius=1.0,
+        clip_radius=0.3,
         sigma=1.0,
-        gamma=1.0,
+        gamma=0.99,
         actor_delay=10
     )
     
-    max_size = 100
+    max_size = 1000
+    num_warm_up_paths = 10
     num_steps = 1000
-    num_paths_to_collect = 10
+    num_paths_to_collect = 1
     max_path_length = 100
-    batch_size = 32
-    num_trains_per_step = 5
+    batch_size = 256
+    num_trains_per_step = 100
 
     trainer = BatchTrainer(
         max_size,
+        num_warm_up_paths,
         num_steps,
         num_paths_to_collect,
         max_path_length,
