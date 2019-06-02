@@ -24,7 +24,14 @@ class Buffer(ABC):
         return NotImplemented
 
     @abstractmethod
-    def collect(
+    def explore(
+        self,
+        max_path_length
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def evaluate(
         self,
         max_path_length
     ):

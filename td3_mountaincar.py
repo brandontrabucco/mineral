@@ -54,17 +54,17 @@ if __name__ == "__main__":
         target_policy,
         target_qf1,
         target_qf2,
-        clip_radius=0.3,
+        clip_radius=2.0,
         sigma=1.0,
         gamma=0.99,
-        actor_delay=10
+        actor_delay=100
     )
     
     max_size = 1000
     num_warm_up_paths = 10
     num_steps = 1000
     num_paths_to_collect = 1
-    max_path_length = 100
+    max_path_length = 1000
     batch_size = 256
     num_trains_per_step = 100
 

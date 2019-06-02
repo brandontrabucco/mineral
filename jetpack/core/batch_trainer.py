@@ -37,18 +37,23 @@ class BatchTrainer(Trainer):
         self
     ):
         self.buffer.reset(self.max_size)
-        r = self.buffer.collect(
+        self.buffer.explore(
             self.num_warm_up_paths,
             self.max_path_length
         )
         for i in range(self.num_steps):
-            r = self.buffer.collect(
+            expl_r = self.buffer.explore(
                 self.num_paths_to_collect,
                 self.max_path_length
             )
-            print("average return at step {} was {}".format(
+            eval_r = self.buffer.evaluate(
+                self.num_paths_to_collect,
+                self.max_path_length
+            )
+            print("average return at step {:05d} expl: {:.5f} eval: {:.5f}".format(
                 i,
-                r
+                expl_r,
+                eval_r
             ))
             for j in range(self.num_trains_per_step):
                 batch = self.buffer.sample(self.batch_size)

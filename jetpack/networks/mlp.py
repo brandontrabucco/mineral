@@ -9,9 +9,9 @@ class MLP(tf.keras.models.Model, ABC):
 
     def __init__(
         self,
-        tau=0.9,
+        tau=0.1,
         optimizer=tf.keras.optimizers.Adam(
-            lr=0.00001
+            lr=0.0001
         )
     ):
         super(MLP, self).__init__()
@@ -30,13 +30,17 @@ class MLP(tf.keras.models.Model, ABC):
             )
         ])
 
-    def apply_gradients(
+    def minimize(
         self, 
-        gradients
+        loss,
+        gradient_tape
     ):
         self.optimizer.apply_gradients(
             zip(
-                gradients,
+                gradient_tape.gradient(
+                    loss, 
+                    self.trainable_variables
+                ),
                 self.trainable_variables
             )
         )

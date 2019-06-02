@@ -80,11 +80,10 @@ class TD3(Base):
                 target_values, 
                 qvalue1
             )
-        gradients_qf1 = tape_qf1.gradient(
-            loss_qf1, 
-            self.qf1.trainable_variables
-        )
-        self.qf1.apply_gradients(gradients_qf1)
+            self.qf1.minimize(
+                loss_qf1,
+                tape_qf1
+            )
 
     def update_qf2(
         self,
@@ -101,11 +100,10 @@ class TD3(Base):
                 target_values, 
                 qvalue2
             )
-        gradients_qf2 = tape_qf2.gradient(
-            loss_qf2, 
-            self.qf2.trainable_variables
-        )
-        self.qf2.apply_gradients(gradients_qf2)
+            self.qf2.minimize(
+                loss_qf2,
+                tape_qf2
+            )
 
     def update_policy(
         self,
@@ -123,15 +121,14 @@ class TD3(Base):
                 observations,
                 policy_actions
             )
-            negative_loss_policy = 0.5 * (
+            loss_policy = -0.5 * (
                 tf.reduce_mean(policy_qvalue1) + 
                 tf.reduce_mean(policy_qvalue2)
             )
-        gradients_policy = tape_policy.gradient(
-            negative_loss_policy, 
-            self.policy.trainable_variables
-        )
-        self.policy.apply_gradients(gradients_policy)
+            self.policy.minimize(
+                loss_policy,
+                tape_policy
+            )
 
     def gradient_update(
         self, 
@@ -156,8 +153,16 @@ class TD3(Base):
             target_values
         )
         if self.iteration % self.actor_delay == 0:
-            self.update_policy(observations)
-            self.target_policy.soft_update(self.policy.get_weights())
-            self.target_qf1.soft_update(self.qf1.get_weights())
-            self.target_qf2.soft_update(self.qf2.get_weights())
+            self.update_policy(
+                observations
+            )
+            self.target_policy.soft_update(
+                self.policy.get_weights()
+            )
+            self.target_qf1.soft_update(
+                self.qf1.get_weights()
+            )
+            self.target_qf2.soft_update(
+                self.qf2.get_weights()
+            )
 

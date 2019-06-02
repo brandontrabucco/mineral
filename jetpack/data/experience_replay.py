@@ -31,17 +31,16 @@ class ExperienceReplay(Buffer):
         self.size = 0
         self.head = 0
 
-    def collect(
+    def explore(
         self,
         num_paths_to_collect,
         max_path_length
     ):
-        num_paths_collected = 0
-        all_returns = []
-        while num_paths_collected < num_paths_to_collect:
+        exploration_returns = []
+        for i in range(num_paths_to_collect):
             observation = self.env.reset()
             path_return = 0.0
-            for i in range(max_path_length):
+            for j in range(max_path_length):
                 selected_observation = self.selector(observation)
                 action = self.policy.get_stochastic_actions(
                     selected_observation[np.newaxis, ...]
@@ -96,13 +95,37 @@ class ExperienceReplay(Buffer):
                 )
                 self.head = (self.head + 1) % self.max_size
                 self.size = min(self.size + 1, self.max_size)
+                observation = next_observation
                 if done:
                     break
-            all_returns.append(path_return)
-            num_paths_collected += 1
-        return np.mean(all_returns)
-                
+            exploration_returns.append(path_return)
+        return np.mean(exploration_returns)
 
+    def evaluate(
+        self,
+        num_paths_to_collect,
+        max_path_length
+    ):
+        evaluation_returns = []
+        for i in range(num_paths_to_collect):
+            observation = self.env.reset()
+            path_return = 0.0
+            for i in range(max_path_length):
+                selected_observation = self.selector(observation)
+                action = self.policy.get_deterministic_actions(
+                    selected_observation[np.newaxis, ...]
+                ).numpy()[0, ...]
+                next_observation, reward, done, info = self.env.step(
+                    action
+                )
+                #self.env.render()
+                path_return = path_return + reward
+                observation = next_observation
+                if done:
+                    break
+            evaluation_returns.append(path_return)
+        return np.mean(evaluation_returns)
+                
     def sample(
         self,
         batch_size
