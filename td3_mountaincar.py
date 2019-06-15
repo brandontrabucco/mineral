@@ -39,10 +39,7 @@ if __name__ == "__main__":
         [32, 32]
     )
 
-    selector = lambda x: x
-
     replay = ExperienceReplay(
-        selector,
         env,
         policy
     )
@@ -80,4 +77,8 @@ if __name__ == "__main__":
         algorithm
     )
 
-    trainer.train()
+    try:
+        trainer.train()
+
+    except KeyboardInterrupt:
+        replay.evaluate(1, 1000, True, {})

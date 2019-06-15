@@ -6,9 +6,10 @@ from setuptools import setup
 
 
 REQUIRED_PACKAGES = [
-    'tensorflow-gpu==2.0.0a0', 
+    'tensorflow-gpu==2.0.0b1',
     'gym',
-    'numpy'
+    'numpy',
+    'matplotlib',
 ]
 
 

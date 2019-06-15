@@ -12,16 +12,16 @@ class ExperienceReplay(Buffer):
 
     def __init__(
         self,
-        selector,
         env: ProxyEnv,
-        policy: Policy
+        policy: Policy,
+        selector=None,
     ):
         Buffer.__init__(
             self, 
             env,
             policy
         )
-        self.selector = selector
+        self.selector = (lambda x: x) if selector is None else selector
 
     def reset(
         self,
@@ -34,20 +34,23 @@ class ExperienceReplay(Buffer):
     def explore(
         self,
         num_paths_to_collect,
-        max_path_length
+        max_path_length,
+        render,
+        render_kwargs
     ):
         exploration_returns = []
         for i in range(num_paths_to_collect):
             observation = self.env.reset()
             path_return = 0.0
             for j in range(max_path_length):
-                selected_observation = self.selector(observation)
                 action = self.policy.get_stochastic_actions(
-                    selected_observation[np.newaxis, ...]
+                    self.selector(observation)[np.newaxis, ...]
                 ).numpy()[0, ...]
                 next_observation, reward, done, info = self.env.step(
                     action
                 )
+                if render:
+                    self.env.render(**render_kwargs)
                 path_return = path_return + reward
                 if self.size == 0:
                     def create(x): 
@@ -104,21 +107,23 @@ class ExperienceReplay(Buffer):
     def evaluate(
         self,
         num_paths_to_collect,
-        max_path_length
+        max_path_length,
+        render,
+        render_kwargs
     ):
         evaluation_returns = []
         for i in range(num_paths_to_collect):
             observation = self.env.reset()
             path_return = 0.0
             for i in range(max_path_length):
-                selected_observation = self.selector(observation)
                 action = self.policy.get_deterministic_actions(
-                    selected_observation[np.newaxis, ...]
+                    self.selector(observation)[np.newaxis, ...]
                 ).numpy()[0, ...]
                 next_observation, reward, done, info = self.env.step(
                     action
                 )
-                #self.env.render()
+                if render:
+                    self.env.render(**render_kwargs)
                 path_return = path_return + reward
                 observation = next_observation
                 if done:

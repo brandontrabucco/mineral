@@ -44,11 +44,15 @@ class BatchTrainer(Trainer):
         for i in range(self.num_steps):
             expl_r = self.buffer.explore(
                 self.num_paths_to_collect,
-                self.max_path_length
+                self.max_path_length,
+                False,
+                {}
             )
             eval_r = self.buffer.evaluate(
                 self.num_paths_to_collect,
-                self.max_path_length
+                self.max_path_length,
+                False,
+                {}
             )
             print("average return at step {:05d} expl: {:.5f} eval: {:.5f}".format(
                 i,
