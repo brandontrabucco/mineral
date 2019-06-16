@@ -10,13 +10,12 @@ class MLP(tf.keras.models.Model, ABC):
     def __init__(
         self,
         tau=0.1,
-        optimizer=tf.keras.optimizers.Adam(
-            lr=0.0001
-        )
+        optimizer=tf.keras.optimizers.Adam,
+        optimizer_kwargs={"lr": 0.000001}
     ):
         super(MLP, self).__init__()
         self.tau = tau
-        self.optimizer = optimizer
+        self.optimizer = optimizer(**optimizer_kwargs)
 
     def soft_update(
         self, 

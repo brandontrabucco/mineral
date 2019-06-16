@@ -18,7 +18,8 @@ class BatchTrainer(Trainer):
         batch_size,
         num_trains_per_step,
         buffer: Buffer,
-        algorithm: Base
+        algorithm: Base,
+        monitor=None
     ):
         Trainer.__init__(
             self, 
@@ -32,6 +33,7 @@ class BatchTrainer(Trainer):
         self.max_path_length = max_path_length
         self.batch_size = batch_size
         self.num_trains_per_step = num_trains_per_step
+        self.monitor = monitor
 
     def train(
         self
@@ -39,7 +41,9 @@ class BatchTrainer(Trainer):
         self.buffer.reset(self.max_size)
         self.buffer.explore(
             self.num_warm_up_paths,
-            self.max_path_length
+            self.max_path_length,
+            False,
+            {}
         )
         for i in range(self.num_steps):
             expl_r = self.buffer.explore(
@@ -48,12 +52,16 @@ class BatchTrainer(Trainer):
                 False,
                 {}
             )
+            if self.monitor is not None:
+                self.monitor.record("expl_r", expl_r)
             eval_r = self.buffer.evaluate(
                 self.num_paths_to_collect,
                 self.max_path_length,
                 False,
                 {}
             )
+            if self.monitor is not None:
+                self.monitor.record("eval_r", eval_r)
             print("average return at step {:05d} expl: {:.5f} eval: {:.5f}".format(
                 i,
                 expl_r,

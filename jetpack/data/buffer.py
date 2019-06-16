@@ -26,14 +26,20 @@ class Buffer(ABC):
     @abstractmethod
     def explore(
         self,
-        *args
+        num_paths_to_collect,
+        max_path_length,
+        render,
+        render_kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def evaluate(
         self,
-        *args
+        num_paths_to_collect,
+        max_path_length,
+        render,
+        render_kwargs
     ):
         return NotImplemented
 
