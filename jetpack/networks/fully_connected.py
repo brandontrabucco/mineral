@@ -35,16 +35,18 @@ class FullyConnectedPolicy(FullyConnectedMLP, Policy):
     def __init__(
         self,
         hidden_sizes,
+        sigma=1.0,
         **kwargs
     ):
         FullyConnectedMLP.__init__(self, hidden_sizes, **kwargs)
+        self.sigma = sigma
 
     def get_stochastic_actions(
         self,
         observations
     ):
         x = self(jp.flatten(observations))
-        return x + tf.random.normal(x.shape, dtype=x.dtype)
+        return x + tf.random.normal(x.shape, dtype=x.dtype) * self.sigma
 
     def get_deterministic_actions(
         self,

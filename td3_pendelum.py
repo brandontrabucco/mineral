@@ -19,27 +19,33 @@ if __name__ == "__main__":
     )
 
     policy = FullyConnectedPolicy(
-        [6, 6, 1]
+        [6, 6, 1],
+        tau=1e-3
     )
 
     qf1 = FullyConnectedQF(
-        [6, 6]
+        [6, 6],
+        tau=1e-3
     )
 
     qf2 = FullyConnectedQF(
-        [6, 6]
+        [6, 6],
+        tau=1e-3
     )
 
     target_policy = FullyConnectedPolicy(
-        [6, 6, 1]
+        [6, 6, 1],
+        tau=1e-3
     )
 
     target_qf1 = FullyConnectedQF(
-        [6, 6]
+        [6, 6],
+        tau=1e-3
     )
 
     target_qf2 = FullyConnectedQF(
-        [6, 6]
+        [6, 6],
+        tau=1e-3
     )
 
     replay = ExperienceReplay(
@@ -54,8 +60,8 @@ if __name__ == "__main__":
         target_policy,
         target_qf1,
         target_qf2,
-        clip_radius=2.0,
-        sigma=1.0,
+        clip_radius=0.2,
+        sigma=0.1,
         gamma=0.99,
         actor_delay=32,
         monitor=monitor

@@ -90,6 +90,7 @@ class TD3(Base):
             )
             if self.monitor is not None:
                 self.monitor.record("loss_qf1", loss_qf1)
+                self.monitor.record("qvalues1_mean", tf.reduce_mean(qvalues1))
 
     def update_qf2(
         self,
@@ -114,6 +115,7 @@ class TD3(Base):
             )
             if self.monitor is not None:
                 self.monitor.record("loss_qf2", loss_qf2)
+                self.monitor.record("qvalues2_mean", tf.reduce_mean(qvalues2))
 
     def update_policy(
         self,
@@ -123,17 +125,16 @@ class TD3(Base):
             policy_actions = self.policy.get_deterministic_actions(
                 observations
             )
-            policy_qvalue1 = self.qf1.get_qvalues(
+            policy_qvalues1 = self.qf1.get_qvalues(
                 observations,
                 policy_actions
             )
-            policy_qvalue2 = self.qf2.get_qvalues(
+            policy_qvalues2 = self.qf1.get_qvalues(
                 observations,
                 policy_actions
             )
-            loss_policy = -0.5 * (
-                tf.reduce_mean(policy_qvalue1) + 
-                tf.reduce_mean(policy_qvalue2)
+            loss_policy = -1.0 * (
+                tf.reduce_mean(policy_qvalues1)
             )
             self.policy.minimize(
                 loss_policy,
@@ -141,6 +142,8 @@ class TD3(Base):
             )
             if self.monitor is not None:
                 self.monitor.record("loss_policy", loss_policy)
+                self.monitor.record("policy_qvalues1_mean", tf.reduce_mean(policy_qvalues1))
+                self.monitor.record("policy_qvalues2_mean", tf.reduce_mean(policy_qvalues2))
 
     def gradient_update(
         self, 
@@ -156,6 +159,9 @@ class TD3(Base):
             rewards,
             next_observations
         )
+        if self.monitor is not None:
+            self.monitor.record("rewards_mean", tf.reduce_mean(rewards))
+            self.monitor.record("target_values_mean", tf.reduce_mean(target_values))
         self.update_qf1(
             observations, 
             actions,
