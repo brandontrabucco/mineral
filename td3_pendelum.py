@@ -20,37 +20,37 @@ if __name__ == "__main__":
 
     policy = FullyConnectedPolicy(
         [6, 6, 1],
-        tau=1e-3,
+        tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
     qf1 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3,
+        tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
     qf2 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3,
+        tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
     target_policy = FullyConnectedPolicy(
         [6, 6, 1],
-        tau=1e-3,
+        tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
     target_qf1 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3,
+        tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
     target_qf2 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3,
+        tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
@@ -73,13 +73,13 @@ if __name__ == "__main__":
         clip_radius=0.2,
         sigma=0.1,
         gamma=0.99,
-        actor_delay=32,
+        actor_delay=10,
         monitor=monitor
     )
     
     max_size = 1000
     num_warm_up_paths = 10
-    num_steps = 1000
+    num_steps = 20000
     num_paths_to_collect = 1
     max_path_length = 100
     batch_size = 32
