@@ -65,6 +65,10 @@ class TD3(Base):
             next_target_qvalues1,
             next_target_qvalues2
         )
+        if self.monitor is not None:
+            self.monitor.record("next_target_qvalues1_mean", tf.reduce_mean(next_target_qvalues1))
+            self.monitor.record("next_target_qvalues2_mean", tf.reduce_mean(next_target_qvalues2))
+            self.monitor.record("minimum_qvalues_mean", tf.reduce_mean(minimum_qvalues))
         return rewards + (self.gamma * minimum_qvalues)
 
     def update_qf1(
@@ -129,7 +133,7 @@ class TD3(Base):
                 observations,
                 policy_actions
             )
-            policy_qvalues2 = self.qf1.get_qvalues(
+            policy_qvalues2 = self.qf2.get_qvalues(
                 observations,
                 policy_actions
             )

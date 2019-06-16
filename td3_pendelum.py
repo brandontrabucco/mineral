@@ -20,33 +20,43 @@ if __name__ == "__main__":
 
     policy = FullyConnectedPolicy(
         [6, 6, 1],
-        tau=1e-3
+        tau=1e-3,
+        optimizer_kwargs={"lr": 0.0001}
     )
 
     qf1 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3
+        tau=1e-3,
+        optimizer_kwargs={"lr": 0.0001}
     )
 
     qf2 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3
+        tau=1e-3,
+        optimizer_kwargs={"lr": 0.0001}
     )
 
     target_policy = FullyConnectedPolicy(
         [6, 6, 1],
-        tau=1e-3
+        tau=1e-3,
+        optimizer_kwargs={"lr": 0.0001}
     )
 
     target_qf1 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3
+        tau=1e-3,
+        optimizer_kwargs={"lr": 0.0001}
     )
 
     target_qf2 = FullyConnectedQF(
         [6, 6],
-        tau=1e-3
+        tau=1e-3,
+        optimizer_kwargs={"lr": 0.0001}
     )
+
+    target_policy.set_weights(policy.get_weights())
+    target_qf1.set_weights(qf1.get_weights())
+    target_qf2.set_weights(qf2.get_weights())
 
     replay = ExperienceReplay(
         env,
