@@ -8,7 +8,7 @@ from jetpack.wrappers.proxy_env import ProxyEnv
 from jetpack.core.policy import Policy
 
 
-class ExperienceReplay(Buffer):
+class OffPolicyBuffer(Buffer):
 
     def __init__(
         self,
@@ -25,16 +25,17 @@ class ExperienceReplay(Buffer):
 
     def reset(
         self,
-        max_size
+        max_size,
+        max_path_length
     ):
         self.max_size = max_size
+        self.max_path_length = max_path_length
         self.size = 0
         self.head = 0
 
     def explore(
         self,
         num_paths_to_collect,
-        max_path_length,
         render,
         render_kwargs
     ):
@@ -42,7 +43,7 @@ class ExperienceReplay(Buffer):
         for i in range(num_paths_to_collect):
             observation = self.env.reset()
             path_return = 0.0
-            for j in range(max_path_length):
+            for j in range(self.max_path_length):
                 action = self.policy.get_stochastic_actions(
                     self.selector(observation)[np.newaxis, ...]
                 ).numpy()[0, ...]
@@ -51,7 +52,6 @@ class ExperienceReplay(Buffer):
                 )
                 if render:
                     self.env.render(**render_kwargs)
-                path_return = path_return + reward
                 if self.size == 0:
                     def create(x): 
                         return np.zeros([
@@ -98,6 +98,7 @@ class ExperienceReplay(Buffer):
                 )
                 self.head = (self.head + 1) % self.max_size
                 self.size = min(self.size + 1, self.max_size)
+                path_return = path_return + reward
                 observation = next_observation
                 if done:
                     break
@@ -107,7 +108,6 @@ class ExperienceReplay(Buffer):
     def evaluate(
         self,
         num_paths_to_collect,
-        max_path_length,
         render,
         render_kwargs
     ):
@@ -115,7 +115,7 @@ class ExperienceReplay(Buffer):
         for i in range(num_paths_to_collect):
             observation = self.env.reset()
             path_return = 0.0
-            for i in range(max_path_length):
+            for i in range(self.max_path_length):
                 action = self.policy.get_deterministic_actions(
                     self.selector(observation)[np.newaxis, ...]
                 ).numpy()[0, ...]

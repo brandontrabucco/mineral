@@ -4,9 +4,9 @@
 import gym
 from jetpack.networks.fully_connected import FullyConnectedPolicy, FullyConnectedQF
 from jetpack.wrappers.proxy_env import ProxyEnv
-from jetpack.data.experience_replay import ExperienceReplay
+from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.td3 import TD3
-from jetpack.core.batch_trainer import BatchTrainer
+from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.monitor import Monitor
 
 
@@ -54,11 +54,7 @@ if __name__ == "__main__":
         optimizer_kwargs={"lr": 0.0001}
     )
 
-    target_policy.set_weights(policy.get_weights())
-    target_qf1.set_weights(qf1.get_weights())
-    target_qf2.set_weights(qf2.get_weights())
-
-    replay = ExperienceReplay(
+    buffer = OffPolicyBuffer(
         env,
         policy
     )
@@ -85,7 +81,7 @@ if __name__ == "__main__":
     batch_size = 32
     num_trains_per_step = 100
 
-    trainer = BatchTrainer(
+    trainer = LocalTrainer(
         max_size,
         num_warm_up_paths,
         num_steps,
@@ -93,7 +89,7 @@ if __name__ == "__main__":
         max_path_length,
         batch_size,
         num_trains_per_step,
-        replay,
+        buffer,
         algorithm,
         monitor=monitor
     )
@@ -102,4 +98,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        replay.evaluate(1, 1000, True, {})
+        buffer.evaluate(1, True, {})

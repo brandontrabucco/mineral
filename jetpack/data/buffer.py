@@ -19,7 +19,8 @@ class Buffer(ABC):
     @abstractmethod
     def reset(
         self,
-        max_size
+        max_size,
+        max_path_length
     ):
         return NotImplemented
 
@@ -27,7 +28,6 @@ class Buffer(ABC):
     def explore(
         self,
         num_paths_to_collect,
-        max_path_length,
         render,
         render_kwargs
     ):
@@ -37,7 +37,6 @@ class Buffer(ABC):
     def evaluate(
         self,
         num_paths_to_collect,
-        max_path_length,
         render,
         render_kwargs
     ):

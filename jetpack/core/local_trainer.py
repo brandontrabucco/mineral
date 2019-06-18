@@ -6,7 +6,7 @@ from jetpack.algorithms.base import Base
 from jetpack.data.buffer import Buffer
 
 
-class BatchTrainer(Trainer):
+class LocalTrainer(Trainer):
 
     def __init__(
         self,
@@ -38,35 +38,18 @@ class BatchTrainer(Trainer):
     def train(
         self
     ):
-        self.buffer.reset(self.max_size)
-        self.buffer.explore(
-            self.num_warm_up_paths,
-            self.max_path_length,
-            False,
-            {}
-        )
+        self.buffer.reset(self.max_size, self.max_path_length)
+        self.buffer.explore(self.num_warm_up_paths, False, {})
+
         for i in range(self.num_steps):
-            expl_r = self.buffer.explore(
-                self.num_paths_to_collect,
-                self.max_path_length,
-                False,
-                {}
-            )
+            expl_r = self.buffer.explore(self.num_paths_to_collect, False, {})
             if self.monitor is not None:
                 self.monitor.record("expl_r", expl_r)
-            eval_r = self.buffer.evaluate(
-                self.num_paths_to_collect,
-                self.max_path_length,
-                False,
-                {}
-            )
+
+            eval_r = self.buffer.evaluate(self.num_paths_to_collect, False, {})
             if self.monitor is not None:
                 self.monitor.record("eval_r", eval_r)
-            print("average return at step {:05d} expl: {:.5f} eval: {:.5f}".format(
-                i,
-                expl_r,
-                eval_r
-            ))
+
             for j in range(self.num_trains_per_step):
                 batch = self.buffer.sample(self.batch_size)
                 self.algorithm.gradient_update(*batch)

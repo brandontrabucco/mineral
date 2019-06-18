@@ -27,7 +27,7 @@ def nested_apply(
         return function(*structures)
     elif isinstance(structures[0], list):
         return [
-            nested_apply.nested_apply(
+            nested_apply(
                 function,
                 *x,
             )
@@ -35,7 +35,7 @@ def nested_apply(
         ]
     elif isinstance(structures[0], tuple):
         return tuple(
-            nested_apply.nested_apply(
+            nested_apply(
                 function,
                 *x,
             )
@@ -43,7 +43,7 @@ def nested_apply(
         )
     elif isinstance(structures[0], set):
         return {
-            nested_apply.nested_apply(
+            nested_apply(
                 function,
                 *x,
             )
@@ -54,7 +54,7 @@ def nested_apply(
         values_list = [y.values() for y in structures]
         merged_list = keys_list + values_list
         return {
-            key: nested_apply.nested_apply(
+            key: nested_apply(
                 function,
                 *values,
             )

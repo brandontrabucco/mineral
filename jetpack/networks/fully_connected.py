@@ -6,6 +6,7 @@ import jetpack as jp
 from jetpack.networks.mlp import MLP
 from jetpack.core.policy import Policy
 from jetpack.core.qf import QF
+from jetpack.core.vf import VF
 
 
 class FullyConnectedMLP(MLP):
@@ -73,3 +74,19 @@ class FullyConnectedQF(FullyConnectedMLP, QF):
             jp.flatten(observations), 
             jp.flatten(actions)
         ], 1))
+
+
+class FullyConnectedVF(FullyConnectedMLP, VF):
+
+    def __init__(
+        self,
+        hidden_sizes,
+        **kwargs
+    ):
+        FullyConnectedMLP.__init__(self, hidden_sizes + [1], **kwargs)
+
+    def get_values(
+        self,
+        observations
+    ):
+        return self(jp.flatten(observations))

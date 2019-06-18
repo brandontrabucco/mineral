@@ -35,6 +35,9 @@ class TD3(Base):
         self.actor_delay = actor_delay
         self.iteration = 0
         self.monitor = monitor
+        target_policy.set_weights(policy.get_weights())
+        target_qf1.set_weights(qf1.get_weights())
+        target_qf2.set_weights(qf2.get_weights())
 
     def get_target_values(
         self,
