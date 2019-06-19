@@ -44,11 +44,11 @@ class LocalTrainer(Trainer):
         for i in range(self.num_steps):
             expl_r = self.buffer.explore(self.num_paths_to_collect, False, {})
             if self.monitor is not None:
-                self.monitor.record("expl_r", expl_r)
+                self.monitor.record("exploration_return", expl_r)
 
             eval_r = self.buffer.evaluate(self.num_paths_to_collect, False, {})
             if self.monitor is not None:
-                self.monitor.record("eval_r", eval_r)
+                self.monitor.record("evaluation_return", eval_r)
 
             for j in range(self.num_trains_per_step):
                 batch = self.buffer.sample(self.batch_size)
