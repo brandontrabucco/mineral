@@ -3,7 +3,7 @@
 
 from abc import ABC, abstractmethod
 from jetpack.wrappers.proxy_env import ProxyEnv
-from jetpack.core.policy import Policy
+from jetpack.functions.policy import Policy
 
 
 class Buffer(ABC):

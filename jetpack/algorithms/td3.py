@@ -3,8 +3,8 @@
 
 import tensorflow as tf
 from jetpack.algorithms.base import Base
-from jetpack.core.policy import Policy
-from jetpack.core.qf import QF
+from jetpack.functions.policy import Policy
+from jetpack.functions.qf import QF
 
 
 class TD3(Base):

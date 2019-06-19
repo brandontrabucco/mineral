@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 from jetpack.algorithms.base import Base
-from jetpack.core.vf import VF
+from jetpack.functions.vf import VF
 
 
 class GAE(Base):

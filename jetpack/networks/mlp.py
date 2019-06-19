@@ -9,7 +9,7 @@ class MLP(tf.keras.models.Model, ABC):
 
     def __init__(
         self,
-        tau=0.1,
+        tau=1e-3,
         optimizer=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.000001}
     ):
@@ -45,8 +45,8 @@ class MLP(tf.keras.models.Model, ABC):
         )
 
     @abstractmethod
-    def __call__(
-        self, 
+    def call(
+        self,
         *inputs
     ):
         return NotImplemented

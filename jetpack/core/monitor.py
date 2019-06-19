@@ -1,28 +1,22 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-import tensorflow as tf
+from abc import ABC, abstractmethod
 
 
-class Monitor(object):
+class Monitor(ABC):
 
-    def __init__(
-        self,
-        logging_dir
-    ):
-        self.writer = tf.summary.create_file_writer(logging_dir)
-        self.set_step(0)
-
+    @abstractmethod
     def set_step(
         self,
         step
     ):
-        tf.summary.experimental.set_step(step)
+        return NotImplemented
 
+    @abstractmethod
     def record(
         self,
         key,
         value,
     ):
-        with self.writer.as_default():
-            tf.summary.scalar(key, value)
+        return NotImplemented

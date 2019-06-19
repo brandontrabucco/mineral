@@ -2,17 +2,17 @@
 
 
 import tensorflow as tf
-from jetpack.networks.fully_connected import FullyConnectedPolicy, FullyConnectedQF
+from jetpack.networks.dense_mlp import DensePolicy, DenseQF
 
 
 if __name__ == "__main__":
 
 
-    policy = FullyConnectedPolicy(
+    policy = DensePolicy(
         [6, 6, 1]
     )
 
-    qf = FullyConnectedQF(
+    qf = DenseQF(
         [6, 6]
     )
 

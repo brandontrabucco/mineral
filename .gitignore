@@ -3,3 +3,5 @@
 .idea
 .idea/**
 events.out.tfevents.**
+jetpack.egg-info/**
+jetpack.egg-info

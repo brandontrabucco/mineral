@@ -2,54 +2,55 @@
 
 
 import gym
-from jetpack.networks.fully_connected import FullyConnectedPolicy, FullyConnectedQF
+from jetpack.networks.dense_policy import DensePolicy
+from jetpack.networks.dense_qf import DenseQF
 from jetpack.wrappers.proxy_env import ProxyEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.td3 import TD3
 from jetpack.core.local_trainer import LocalTrainer
-from jetpack.core.monitor import Monitor
+from jetpack.core.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":
 
-    monitor = Monitor("./")
+    monitor = LocalMonitor("./")
 
     env = ProxyEnv(
         gym.make("Pendulum-v0")
     )
 
-    policy = FullyConnectedPolicy(
+    policy = DensePolicy(
         [6, 6, 1],
         tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
-    qf1 = FullyConnectedQF(
-        [6, 6],
-        tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
-    )
-
-    qf2 = FullyConnectedQF(
-        [6, 6],
-        tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
-    )
-
-    target_policy = FullyConnectedPolicy(
+    qf1 = DenseQF(
         [6, 6, 1],
         tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
-    target_qf1 = FullyConnectedQF(
-        [6, 6],
+    qf2 = DenseQF(
+        [6, 6, 1],
         tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
 
-    target_qf2 = FullyConnectedQF(
-        [6, 6],
+    target_policy = DensePolicy(
+        [6, 6, 1],
+        tau=1e-2,
+        optimizer_kwargs={"lr": 0.0001}
+    )
+
+    target_qf1 = DenseQF(
+        [6, 6, 1],
+        tau=1e-2,
+        optimizer_kwargs={"lr": 0.0001}
+    )
+
+    target_qf2 = DenseQF(
+        [6, 6, 1],
         tau=1e-2,
         optimizer_kwargs={"lr": 0.0001}
     )
