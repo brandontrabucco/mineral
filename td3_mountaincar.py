@@ -8,9 +8,12 @@ from jetpack.wrappers.proxy_env import ProxyEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.td3 import TD3
 from jetpack.core.local_trainer import LocalTrainer
+from jetpack.core.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":
+
+    monitor = LocalMonitor("./")
 
     env = ProxyEnv(
         gym.make("MountainCarContinuous-v0")
@@ -55,7 +58,8 @@ if __name__ == "__main__":
         clip_radius=2.0,
         sigma=1.0,
         gamma=0.99,
-        actor_delay=100
+        actor_delay=100,
+        monitor=monitor
     )
     
     max_size = 1000
@@ -75,7 +79,8 @@ if __name__ == "__main__":
         batch_size,
         num_trains_per_step,
         buffer,
-        algorithm
+        algorithm,
+        monitor=monitor
     )
 
     try:
