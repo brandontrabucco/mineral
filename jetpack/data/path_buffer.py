@@ -108,7 +108,7 @@ class PathBuffer(Buffer, ABC):
                     reward
                 )
                 path_return = path_return + reward
-                self.tail[self.head] = j
+                self.tail[self.head] = j + 1
                 observation = next_observation
                 if done:
                     break

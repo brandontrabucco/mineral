@@ -17,6 +17,7 @@ class OnPolicyBuffer(PathBuffer):
             size=batch_size, 
             replace=(self.size < batch_size)
         )
+        select_minus_one = lambda x: x[indices, :(-1), ...]
         select = lambda x: x[indices, ...]
         return (
             jp.nested_apply(
@@ -24,11 +25,11 @@ class OnPolicyBuffer(PathBuffer):
                 self.observations
             ),
             jp.nested_apply(
-                select,
+                select_minus_one,
                 self.actions
             ),
             jp.nested_apply(
-                select,
+                select_minus_one,
                 self.rewards
             ),
             jp.nested_apply(

@@ -1,7 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-import jetpack as jp
 from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.vf import VF
 
@@ -19,4 +18,4 @@ class DenseVF(DenseMLP, VF):
         self,
         observations
     ):
-        return self(jp.flatten(observations))
+        return self(observations)

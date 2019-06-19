@@ -1,7 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-import jetpack as jp
 import tensorflow as tf
 from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.qf import QF
@@ -23,7 +22,7 @@ class DenseQF(DenseMLP, QF):
     ):
         return self(
             tf.concat([
-                jp.flatten(observations),
-                jp.flatten(actions)
+                observations,
+                actions
             ], 1)
         )

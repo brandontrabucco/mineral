@@ -2,7 +2,6 @@
 
 
 import tensorflow as tf
-import jetpack as jp
 from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
@@ -22,11 +21,11 @@ class DensePolicy(DenseMLP, Policy):
         self,
         observations
     ):
-        x = self(jp.flatten(observations))
+        x = self(observations)
         return x + tf.random.normal(x.shape, dtype=x.dtype) * self.sigma
 
     def get_deterministic_actions(
         self,
         observations
     ):
-        return self(jp.flatten(observations))
+        return self(observations)
