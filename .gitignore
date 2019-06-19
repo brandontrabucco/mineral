@@ -1,7 +1,4 @@
-**/*.pyc
 *.pyc
-.idea
-.idea/**
+.idea/
 events.out.tfevents.**
-jetpack.egg-info/**
-jetpack.egg-info
+*.egg-info/
