@@ -2,16 +2,14 @@
 
 
 from abc import ABC, abstractmethod
-from jetpack.wrappers.proxy_env import ProxyEnv
-from jetpack.functions.policy import Policy
 
 
 class Buffer(ABC):
     
     def __init__(
         self, 
-        env: ProxyEnv,
-        policy: Policy
+        env,
+        policy
     ):
         self.env = env
         self.policy = policy

@@ -3,20 +3,18 @@
 
 import tensorflow as tf
 from jetpack.algorithms.base import Base
-from jetpack.functions.policy import Policy
-from jetpack.functions.qf import QF
 
 
 class TD3(Base):
 
     def __init__(
         self,
-        policy: Policy,
-        qf1: QF,
-        qf2: QF,
-        target_policy: Policy,
-        target_qf1: QF,
-        target_qf2: QF,
+        policy,
+        qf1,
+        qf2,
+        target_policy,
+        target_qf1,
+        target_qf2,
         clip_radius=1.0,
         sigma=1.0,
         gamma=1.0,

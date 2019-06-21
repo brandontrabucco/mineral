@@ -5,16 +5,14 @@ import numpy as np
 import jetpack as jp
 from abc import ABC, abstractmethod
 from jetpack.data.buffer import Buffer
-from jetpack.wrappers.proxy_env import ProxyEnv
-from jetpack.functions.policy import Policy
 
 
 class PathBuffer(Buffer, ABC):
 
     def __init__(
         self,
-        env: ProxyEnv,
-        policy: Policy,
+        env,
+        policy,
         selector=None,
     ):
         self.selector = (lambda x: x) if selector is None else selector

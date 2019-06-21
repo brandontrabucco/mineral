@@ -2,8 +2,6 @@
 
 
 from jetpack.core.trainer import Trainer
-from jetpack.algorithms.base import Base
-from jetpack.data.buffer import Buffer
 
 
 class LocalTrainer(Trainer):
@@ -17,8 +15,8 @@ class LocalTrainer(Trainer):
         max_path_length,
         batch_size,
         num_trains_per_step,
-        buffer: Buffer,
-        algorithm: Base,
+        buffer,
+        algorithm,
         monitor=None
     ):
         Trainer.__init__(

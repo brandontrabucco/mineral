@@ -2,16 +2,14 @@
 
 
 from abc import ABC, abstractmethod
-from jetpack.algorithms.base import Base
-from jetpack.data.buffer import Buffer
 
 
 class Trainer(ABC):
 
     def __init__(
         self,
-        buffer: Buffer,
-        algorithm: Base
+        buffer,
+        algorithm
     ):
         self.buffer = buffer
         self.algorithm = algorithm
