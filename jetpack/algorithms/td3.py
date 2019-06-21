@@ -48,7 +48,7 @@ class TD3(Base):
         epsilon = tf.clip_by_value(
             self.sigma * tf.random.normal(
                 next_actions.shape,
-                dtype=next_actions.dtype
+                dtype=tf.float32
             ),
             -self.clip_radius,
             self.clip_radius

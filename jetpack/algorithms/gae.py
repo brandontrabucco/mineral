@@ -43,7 +43,7 @@ class GAE(Critic):
             tf.range(
                 tf.shape(observations)[1]
             )[tf.newaxis, :] < lengths[:, tf.newaxis],
-            observations.dtype
+            tf.float32
         )
         returns = tf.math.cumsum(
             rewards * thermometer[:, :(-1)] * weights

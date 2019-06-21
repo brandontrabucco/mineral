@@ -5,6 +5,17 @@ import numpy as np
 import tensorflow as tf
 
 
+def to_float(
+    *args,
+    **kwargs
+):
+    cast_function = lambda x: tf.cast(x, tf.float32)
+    return (
+        nested_apply(cast_function, args),
+        nested_apply(cast_function, kwargs)
+    )
+
+
 def flatten(
     x
 ):

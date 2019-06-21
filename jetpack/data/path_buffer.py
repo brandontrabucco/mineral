@@ -72,10 +72,10 @@ class PathBuffer(Buffer, ABC):
                 if self.size == 0:
                     def create(x): 
                         return np.zeros([
-                            self.max_size, 
+                            self.max_size,
                             self.max_path_length,
-                            *x.shape
-                        ])
+                            *x.shape], dtype=np.float32
+                        )
                     self.observations = jp.nested_apply(
                         create,
                         observation

@@ -24,5 +24,5 @@ class DenseQF(DenseMLP, QF):
             tf.concat([
                 observations,
                 actions
-            ], 1)
+            ], -1)
         )

@@ -39,12 +39,12 @@ class QR(Critic):
         )
         thermometer = tf.cast(
             tf.range(
-                tf.shape(observations)[1]
+                tf.shape(observations)[1] - 1
             )[tf.newaxis, :] < lengths[:, tf.newaxis],
-            observations.dtype
+            tf.float32
         )
         returns = tf.math.cumsum(
-            rewards * thermometer[:, :(-1)] * weights
+            rewards * thermometer * weights
         ) / weights
         with tf.GradientTape() as qf_tape:
             qvalues = self.qf.get_qvalues(
