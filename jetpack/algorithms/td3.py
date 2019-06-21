@@ -67,9 +67,18 @@ class TD3(Base):
             next_target_qvalues2
         )
         if self.monitor is not None:
-            self.monitor.record("next_target_qvalues1_mean", tf.reduce_mean(next_target_qvalues1))
-            self.monitor.record("next_target_qvalues2_mean", tf.reduce_mean(next_target_qvalues2))
-            self.monitor.record("minimum_qvalues_mean", tf.reduce_mean(minimum_qvalues))
+            self.monitor.record(
+                "next_target_qvalues1_mean",
+                tf.reduce_mean(next_target_qvalues1)
+            )
+            self.monitor.record(
+                "next_target_qvalues2_mean",
+                tf.reduce_mean(next_target_qvalues2)
+            )
+            self.monitor.record(
+                "minimum_qvalues_mean",
+                tf.reduce_mean(minimum_qvalues)
+            )
         return rewards + (self.gamma * minimum_qvalues)
 
     def update_qf1(
@@ -94,8 +103,14 @@ class TD3(Base):
                 tape_qf1
             )
             if self.monitor is not None:
-                self.monitor.record("loss_qf1", loss_qf1)
-                self.monitor.record("qvalues1_mean", tf.reduce_mean(qvalues1))
+                self.monitor.record(
+                    "loss_qf1",
+                    loss_qf1
+                )
+                self.monitor.record(
+                    "qvalues1_mean",
+                    tf.reduce_mean(qvalues1)
+                )
 
     def update_qf2(
         self,
@@ -119,8 +134,14 @@ class TD3(Base):
                 tape_qf2
             )
             if self.monitor is not None:
-                self.monitor.record("loss_qf2", loss_qf2)
-                self.monitor.record("qvalues2_mean", tf.reduce_mean(qvalues2))
+                self.monitor.record(
+                    "loss_qf2",
+                    loss_qf2
+                )
+                self.monitor.record(
+                    "qvalues2_mean",
+                    tf.reduce_mean(qvalues2)
+                )
 
     def update_policy(
         self,
@@ -146,9 +167,18 @@ class TD3(Base):
                 tape_policy
             )
             if self.monitor is not None:
-                self.monitor.record("loss_policy", loss_policy)
-                self.monitor.record("policy_qvalues1_mean", tf.reduce_mean(policy_qvalues1))
-                self.monitor.record("policy_qvalues2_mean", tf.reduce_mean(policy_qvalues2))
+                self.monitor.record(
+                    "loss_policy",
+                    loss_policy
+                )
+                self.monitor.record(
+                    "policy_qvalues1_mean",
+                    tf.reduce_mean(policy_qvalues1)
+                )
+                self.monitor.record(
+                    "policy_qvalues2_mean",
+                    tf.reduce_mean(policy_qvalues2)
+                )
 
     def gradient_update(
         self, 
@@ -165,8 +195,14 @@ class TD3(Base):
             next_observations
         )
         if self.monitor is not None:
-            self.monitor.record("rewards_mean", tf.reduce_mean(rewards))
-            self.monitor.record("target_values_mean", tf.reduce_mean(target_values))
+            self.monitor.record(
+                "rewards_mean",
+                tf.reduce_mean(rewards)
+            )
+            self.monitor.record(
+                "target_values_mean",
+                tf.reduce_mean(target_values)
+            )
         self.update_qf1(
             observations, 
             actions,
