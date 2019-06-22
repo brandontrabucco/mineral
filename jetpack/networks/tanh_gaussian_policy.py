@@ -50,13 +50,19 @@ class TanhGaussianPolicy(DenseMLP, Policy):
         observations,
         actions
     ):
-        mean, std = tf.split(self(observations), 2, axis=-1)
+        mean, std = tf.split(
+            self(observations),
+            2,
+            axis=-1
+        )
+        std = tf.math.softplus(std)
+        actions = tf.clip_by_value(actions, -0.999, 0.999)
         correction = tf.reduce_sum(
             tf.math.log(1.0 - tf.math.square(actions)),
             axis=-1
         )
         return -1.0 * (
             tf.losses.mean_squared_error(
-                actions / std,
+                tf.math.atanh(actions) / std,
                 mean / std
             ) + correction)

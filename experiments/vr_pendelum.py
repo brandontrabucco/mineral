@@ -4,7 +4,7 @@
 import gym
 from jetpack.networks.dense_policy import DensePolicy
 from jetpack.networks.dense_vf import DenseVF
-from jetpack.wrappers.proxy_env import ProxyEnv
+from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.vr import VR
 from jetpack.core.local_trainer import LocalTrainer
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = ProxyEnv(
+    env = NormalizedEnv(
         gym.make("Pendulum-v0")
     )
 

@@ -2,8 +2,8 @@
 
 
 import gym
-from jetpack.networks.dense_policy import DensePolicy
-from jetpack.wrappers.proxy_env import ProxyEnv
+from jetpack.networks.tanh_gaussian_policy import TanhGaussianPolicy
+from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.vpg import VPG
 from jetpack.core.local_trainer import LocalTrainer
@@ -14,13 +14,13 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = ProxyEnv(
+    env = NormalizedEnv(
         gym.make("Pendulum-v0")
     )
 
-    policy = DensePolicy(
-        [32, 32, 1],
-        lr=0.0001
+    policy = TanhGaussianPolicy(
+        [32, 32, 2],
+        lr=0.01
     )
 
     buffer = OnPolicyBuffer(

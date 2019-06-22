@@ -61,6 +61,7 @@ class PathBuffer(Buffer, ABC):
                         np.array([[self.head, j - 1]])
                     ], 0)
                     self.seen[self.head, j - 1] = 1
+
                 action = self.policy.get_stochastic_actions(
                     self.selector(observation)[np.newaxis, ...]
                 ).numpy()[0, ...]
@@ -70,7 +71,7 @@ class PathBuffer(Buffer, ABC):
                 if render:
                     self.env.render(**render_kwargs)
                 if self.size == 0:
-                    def create(x): 
+                    def create(x):
                         return np.zeros([
                             self.max_size,
                             self.max_path_length,
@@ -88,6 +89,7 @@ class PathBuffer(Buffer, ABC):
                         create,
                         reward
                     )
+
                 def put(x, y):
                     x[self.head, j, ...] = y
                 jp.nested_apply(

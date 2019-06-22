@@ -48,7 +48,11 @@ class GaussianPolicy(DenseMLP, Policy):
         observations,
         actions
     ):
-        mean, std = tf.split(self(observations), 2, axis=-1)
+        mean, std = tf.split(
+            self(observations),
+            2,
+            axis=-1
+        )
         std = tf.math.softplus(std)
         return -1.0 * tf.losses.mean_squared_error(
             actions / std,

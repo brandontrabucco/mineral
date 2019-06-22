@@ -4,7 +4,6 @@
 import numpy as np
 import jetpack as jp
 from gym import Env
-from gym.spaces import Box
 
 
 class ProxyEnv(Env):
@@ -16,8 +15,7 @@ class ProxyEnv(Env):
     ):
         self.wrapped_env = wrapped_env
         self.observation_space = self.wrapped_env.observation_space
-        ub = np.ones(self.wrapped_env.action_space.shape)
-        self.action_space = Box(-1 * ub, ub)
+        self.action_space = self.wrapped_env.action_space.shape
         self.reward_scale = reward_scale
 
     def reset(
@@ -33,18 +31,11 @@ class ProxyEnv(Env):
         self, 
         action
     ):
-        lower_bound = self.wrapped_env.action_space.low
-        upper_bound = self.wrapped_env.action_space.high
-        scaled_action = np.clip(
-            lower_bound + (action + 1.0) * 0.5 * (upper_bound - lower_bound),
-            lower_bound,
-            upper_bound
-        )
         observation, reward, done, info = self.wrapped_env.step(
-            scaled_action
+            action
         )
         observation = jp.nested_apply(
-            (lambda x: np.array(x, dtype=np.float32)),
+            lambda x: np.array(x, dtype=np.float32),
             observation
         )
         reward = self.reward_scale * np.array(
@@ -62,12 +53,6 @@ class ProxyEnv(Env):
             *args, 
             **kwargs
         )
-
-    def terminate(
-        self
-    ):
-        if hasattr(self.wrapped_env, "terminate"):
-            self.wrapped_env.terminate()
 
     def __getattr__(
         self, 

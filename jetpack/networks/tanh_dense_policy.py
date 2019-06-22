@@ -6,7 +6,7 @@ from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
 
-class DensePolicy(DenseMLP, Policy):
+class TanhDensePolicy(DenseMLP, Policy):
 
     def __init__(
         self,
@@ -22,16 +22,18 @@ class DensePolicy(DenseMLP, Policy):
         observations
     ):
         mean = self(observations)
-        return mean + self.sigma * tf.random.normal(
-            mean.shape,
-            dtype=tf.float32
+        return tf.math.tanh(
+            mean + self.sigma * tf.random.normal(
+                mean.shape,
+                dtype=tf.float32
+            )
         )
 
     def get_deterministic_actions(
         self,
         observations
     ):
-        return self(observations)
+        return tf.math.tanh(self(observations))
 
     def get_probs(
         self,
@@ -49,7 +51,12 @@ class DensePolicy(DenseMLP, Policy):
         actions
     ):
         mean = self(observations)
-        return -1.0 * tf.losses.mean_squared_error(
-            actions,
-            mean
+        actions = tf.clip_by_value(actions, -0.999, 0.999)
+        correction = tf.reduce_sum(
+            tf.math.log(1.0 - tf.math.square(actions)),
+            axis=-1
         )
+        return -1.0 * (tf.losses.mean_squared_error(
+            tf.math.atanh(actions) / self.sigma,
+            mean / self.sigma
+        ) + correction)
