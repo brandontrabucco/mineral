@@ -37,14 +37,14 @@ class LocalTrainer(Trainer):
         self
     ):
         self.buffer.reset(self.max_size, self.max_path_length)
-        self.buffer.explore(self.num_warm_up_paths, False, {})
+        self.buffer.explore(self.num_warm_up_paths)
 
         for i in range(self.num_steps):
-            expl_r = self.buffer.explore(self.num_paths_to_collect, False, {})
+            expl_r = self.buffer.explore(self.num_paths_to_collect)
             if self.monitor is not None:
                 self.monitor.record("exploration_return", expl_r)
 
-            eval_r = self.buffer.evaluate(self.num_paths_to_collect, False, {})
+            eval_r = self.buffer.evaluate(self.num_paths_to_collect)
             if self.monitor is not None:
                 self.monitor.record("evaluation_return", eval_r)
 

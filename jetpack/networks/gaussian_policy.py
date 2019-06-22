@@ -6,41 +6,32 @@ from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
 
-class DensePolicy(DenseMLP, Policy):
+class GaussianPolicy(DenseMLP, Policy):
 
     def __init__(
         self,
         hidden_sizes,
-        mean=0.0,
-        stddev=1.0,
-        lower_bound=(-2.0),
-        upper_bound=2.0,
         **kwargs
     ):
         DenseMLP.__init__(self, hidden_sizes, **kwargs)
-        self.mean = mean
-        self.stddev = stddev
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
 
     def get_stochastic_actions(
         self,
         observations
     ):
-        mean = self(observations)
-        return mean + tf.clip_by_value(
-            self.mean + self.stddev * tf.random.normal(
-                mean.shape,
-                dtype=tf.float32
-            ),
-            self.lower_bound,
-            self.upper_bound)
+        mean, std = tf.split(self(observations), 2, axis=-1)
+        std = tf.math.softplus(std)
+        return mean + std * tf.random.normal(
+            mean.shape,
+            dtype=tf.float32
+        )
 
     def get_deterministic_actions(
         self,
         observations
     ):
-        return self(observations)
+        mean, std = tf.split(self(observations), 2, axis=-1)
+        return mean
 
     def get_probs(
         self,
@@ -57,7 +48,9 @@ class DensePolicy(DenseMLP, Policy):
         observations,
         actions
     ):
+        mean, std = tf.split(self(observations), 2, axis=-1)
+        std = tf.math.softplus(std)
         return -1.0 * tf.losses.mean_squared_error(
-            actions,
-            self(observations)
+            actions / std,
+            mean / std
         )

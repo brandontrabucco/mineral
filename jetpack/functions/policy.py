@@ -19,3 +19,19 @@ class Policy(ABC):
         observations
     ):
         return NotImplemented
+
+    @abstractmethod
+    def get_probs(
+        self,
+        observations,
+        actions
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def get_log_probs(
+        self,
+        observations,
+        actions
+    ):
+        return NotImplemented

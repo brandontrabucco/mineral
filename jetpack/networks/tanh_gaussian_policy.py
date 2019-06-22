@@ -6,41 +6,34 @@ from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
 
-class DensePolicy(DenseMLP, Policy):
+class TanhGaussianPolicy(DenseMLP, Policy):
 
     def __init__(
         self,
         hidden_sizes,
-        mean=0.0,
-        stddev=1.0,
-        lower_bound=(-2.0),
-        upper_bound=2.0,
         **kwargs
     ):
         DenseMLP.__init__(self, hidden_sizes, **kwargs)
-        self.mean = mean
-        self.stddev = stddev
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
 
     def get_stochastic_actions(
         self,
         observations
     ):
-        mean = self(observations)
-        return mean + tf.clip_by_value(
-            self.mean + self.stddev * tf.random.normal(
+        mean, std = tf.split(self(observations), 2, axis=-1)
+        std = tf.math.softplus(std)
+        return tf.math.tanh(
+            mean + std * tf.random.normal(
                 mean.shape,
                 dtype=tf.float32
-            ),
-            self.lower_bound,
-            self.upper_bound)
+            )
+        )
 
     def get_deterministic_actions(
         self,
         observations
     ):
-        return self(observations)
+        mean, std = tf.split(self(observations), 2, axis=-1)
+        return tf.math.tanh(mean)
 
     def get_probs(
         self,
@@ -57,7 +50,13 @@ class DensePolicy(DenseMLP, Policy):
         observations,
         actions
     ):
-        return -1.0 * tf.losses.mean_squared_error(
-            actions,
-            self(observations)
+        mean, std = tf.split(self(observations), 2, axis=-1)
+        correction = tf.reduce_sum(
+            tf.math.log(1.0 - tf.math.square(actions)),
+            axis=-1
         )
+        return -1.0 * (
+            tf.losses.mean_squared_error(
+                actions / std,
+                mean / std
+            ) + correction)

@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [32, 32, 1],
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     buffer = OnPolicyBuffer(
@@ -59,4 +59,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, True, {})
+        buffer.evaluate(1, render=True)

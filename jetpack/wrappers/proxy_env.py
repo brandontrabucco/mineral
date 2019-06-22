@@ -2,33 +2,55 @@
 
 
 import numpy as np
+import jetpack as jp
 from gym import Env
+from gym.spaces import Box
 
 
 class ProxyEnv(Env):
 
     def __init__(
         self, 
-        wrapped_env
+        wrapped_env,
+        reward_scale=1.0
     ):
         self.wrapped_env = wrapped_env
-        self.action_space = self.wrapped_env.action_space
         self.observation_space = self.wrapped_env.observation_space
+        ub = np.ones(self.wrapped_env.action_space.shape)
+        self.action_space = Box(-1 * ub, ub)
+        self.reward_scale = reward_scale
 
     def reset(
         self, 
         **kwargs
     ):
-        return self.wrapped_env.reset(**kwargs)
+        return jp.nested_apply(
+            (lambda x: np.array(x, dtype=np.float32)),
+            self.wrapped_env.reset(**kwargs)
+        )
 
     def step(
         self, 
         action
     ):
-        observation, reward, done, info = self.wrapped_env.step(
-            action
+        lower_bound = self.wrapped_env.action_space.low
+        upper_bound = self.wrapped_env.action_space.high
+        scaled_action = np.clip(
+            lower_bound + (action + 1.0) * 0.5 * (upper_bound - lower_bound),
+            lower_bound,
+            upper_bound
         )
-        reward = np.array(reward)
+        observation, reward, done, info = self.wrapped_env.step(
+            scaled_action
+        )
+        observation = jp.nested_apply(
+            (lambda x: np.array(x, dtype=np.float32)),
+            observation
+        )
+        reward = self.reward_scale * np.array(
+            reward,
+            dtype=np.float32
+        )
         return observation, reward, done, info
 
     def render(

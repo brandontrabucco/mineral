@@ -22,37 +22,37 @@ if __name__ == "__main__":
     policy = DensePolicy(
         [6, 6, 1],
         tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     qf1 = DenseQF(
         [6, 6, 1],
         tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     qf2 = DenseQF(
         [6, 6, 1],
         tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     target_policy = DensePolicy(
         [6, 6, 1],
         tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     target_qf1 = DenseQF(
         [6, 6, 1],
         tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     target_qf2 = DenseQF(
         [6, 6, 1],
         tau=1e-2,
-        optimizer_kwargs={"lr": 0.0001}
+        lr=0.0001
     )
 
     buffer = OffPolicyBuffer(
@@ -99,4 +99,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, True, {})
+        buffer.evaluate(1, render=True)

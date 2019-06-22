@@ -26,8 +26,8 @@ class Buffer(ABC):
     def explore(
         self,
         num_paths_to_collect,
-        render,
-        render_kwargs
+        render=False,
+        **render_kwargs
     ):
         return NotImplemented
 
@@ -35,8 +35,8 @@ class Buffer(ABC):
     def evaluate(
         self,
         num_paths_to_collect,
-        render,
-        render_kwargs
+        render=False,
+        **render_kwargs
     ):
         return NotImplemented
 

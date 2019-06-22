@@ -11,7 +11,7 @@ class MLP(tf.keras.models.Model, ABC):
         self,
         tau=1e-3,
         optimizer=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.000001}
+        **optimizer_kwargs
     ):
         super(MLP, self).__init__()
         self.tau = tau

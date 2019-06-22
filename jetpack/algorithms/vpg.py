@@ -17,7 +17,6 @@ class VPG(Base):
         self.gamma = gamma
         self.iteration = 0
         self.monitor = monitor
-        self.get_loss_policy = tf.keras.losses.MeanSquaredError()
 
     def gradient_update(
         self, 
@@ -57,14 +56,10 @@ class VPG(Base):
                 tf.reduce_mean(returns)
             )
         with tf.GradientTape() as tape_policy:
-            means = self.policy.get_deterministic_actions(
-                observations
-            )[:, :(-1), :]
             loss_policy = tf.reduce_mean(
-                self.get_loss_policy(
-                    actions,
-                    means,
-                    sample_weight=returns[:, :, tf.newaxis]
+                returns * self.policy.get_log_probs(
+                    observations[:, :(-1), :],
+                    actions
                 )
             )
             self.policy.minimize(
