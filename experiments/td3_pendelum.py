@@ -2,7 +2,7 @@
 
 
 import gym
-from jetpack.networks.dense_policy import DensePolicy
+from jetpack.networks.policies.dense_policy import DensePolicy
 from jetpack.networks.dense_qf import DenseQF
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer

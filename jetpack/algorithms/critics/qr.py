@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.critic import Critic
+from jetpack.algorithms.critics.critic import Critic
 
 
 class QR(Critic):

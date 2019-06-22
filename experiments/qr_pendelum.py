@@ -2,11 +2,11 @@
 
 
 import gym
-from jetpack.networks.dense_policy import DensePolicy
+from jetpack.networks.policies.dense_policy import DensePolicy
 from jetpack.networks.dense_qf import DenseQF
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
-from jetpack.algorithms.qr import QR
+from jetpack.algorithms.critics.qr import QR
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
