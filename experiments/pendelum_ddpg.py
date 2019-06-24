@@ -8,7 +8,6 @@ from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.ddpg import DDPG
 from jetpack.algorithms.critics.q_learning import QLearning
-from jetpack.algorithms.critics.twin_delayed_q_learning import TwinDelayedQLearning
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -27,13 +26,7 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    qf1 = DenseQFunction(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
-    )
-
-    qf2 = DenseQFunction(
+    qf = DenseQFunction(
         [6, 6, 1],
         tau=1e-2,
         lr=0.0001
@@ -45,13 +38,7 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    target_qf1 = DenseQFunction(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
-    )
-
-    target_qf2 = DenseQFunction(
+    target_qf = DenseQFunction(
         [6, 6, 1],
         tau=1e-2,
         lr=0.0001
@@ -67,35 +54,19 @@ if __name__ == "__main__":
     gamma = 0.99
     actor_delay = 10
 
-    q_backup1 = QLearning(
-        qf1,
+    q_backup = QLearning(
+        qf,
         target_policy,
-        target_qf1,
+        target_qf,
         gamma=gamma,
         clip_radius=clip_radius,
         sigma=sigma,
-        monitor=monitor,
-    )
-
-    q_backup2 = QLearning(
-        qf2,
-        target_policy,
-        target_qf2,
-        gamma=gamma,
-        clip_radius=clip_radius,
-        sigma=sigma,
-        monitor=monitor,
-    )
-
-    twin_delayed_q_backup = TwinDelayedQLearning(
-        q_backup1,
-        q_backup2,
         monitor=monitor,
     )
 
     algorithm = DDPG(
         policy,
-        twin_delayed_q_backup,
+        q_backup,
         target_policy,
         actor_delay=actor_delay,
         monitor=None,

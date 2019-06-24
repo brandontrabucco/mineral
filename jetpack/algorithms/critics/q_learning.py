@@ -27,6 +27,16 @@ class QLearning(Critic):
         self.monitor = monitor
         target_qf.set_weights(qf.get_weights())
 
+    def get_qvalues(
+        self,
+        observations,
+        actions
+    ):
+        return self.qf.get_qvalues(
+            observations,
+            actions
+        )
+
     def get_target_values(
         self,
         rewards,
@@ -48,27 +58,28 @@ class QLearning(Critic):
             next_observations,
             noisy_next_actions
         )
+        target_values = rewards + (self.gamma * next_target_qvalues)
         if self.monitor is not None:
+            self.monitor.record(
+                "rewards_mean",
+                tf.reduce_mean(rewards)
+            )
             self.monitor.record(
                 "next_target_qvalues_mean",
                 tf.reduce_mean(next_target_qvalues)
             )
-        return rewards + (self.gamma * next_target_qvalues)
+            self.monitor.record(
+                "targets_mean",
+                tf.reduce_mean(target_values)
+            )
+        return target_values
 
-    def gradient_update(
-        self, 
+    def update_qf(
+        self,
         observations,
         actions,
-        rewards,
-        next_observations
+        target_values
     ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
-        target_values = self.get_target_values(
-            rewards,
-            next_observations
-        )
         with tf.GradientTape() as tape_qf:
             qvalues = self.qf.get_qvalues(
                 observations,
@@ -93,10 +104,36 @@ class QLearning(Critic):
                     "qvalues_mean",
                     tf.reduce_mean(qvalues)
                 )
-            self.target_qf.soft_update(
-                self.qf.get_weights()
-            )
             return qvalues
+
+    def soft_update(
+        self
+    ):
+        self.target_qf.soft_update(
+            self.qf.get_weights()
+        )
+
+    def gradient_update(
+        self, 
+        observations,
+        actions,
+        rewards,
+        next_observations
+    ):
+        if self.monitor is not None:
+            self.monitor.set_step(self.iteration)
+        self.iteration += 1
+        target_values = self.get_target_values(
+            rewards,
+            next_observations
+        )
+        qvalues = self.update_qf(
+            observations,
+            actions,
+            target_values
+        )
+        self.soft_update()
+        return qvalues
 
     def gradient_update_return_weights(
         self,
@@ -111,4 +148,3 @@ class QLearning(Critic):
             rewards,
             next_observations
         )
-

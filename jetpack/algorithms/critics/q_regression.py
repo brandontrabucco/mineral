@@ -18,6 +18,16 @@ class QRegression(Critic):
         self.iteration = 0
         self.monitor = monitor
 
+    def get_qvalues(
+        self,
+        observations,
+        actions
+    ):
+        return self.qf.get_qvalues(
+            observations,
+            actions
+        )
+
     def gradient_update(
         self, 
         observations,

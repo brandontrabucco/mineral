@@ -2,10 +2,10 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.critics.critic import Critic
+from jetpack.algorithms.critics.q_learning import QLearning
 
 
-class TwinDelayedQBackup(Critic):
+class TwinDelayedQLearning(QLearning):
 
     def __init__(
         self,
@@ -15,9 +15,23 @@ class TwinDelayedQBackup(Critic):
     ):
         self.q_backup1 = q_backup1
         self.q_backup2 = q_backup2
-        self.qf = q_backup1.qf
         self.iteration = 0
         self.monitor = monitor
+
+    def get_qvalues(
+        self,
+        observations,
+        actions
+    ):
+        qvalues1 = self.q_backup1.get_qvalues(
+            observations,
+            actions,
+        )
+        qvalues2 = self.q_backup2.get_qvalues(
+            observations,
+            actions,
+        )
+        return tf.reduce_mean(qvalues1, qvalues2)
 
     def get_target_values(
         self,
@@ -34,29 +48,12 @@ class TwinDelayedQBackup(Critic):
         )
         return tf.minimum(target_values1, target_values2)
 
-    def gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            next_observations
+    def update_qf(
+        self,
+        observations,
+        actions,
+        target_values
     ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
-        target_values = self.get_target_values(
-            rewards,
-            next_observations
-        )
-        if self.monitor is not None:
-            self.monitor.record(
-                "rewards_mean",
-                tf.reduce_mean(rewards)
-            )
-            self.monitor.record(
-                "target_values_mean",
-                tf.reduce_mean(target_values)
-            )
         qvalues1 = self.q_backup1.update_qf(
             observations,
             actions,
@@ -67,13 +64,17 @@ class TwinDelayedQBackup(Critic):
             actions,
             target_values
         )
+        return qvalues1, qvalues2
+
+    def soft_update(
+        self
+    ):
         self.q_backup1.target_qf.soft_update(
             self.q_backup1.qf.get_weights()
         )
         self.q_backup2.target_qf.soft_update(
             self.q_backup2.qf.get_weights()
         )
-        return qvalues1, qvalues2
 
     def gradient_update_return_weights(
         self,

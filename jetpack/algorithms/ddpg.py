@@ -31,7 +31,7 @@ class DDPG(Base):
             policy_actions = self.policy.get_deterministic_actions(
                 observations
             )
-            policy_qvalues = self.q_backup.qf.get_qvalues(
+            policy_qvalues = self.q_backup.get_qvalues(
                 observations,
                 policy_actions
             )

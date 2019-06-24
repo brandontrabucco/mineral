@@ -29,29 +29,29 @@ class ValueLearning(Critic):
         next_target_values = self.target_vf.get_qvalues(
             next_observations
         )
+        target_values = rewards + (self.gamma * next_target_values)
         if self.monitor is not None:
+            self.monitor.record(
+                "rewards_mean",
+                tf.reduce_mean(rewards)
+            )
             self.monitor.record(
                 "next_target_values_mean",
                 tf.reduce_mean(next_target_values)
             )
-        return rewards + (self.gamma * next_target_values)
+            self.monitor.record(
+                "targets_mean",
+                tf.reduce_mean(target_values)
+            )
+        return target_values
 
-    def gradient_update(
-        self, 
+    def update_vf(
+        self,
         observations,
-        actions,
-        rewards,
-        next_observations
+        target_values
     ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
-        target_values = self.get_target_values(
-            rewards,
-            next_observations
-        )
         with tf.GradientTape() as tape_vf:
-            values = self.vf.get_values(
+            values = self.vf.get_qvalues(
                 observations
             )
             loss_vf = tf.reduce_mean(
@@ -73,9 +73,34 @@ class ValueLearning(Critic):
                     "values_mean",
                     tf.reduce_mean(values)
                 )
-            self.target_vf.soft_update(
-                self.vf.get_weights()
-            )
+            return values
+
+    def soft_update(
+        self
+    ):
+        self.target_vf.soft_update(
+            self.vf.get_weights()
+        )
+
+    def gradient_update(
+        self, 
+        observations,
+        actions,
+        rewards,
+        next_observations
+    ):
+        if self.monitor is not None:
+            self.monitor.set_step(self.iteration)
+        self.iteration += 1
+        target_values = self.get_target_values(
+            rewards,
+            next_observations
+        )
+        self.update_vf(
+            observations,
+            target_values
+        )
+        self.soft_update()
 
     def gradient_update_return_weights(
         self,

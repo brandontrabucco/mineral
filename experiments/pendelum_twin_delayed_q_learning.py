@@ -6,7 +6,6 @@ from jetpack.networks.policies.dense_policy import DensePolicy
 from jetpack.networks.dense_q_function import DenseQFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
-from jetpack.algorithms.ddpg import DDPG
 from jetpack.algorithms.critics.q_learning import QLearning
 from jetpack.algorithms.critics.twin_delayed_q_learning import TwinDelayedQLearning
 from jetpack.core.local_trainer import LocalTrainer
@@ -87,18 +86,15 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    twin_delayed_q_backup = TwinDelayedQLearning(
+    algorithm = TwinDelayedQLearning(
         q_backup1,
         q_backup2,
         monitor=monitor,
     )
 
-    algorithm = DDPG(
-        policy,
-        twin_delayed_q_backup,
-        target_policy,
-        actor_delay=actor_delay,
-        monitor=None,
+    buffer = OffPolicyBuffer(
+        env,
+        policy
     )
     
     max_size = 1000
