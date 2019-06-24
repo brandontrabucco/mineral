@@ -6,7 +6,7 @@ from jetpack.networks.policies.dense_policy import DensePolicy
 from jetpack.networks.dense_vf import DenseVF
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
-from jetpack.algorithms.critics.vr import VR
+from jetpack.algorithms.critics.value_regression import ValueRegression
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         policy
     )
 
-    algorithm = VR(
+    algorithm = ValueRegression(
         vf,
         gamma=0.99,
         monitor=monitor

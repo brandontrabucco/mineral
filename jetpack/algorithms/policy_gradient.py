@@ -5,7 +5,7 @@ import tensorflow as tf
 from jetpack.algorithms.base import Base
 
 
-class VPG(Base):
+class PolicyGradient(Base):
 
     def __init__(
         self,

@@ -5,7 +5,7 @@ import gym
 from jetpack.networks.policies.tanh_gaussian_policy import TanhGaussianPolicy
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
-from jetpack.algorithms.vpg import VPG
+from jetpack.algorithms.policy_gradient import PolicyGradient
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         policy
     )
 
-    algorithm = VPG(
+    algorithm = PolicyGradient(
         policy,
         gamma=0.99,
         monitor=monitor
