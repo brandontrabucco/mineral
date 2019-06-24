@@ -2,10 +2,10 @@
 
 
 from jetpack.networks.dense_mlp import DenseMLP
-from jetpack.functions.vf import VF
+from jetpack.functions.value_function import ValueFunction
 
 
-class DenseVF(DenseMLP, VF):
+class DenseValueFunction(DenseMLP, ValueFunction):
 
     def __init__(
         self,

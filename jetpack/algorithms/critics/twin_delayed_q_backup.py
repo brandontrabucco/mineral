@@ -15,6 +15,7 @@ class TwinDelayedQBackup(Critic):
     ):
         self.q_backup1 = q_backup1
         self.q_backup2 = q_backup2
+        self.qf = q_backup1.qf
         self.iteration = 0
         self.monitor = monitor
 

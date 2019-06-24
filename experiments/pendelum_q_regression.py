@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.policies.dense_policy import DensePolicy
-from jetpack.networks.dense_qf import DenseQF
+from jetpack.networks.dense_q_function import DenseQFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.critics.q_regression import QRegression
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    qf = DenseQF(
+    qf = DenseQFunction(
         [6, 6, 1],
         lr=0.0001
     )

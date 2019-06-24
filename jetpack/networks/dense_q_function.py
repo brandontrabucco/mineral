@@ -3,10 +3,10 @@
 
 import tensorflow as tf
 from jetpack.networks.dense_mlp import DenseMLP
-from jetpack.functions.qf import QF
+from jetpack.functions.q_function import QFunction
 
 
-class DenseQF(DenseMLP, QF):
+class DenseQFunction(DenseMLP, QFunction):
 
     def __init__(
         self,

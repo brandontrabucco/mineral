@@ -3,10 +3,10 @@
 
 import gym
 from jetpack.networks.policies.dense_policy import DensePolicy
-from jetpack.networks.dense_qf import DenseQF
+from jetpack.networks.dense_value_function import DenseValueFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
-from jetpack.data.off_policy_buffer import OffPolicyBuffer
-from jetpack.algorithms.td3 import TD3
+from jetpack.data.on_policy_buffer import OnPolicyBuffer
+from jetpack.algorithms.critics.value_regression import ValueRegression
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -21,56 +21,22 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [6, 6, 1],
-        tau=1e-2,
         lr=0.0001
     )
 
-    qf1 = DenseQF(
+    vf = DenseValueFunction(
         [6, 6, 1],
-        tau=1e-2,
         lr=0.0001
     )
 
-    qf2 = DenseQF(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
-    )
-
-    target_policy = DensePolicy(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
-    )
-
-    target_qf1 = DenseQF(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
-    )
-
-    target_qf2 = DenseQF(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
-    )
-
-    buffer = OffPolicyBuffer(
+    buffer = OnPolicyBuffer(
         env,
         policy
     )
 
-    algorithm = TD3(
-        policy,
-        qf1,
-        qf2,
-        target_policy,
-        target_qf1,
-        target_qf2,
-        clip_radius=0.2,
-        sigma=0.1,
+    algorithm = ValueRegression(
+        vf,
         gamma=0.99,
-        actor_delay=10,
         monitor=monitor
     )
     

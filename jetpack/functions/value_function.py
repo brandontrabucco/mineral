@@ -4,12 +4,11 @@
 from abc import ABC, abstractmethod
 
 
-class QF(ABC):
+class ValueFunction(ABC):
 
     @abstractmethod
-    def get_qvalues(
+    def get_values(
         self,
-        observations,
-        actions
+        observations
     ):
         return NotImplemented

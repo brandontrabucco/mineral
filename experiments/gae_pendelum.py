@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.policies.dense_policy import DensePolicy
-from jetpack.networks.dense_vf import DenseVF
+from jetpack.networks.dense_value_function import DenseValueFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.critics.gae import GAE
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    vf = DenseVF(
+    vf = DenseValueFunction(
         [6, 6, 1],
         lr=0.0001
     )
