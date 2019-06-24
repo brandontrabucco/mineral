@@ -5,38 +5,35 @@ import tensorflow as tf
 from jetpack.algorithms.base import Base
 
 
-class DDPG(Base):
+class ActorCritic(Base):
 
     def __init__(
         self,
         policy,
-        q_backup,
-        target_policy,
+        critic,
+        gamma=1.0,
         actor_delay=1,
         monitor=None,
     ):
         self.policy = policy
-        self.q_backup = q_backup
-        self.target_policy = target_policy
+        self.critic = critic
+        self.gamma = gamma
         self.actor_delay = actor_delay
         self.monitor = monitor
         self.iteration = 0
-        target_policy.set_weights(policy.get_weights())
 
     def update_policy(
         self,
-        observations
+        observations,
+        actions,
+        returns
     ):
         with tf.GradientTape() as tape_policy:
-            policy_actions = self.policy.get_deterministic_actions(
-                observations
-            )
-            policy_qvalues = self.q_backup.qf.get_qvalues(
-                observations,
-                policy_actions
-            )
-            loss_policy = -1.0 * (
-                tf.reduce_mean(policy_qvalues)
+            loss_policy = tf.reduce_mean(
+                returns * self.policy.get_log_probs(
+                    observations[:, :(-1), :],
+                    actions
+                )
             )
             self.policy.minimize(
                 loss_policy,
@@ -45,11 +42,7 @@ class DDPG(Base):
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
-                    loss_policy
-                )
-                self.monitor.record(
-                    "policy_qvalues_mean",
-                    tf.reduce_mean(policy_qvalues)
+                    tf.reduce_mean(loss_policy)
                 )
 
     def gradient_update(
@@ -57,21 +50,31 @@ class DDPG(Base):
         observations,
         actions,
         rewards,
-        next_observations
+        lengths
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
         self.iteration += 1
-        self.q_backup.gradient_update(
+        returns = self.critic.gradient_update_return_weights(
             observations,
             actions,
             rewards,
-            next_observations
+            lengths
         )
+        if self.monitor is not None:
+            self.monitor.record(
+                "rewards_mean",
+                tf.reduce_mean(rewards)
+            )
+            self.monitor.record(
+                "returns_mean",
+                tf.reduce_mean(returns)
+            )
         if self.iteration % self.actor_delay == 0:
             self.update_policy(
-                observations
+                observations,
+                actions,
+                returns
             )
-            self.target_policy.soft_update(
-                self.policy.get_weights()
-            )
+
+

@@ -15,8 +15,8 @@ class PolicyGradient(Base):
     ):
         self.policy = policy
         self.gamma = gamma
-        self.iteration = 0
         self.monitor = monitor
+        self.iteration = 0
 
     def gradient_update(
         self, 
