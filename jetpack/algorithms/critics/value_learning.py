@@ -24,12 +24,15 @@ class ValueLearning(Critic):
     def get_target_values(
         self,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         next_target_values = self.target_vf.get_qvalues(
             next_observations
         )
-        target_values = rewards + (self.gamma * next_target_values)
+        target_values = rewards + (
+            terminals * self.gamma * next_target_values
+        )
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
@@ -48,11 +51,13 @@ class ValueLearning(Critic):
     def update_vf(
         self,
         observations,
-        target_values
+        target_values,
+        terminals
     ):
         with tf.GradientTape() as tape_vf:
-            values = self.vf.get_qvalues(
-                observations
+            values = self.vf.get_values(
+                observations,
+                terminals
             )
             loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
@@ -87,14 +92,16 @@ class ValueLearning(Critic):
         observations,
         actions,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
         self.iteration += 1
         target_values = self.get_target_values(
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         self.update_vf(
             observations,
@@ -107,13 +114,15 @@ class ValueLearning(Critic):
         observations,
         actions,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         self.gradient_update(
             observations,
             actions,
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         next_values = self.vf.get_qvalues(
             next_observations

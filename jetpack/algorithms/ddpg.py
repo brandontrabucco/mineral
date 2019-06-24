@@ -57,7 +57,8 @@ class DDPG(Base):
         observations,
         actions,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
@@ -66,7 +67,8 @@ class DDPG(Base):
             observations,
             actions,
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         if self.iteration % self.actor_delay == 0:
             self.update_policy(

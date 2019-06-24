@@ -40,7 +40,8 @@ class QLearning(Critic):
     def get_target_values(
         self,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         next_actions = self.target_policy.get_deterministic_actions(
             next_observations
@@ -58,7 +59,9 @@ class QLearning(Critic):
             next_observations,
             noisy_next_actions
         )
-        target_values = rewards + (self.gamma * next_target_qvalues)
+        target_values = rewards + (
+            terminals * self.gamma * next_target_qvalues
+        )
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
@@ -118,14 +121,16 @@ class QLearning(Critic):
         observations,
         actions,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
         self.iteration += 1
         target_values = self.get_target_values(
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         qvalues = self.update_qf(
             observations,
@@ -140,11 +145,13 @@ class QLearning(Critic):
         observations,
         actions,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         return self.gradient_update(
             observations,
             actions,
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )

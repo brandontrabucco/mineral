@@ -36,15 +36,18 @@ class TwinDelayedQLearning(QLearning):
     def get_target_values(
         self,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         target_values1 = self.q_backup1.get_target_values(
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         target_values2 = self.q_backup2.get_target_values(
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         return tf.minimum(target_values1, target_values2)
 
@@ -81,13 +84,15 @@ class TwinDelayedQLearning(QLearning):
         observations,
         actions,
         rewards,
-        next_observations
+        next_observations,
+        terminals
     ):
         qvalues1, qvalues2 = self.gradient_update(
             observations,
             actions,
             rewards,
-            next_observations
+            next_observations,
+            terminals
         )
         return tf.reduce_mean(qvalues1, qvalues2)
 

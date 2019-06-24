@@ -38,4 +38,5 @@ class OffPolicyBuffer(PathBuffer):
                 select_next,
                 self.observations
             ),
+            (step_ind < self.tail[path_ind] - 1).astype(np.float32)
         )
