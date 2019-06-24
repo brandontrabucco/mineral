@@ -7,8 +7,8 @@ from jetpack.networks.dense_q_function import DenseQFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.ddpg import DDPG
-from jetpack.algorithms.critics.q_backup import QBackup
-from jetpack.algorithms.critics.twin_delayed_q_backup import TwinDelayedQBackup
+from jetpack.algorithms.critics.q_learning import QLearning
+from jetpack.algorithms.critics.twin_delayed_q_learning import TwinDelayedQBackup
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     gamma = 0.99
     actor_delay = 10
 
-    q_backup1 = QBackup(
+    q_backup1 = QLearning(
         qf1,
         target_policy,
         target_qf1,
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    q_backup2 = QBackup(
+    q_backup2 = QLearning(
         qf2,
         target_policy,
         target_qf2,

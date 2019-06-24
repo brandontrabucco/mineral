@@ -5,7 +5,7 @@ import tensorflow as tf
 from jetpack.algorithms.critics.critic import Critic
 
 
-class ValueBackup(Critic):
+class ValueLearning(Critic):
 
     def __init__(
         self,
