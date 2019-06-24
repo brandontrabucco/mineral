@@ -82,7 +82,7 @@ class VR(Critic):
         rewards,
         lengths
     ):
-        thermometer, values = self.gradient_update(
+        values, thermometer = self.gradient_update(
             observations,
             actions,
             rewards,
