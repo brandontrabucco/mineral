@@ -5,6 +5,16 @@ import numpy as np
 import tensorflow as tf
 
 
+def jacobian_vector_product(
+    ys,
+    xs,
+    d_xs
+):
+    v = tf.placeholder(ys.dtype, shape=tf.shape(ys.get_shape()))
+    g = tf.gradients(ys, xs, grad_ys=v)
+    return tf.gradients(g, v, grad_ys=d_xs)
+
+
 def to_float(
     *args,
     **kwargs
