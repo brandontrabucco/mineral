@@ -22,26 +22,22 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [6, 6, 1],
-        tau=1e-2,
         lr=0.0001
     )
 
     qf = DenseQFunction(
         [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
+        lr=0.001
     )
 
     target_policy = DensePolicy(
         [6, 6, 1],
         tau=1e-2,
-        lr=0.0001
     )
 
     target_qf = DenseQFunction(
         [6, 6, 1],
         tau=1e-2,
-        lr=0.0001
     )
 
     buffer = OffPolicyBuffer(

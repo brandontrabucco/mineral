@@ -2,10 +2,10 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.base import Base
+from jetpack.algorithms.policy_gradient import PolicyGradient
 
 
-class ActorCritic(Base):
+class ActorCritic(PolicyGradient):
 
     def __init__(
         self,
@@ -21,29 +21,6 @@ class ActorCritic(Base):
         self.actor_delay = actor_delay
         self.monitor = monitor
         self.iteration = 0
-
-    def update_policy(
-        self,
-        observations,
-        actions,
-        returns
-    ):
-        with tf.GradientTape() as tape_policy:
-            loss_policy = tf.reduce_mean(
-                returns * self.policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
-                )
-            )
-            self.policy.minimize(
-                loss_policy,
-                tape_policy
-            )
-            if self.monitor is not None:
-                self.monitor.record(
-                    "loss_policy",
-                    tf.reduce_mean(loss_policy)
-                )
 
     def gradient_update(
         self, 

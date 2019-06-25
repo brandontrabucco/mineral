@@ -18,6 +18,29 @@ class PolicyGradient(Base):
         self.monitor = monitor
         self.iteration = 0
 
+    def update_policy(
+        self,
+        observations,
+        actions,
+        returns
+    ):
+        with tf.GradientTape() as tape_policy:
+            loss_policy = -1.0 * tf.reduce_mean(
+                returns * self.policy.get_log_probs(
+                    observations[:, :(-1), :],
+                    actions
+                )
+            )
+            self.policy.minimize(
+                loss_policy,
+                tape_policy
+            )
+            if self.monitor is not None:
+                self.monitor.record(
+                    "loss_policy",
+                    tf.reduce_mean(loss_policy)
+                )
+
     def gradient_update(
         self, 
         observations,
@@ -55,20 +78,9 @@ class PolicyGradient(Base):
                 "returns_mean",
                 tf.reduce_mean(returns)
             )
-        with tf.GradientTape() as tape_policy:
-            loss_policy = tf.reduce_mean(
-                returns * self.policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
-                )
-            )
-            self.policy.minimize(
-                loss_policy,
-                tape_policy
-            )
-            if self.monitor is not None:
-                self.monitor.record(
-                    "loss_policy",
-                    tf.reduce_mean(loss_policy)
-                )
+        self.update_policy(
+            observations,
+            actions,
+            returns
+        )
 
