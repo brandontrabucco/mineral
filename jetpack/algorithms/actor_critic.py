@@ -15,12 +15,14 @@ class ActorCritic(PolicyGradient):
         actor_delay=1,
         monitor=None,
     ):
-        self.policy = policy
+        PolicyGradient.__init__(
+            self,
+            policy,
+            gamma=gamma,
+            monitor=monitor,
+        )
         self.critic = critic
-        self.gamma = gamma
         self.actor_delay = actor_delay
-        self.monitor = monitor
-        self.iteration = 0
 
     def gradient_update(
         self, 

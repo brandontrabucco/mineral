@@ -18,15 +18,17 @@ class PPO(ActorCritic):
         old_policy_delay=1,
         monitor=None,
     ):
-        self.policy = policy
+        ActorCritic.__init__(
+            self,
+            policy,
+            critic,
+            gamma=gamma,
+            actor_delay=actor_delay,
+            monitor=monitor,
+        )
         self.old_policy = old_policy
-        self.critic = critic
-        self.gamma = gamma
         self.epsilon = epsilon
-        self.actor_delay = actor_delay
         self.old_policy_delay = old_policy_delay
-        self.monitor = monitor
-        self.iteration = 0
 
     def update_policy(
         self,
