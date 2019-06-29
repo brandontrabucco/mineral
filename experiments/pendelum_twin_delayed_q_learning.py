@@ -2,7 +2,7 @@
 
 
 import gym
-from jetpack.networks.policies.dense_policy import DensePolicy
+from jetpack.networks.policies.mean_policy import MeanPolicy
 from jetpack.networks.dense_q_function import DenseQFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
@@ -20,7 +20,7 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = DensePolicy(
+    policy = MeanPolicy(
         [6, 6, 1],
         tau=1e-2,
         lr=0.0001
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    target_policy = DensePolicy(
+    target_policy = MeanPolicy(
         [6, 6, 1],
         tau=1e-2,
         lr=0.0001

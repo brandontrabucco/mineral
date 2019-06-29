@@ -15,14 +15,20 @@ class GaussianPolicy(DenseMLP, Policy):
     ):
         DenseMLP.__init__(self, hidden_sizes, **kwargs)
 
-    def get_stochastic_actions(
+    def get_mean_std(
         self,
         observations
     ):
         mean, std = tf.split(self(observations), 2, axis=-1)
-        std = tf.math.softplus(std)
+        return mean, tf.math.softplus(std)
+
+    def get_stochastic_actions(
+        self,
+        observations
+    ):
+        mean, std = self.get_mean_std(observations)
         return mean + std * tf.random.normal(
-            mean.shape,
+            tf.shape(mean),
             dtype=tf.float32
         )
 
@@ -30,8 +36,7 @@ class GaussianPolicy(DenseMLP, Policy):
         self,
         observations
     ):
-        mean, std = tf.split(self(observations), 2, axis=-1)
-        return mean
+        return self.get_mean_std(observations)[0]
 
     def get_probs(
         self,
@@ -48,13 +53,67 @@ class GaussianPolicy(DenseMLP, Policy):
         observations,
         actions
     ):
-        mean, std = tf.split(
-            self(observations),
-            2,
+        mean, std = self.get_mean_std(observations)
+        return -1.0 * tf.reduce_mean(
+            tf.math.square((actions - mean) / std),
             axis=-1
         )
-        std = tf.math.softplus(std)
-        return -1.0 * tf.losses.mean_squared_error(
-            actions / std,
-            mean / std
+
+    def get_kl_divergence(
+        self,
+        other_policy,
+        observations
+    ):
+        mean, std = self.get_mean_std(observations)
+        other_mean, other_std = other_policy.get_mean_std(observations)
+        std_ratio = tf.square(std / other_std)
+        return 0.5 * tf.reduce_sum(
+            std_ratio +
+            tf.square((other_mean - mean) / other_std) -
+            tf.math.log(std_ratio) -
+            tf.ones(tf.shape(mean)),
+            axis=-1
         )
+
+    def fisher_vector_product(
+        self,
+        observations,
+        y
+    ):
+        with tf.GradientTape(persistent=True) as tape_policy:
+            mean, std = self.get_mean_std(observations)
+            mean_v = tf.ones(tf.shape(mean))
+            tape_policy.watch(mean_v)
+            mean_g = tape_policy.gradient(
+                mean,
+                self.trainable_variables,
+                output_gradients=mean_v
+            )
+            std_v = tf.ones(tf.shape(std))
+            tape_policy.watch(std_v)
+            std_g = tape_policy.gradient(
+                std,
+                self.trainable_variables,
+                output_gradients=std_v
+            )
+        mean_jvp = tape_policy.gradient(
+            mean_g,
+            mean_v,
+            output_gradients=y
+        )
+        mean_fvp = tape_policy.gradient(
+            mean,
+            self.trainable_variables,
+            output_gradients=mean_jvp
+        )
+        std_jvp = 2.0 / tf.square(std) * tape_policy.gradient(
+            std_g,
+            std_v,
+            output_gradients=y
+        )
+        std_fvp = tape_policy.gradient(
+            std,
+            self.trainable_variables,
+            output_gradients=std_jvp
+        )
+        return [m + s for m, s in zip(mean_fvp, std_fvp)]

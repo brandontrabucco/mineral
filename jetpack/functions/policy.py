@@ -35,3 +35,19 @@ class Policy(ABC):
         actions
     ):
         return NotImplemented
+
+    @abstractmethod
+    def get_kl_divergence(
+        self,
+        other_policy,
+        observations
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def fisher_vector_product(
+        self,
+        other_policy,
+        observations
+    ):
+        return NotImplemented
