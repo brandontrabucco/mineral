@@ -14,7 +14,8 @@ class DenseMLP(MLP):
     ):
         MLP.__init__(self, **kwargs)
         self.hidden_layers = [
-            tf.keras.layers.Dense(size) for size in hidden_sizes
+            tf.keras.layers.Dense(size)
+            for size in hidden_sizes
         ]
 
     def call(
