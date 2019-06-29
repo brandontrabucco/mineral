@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import tensorflow as tf
 from abc import ABC, abstractmethod
 
 
@@ -20,13 +21,15 @@ class Policy(ABC):
     ):
         return NotImplemented
 
-    @abstractmethod
     def get_probs(
         self,
         observations,
         actions
     ):
-        return NotImplemented
+        return tf.exp(self.get_log_probs(
+            observations,
+            actions
+        ))
 
     @abstractmethod
     def get_log_probs(
@@ -45,17 +48,9 @@ class Policy(ABC):
         return NotImplemented
 
     @abstractmethod
-    def fisher_vector_product(
+    def naturalize(
         self,
         observations,
-        y
-    ):
-        return NotImplemented
-
-    @abstractmethod
-    def inverse_fisher_vector_product(
-        self,
-        observations,
-        g
+        y,
     ):
         return NotImplemented

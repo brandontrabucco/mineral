@@ -4,6 +4,7 @@
 import tensorflow as tf
 from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.functions.policy import Policy
+from jetpack.fisher import inverse_fisher_vector_product
 
 
 class MeanPolicy(GaussianPolicy, Policy):
@@ -24,28 +25,18 @@ class MeanPolicy(GaussianPolicy, Policy):
         mean = self(observations)
         return mean, tf.fill(tf.shape(mean), self.sigma)
 
-    def fisher_vector_product(
+    def naturalize(
         self,
         observations,
-        y
+        y,
+        tolerance=1e-3,
+        maximum_iterations=100
     ):
-        with tf.GradientTape(persistent=True) as tape_policy:
-            mean, std = self.get_mean_std(observations)
-            mean_v = tf.ones(tf.shape(mean))
-            tape_policy.watch(mean_v)
-            mean_g = tape_policy.gradient(
-                mean,
-                self.trainable_variables,
-                output_gradients=mean_v
-            )
-        mean_jvp = tape_policy.gradient(
-            mean_g,
-            mean_v,
-            output_gradients=y
-        )
-        mean_fvp = tape_policy.gradient(
-            mean,
+        return inverse_fisher_vector_product(
+            lambda: [self.get_mean_std(observations)[0]],
+            lambda mean: [tf.ones(tf.shape(mean))],
             self.trainable_variables,
-            output_gradients=mean_jvp
+            y,
+            tolerance=tolerance,
+            maximum_iterations=maximum_iterations
         )
-        return mean_fvp

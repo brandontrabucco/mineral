@@ -3,9 +3,9 @@
 
 import tensorflow as tf
 import numpy as np
-import jetpack as jp
 from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
+from jetpack.fisher import inverse_fisher_vector_product
 
 
 class GaussianPolicy(DenseMLP, Policy):
@@ -40,16 +40,6 @@ class GaussianPolicy(DenseMLP, Policy):
     ):
         return self.get_mean_std(observations)[0]
 
-    def get_probs(
-        self,
-        observations,
-        actions
-    ):
-        return tf.exp(self.get_log_probs(
-            observations,
-            actions
-        ))
-
     def get_log_probs(
         self,
         observations,
@@ -79,59 +69,17 @@ class GaussianPolicy(DenseMLP, Policy):
             axis=-1
         )
 
-    def fisher_vector_product(
-        self,
-        observations,
-        y
-    ):
-        with tf.GradientTape(persistent=True) as tape_policy:
-            mean, std = self.get_mean_std(observations)
-            mean_v = tf.ones(tf.shape(mean))
-            tape_policy.watch(mean_v)
-            mean_g = tape_policy.gradient(
-                mean,
-                self.trainable_variables,
-                output_gradients=mean_v
-            )
-            std_v = tf.ones(tf.shape(std))
-            tape_policy.watch(std_v)
-            std_g = tape_policy.gradient(
-                std,
-                self.trainable_variables,
-                output_gradients=std_v
-            )
-        mean_jvp = tape_policy.gradient(
-            mean_g,
-            mean_v,
-            output_gradients=y
-        )
-        mean_fvp = tape_policy.gradient(
-            mean,
-            self.trainable_variables,
-            output_gradients=mean_jvp
-        )
-        std_jvp = 2.0 / tf.square(std) * tape_policy.gradient(
-            std_g,
-            std_v,
-            output_gradients=y
-        )
-        std_fvp = tape_policy.gradient(
-            std,
-            self.trainable_variables,
-            output_gradients=std_jvp
-        )
-        return [m + s for m, s in zip(mean_fvp, std_fvp)]
-
-    def inverse_fisher_vector_product(
+    def naturalize(
         self,
         observations,
         y,
         tolerance=1e-3,
         maximum_iterations=100
     ):
-        return jp.conjugate_gradient(
-            lambda x: self.fisher_vector_product(observations, x),
-            y,
+        return inverse_fisher_vector_product(
+            lambda: self.get_mean_std(observations),
+            lambda mean, std: [tf.ones(tf.shape(mean)), 2.0 / tf.square(std)],
+            self.trainable_variables,
             y,
             tolerance=tolerance,
             maximum_iterations=maximum_iterations

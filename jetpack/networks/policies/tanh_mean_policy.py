@@ -27,13 +27,17 @@ class TanhMeanPolicy(TanhGaussianPolicy, Policy):
             observations
         )
 
-    def fisher_vector_product(
+    def naturalize(
         self,
         observations,
-        y
+        y,
+        tolerance=1e-3,
+        maximum_iterations=100
     ):
-        return MeanPolicy.fisher_vector_product(
+        return MeanPolicy.naturalize(
             self,
             observations,
-            y
+            y,
+            tolerance=1e-3,
+            maximum_iterations=100
         )
