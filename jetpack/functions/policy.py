@@ -47,7 +47,15 @@ class Policy(ABC):
     @abstractmethod
     def fisher_vector_product(
         self,
-        other_policy,
-        observations
+        observations,
+        y
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def inverse_fisher_vector_product(
+        self,
+        observations,
+        g
     ):
         return NotImplemented

@@ -120,3 +120,33 @@ class GaussianPolicy(DenseMLP, Policy):
             output_gradients=std_jvp
         )
         return [m + s for m, s in zip(mean_fvp, std_fvp)]
+
+    def inverse_fisher_vector_product(
+        self,
+        observations,
+        g,
+        tolerance=1e-3,
+        maximum_iterations=100
+    ):
+        x = g
+        Fx = self.fisher_vector_product(observations, x)
+        r = [gi - fi for gi, fi in zip(g, Fx)]
+        p = r
+        for i in range(maximum_iterations):
+            rTr = multiply(r, r)
+            if rTr < tolerance:
+                break
+            fvp = self.fisher_vector_product(observations, p)
+            pFp = multiply(p, fvp)
+            alpha = rTr / pFp
+            x = [xi + alpha * pi for xi, pi in zip(x, p)]
+            r = [ri - alpha * fi for ri, fi in zip(r, fvp)]
+            beta = multiply(r, r) / rTr
+            p = [ri + beta * pi for ri, pi in zip(r, p)]
+        return x
+
+
+def multiply(a, b):
+    a = tf.concat([tf.reshape(x, [-1]) for x in a], 0)
+    b = tf.concat([tf.reshape(x, [-1]) for x in b], 0)
+    return tf.reduce_sum(a * b)

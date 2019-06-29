@@ -29,17 +29,25 @@ class MLP(tf.keras.models.Model, ABC):
             )
         ])
 
+    def apply_gradients(
+        self,
+        gradients
+    ):
+        self.optimizer.apply_gradients(
+            zip(
+                gradients,
+                self.trainable_variables
+            )
+        )
+
     def minimize(
         self, 
         loss,
         gradient_tape
     ):
-        self.optimizer.apply_gradients(
-            zip(
-                gradient_tape.gradient(
-                    loss, 
-                    self.trainable_variables
-                ),
+        self.apply_gradients(
+            gradient_tape.gradient(
+                loss,
                 self.trainable_variables
             )
         )
