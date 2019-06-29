@@ -43,14 +43,12 @@ class TanhGaussianPolicy(GaussianPolicy, Policy):
         actions
     ):
         actions = tf.clip_by_value(actions, -0.999, 0.999)
-        correction = tf.reduce_sum(
+        correction = -1.0 * tf.reduce_sum(
             tf.math.log(1.0 - tf.math.square(actions)),
             axis=-1
         )
-        return -1.0 * (
-            correction + GaussianPolicy.get_log_probs(
-                self,
-                observations,
-                tf.math.atanh(actions)
-            )
+        return correction + GaussianPolicy.get_log_probs(
+            self,
+            observations,
+            tf.math.atanh(actions)
         )

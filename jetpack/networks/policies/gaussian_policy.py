@@ -2,6 +2,7 @@
 
 
 import tensorflow as tf
+import numpy as np
 from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
@@ -54,8 +55,10 @@ class GaussianPolicy(DenseMLP, Policy):
         actions
     ):
         mean, std = self.get_mean_std(observations)
-        return -1.0 * tf.reduce_mean(
-            tf.math.square((actions - mean) / std),
+        return -0.5 * tf.reduce_sum(
+            tf.math.square((actions - mean) / std) + tf.math.log(
+                tf.math.square(std) * tf.fill(tf.shape(mean), 2.0 * np.pi)
+            ),
             axis=-1
         )
 
