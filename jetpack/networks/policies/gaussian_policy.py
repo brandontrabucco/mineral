@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 import numpy as np
+import jetpack as jp
 from jetpack.networks.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
@@ -124,29 +125,14 @@ class GaussianPolicy(DenseMLP, Policy):
     def inverse_fisher_vector_product(
         self,
         observations,
-        g,
+        y,
         tolerance=1e-3,
         maximum_iterations=100
     ):
-        x = g
-        Fx = self.fisher_vector_product(observations, x)
-        r = [gi - fi for gi, fi in zip(g, Fx)]
-        p = r
-        for i in range(maximum_iterations):
-            rTr = multiply(r, r)
-            if rTr < tolerance:
-                break
-            fvp = self.fisher_vector_product(observations, p)
-            pFp = multiply(p, fvp)
-            alpha = rTr / pFp
-            x = [xi + alpha * pi for xi, pi in zip(x, p)]
-            r = [ri - alpha * fi for ri, fi in zip(r, fvp)]
-            beta = multiply(r, r) / rTr
-            p = [ri + beta * pi for ri, pi in zip(r, p)]
-        return x
-
-
-def multiply(a, b):
-    a = tf.concat([tf.reshape(x, [-1]) for x in a], 0)
-    b = tf.concat([tf.reshape(x, [-1]) for x in b], 0)
-    return tf.reduce_sum(a * b)
+        return jp.conjugate_gradient(
+            lambda x: self.fisher_vector_product(observations, x),
+            y,
+            y,
+            tolerance=tolerance,
+            maximum_iterations=maximum_iterations
+        )
