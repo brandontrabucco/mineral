@@ -33,18 +33,9 @@ class SoftValueLearning(ValueLearning):
         next_actions = self.target_policy.get_deterministic_actions(
             next_observations
         )
-        epsilon = tf.clip_by_value(
-            self.sigma * tf.random.normal(
-                next_actions.shape,
-                dtype=tf.float32
-            ),
-            -self.clip_radius,
-            self.clip_radius
-        )
-        noisy_next_actions = next_actions + epsilon
         next_target_log_probs = self.target_policy.get_log_probs(
             next_observations,
-            noisy_next_actions
+            next_actions
         )
         next_target_values = self.target_vf.get_qvalues(
             next_observations

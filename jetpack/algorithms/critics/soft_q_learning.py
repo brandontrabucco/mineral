@@ -37,6 +37,10 @@ class SoftQLearning(QLearning):
         next_actions = self.target_policy.get_deterministic_actions(
             next_observations
         )
+        next_target_log_probs = self.target_policy.get_log_probs(
+            next_observations,
+            next_actions
+        )
         epsilon = tf.clip_by_value(
             self.sigma * tf.random.normal(
                 next_actions.shape,
@@ -47,10 +51,6 @@ class SoftQLearning(QLearning):
         )
         noisy_next_actions = next_actions + epsilon
         next_target_qvalues = self.target_qf.get_qvalues(
-            next_observations,
-            noisy_next_actions
-        )
-        next_target_log_probs = self.target_policy.get_log_probs(
             next_observations,
             noisy_next_actions
         )
