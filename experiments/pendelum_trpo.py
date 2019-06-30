@@ -1,69 +1,84 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
+
 import gym
-import tensorflow as tf
 from jetpack.networks.policies.tanh_gaussian_policy import TanhGaussianPolicy
+from jetpack.networks.dense_value_function import DenseValueFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
-from jetpack.line_search import line_search
+from jetpack.data.on_policy_buffer import OnPolicyBuffer
+from jetpack.algorithms.trpo import TRPO
+from jetpack.algorithms.critics.gae import GAE
+from jetpack.core.local_trainer import LocalTrainer
+from jetpack.core.local_monitor import LocalMonitor
+
 
 if __name__ == "__main__":
+
+    monitor = LocalMonitor("./")
 
     env = NormalizedEnv(
         gym.make("Pendulum-v0")
     )
 
     policy = TanhGaussianPolicy(
-        [32, 32, 6],
+        [32, 32, 2],
+        lr=0.01
     )
 
-    observations = tf.random.normal([32, 6])
-    rewards = tf.ones([32])
-
-    actions = policy.get_stochastic_actions(
-        observations
+    old_policy = TanhGaussianPolicy(
+        [32, 32, 2],
+        lr=0.01
     )
 
-    def loss_function(
+    vf = DenseValueFunction(
+        [6, 6, 1],
+        lr=0.0001
+    )
+
+    buffer = OnPolicyBuffer(
+        env,
         policy
-    ):
-        return -1.0 * tf.reduce_mean(
-            rewards * policy.get_log_probs(
-                observations,
-                actions
-            )
-        )
+    )
 
-    delta = 0.1
+    critic = GAE(
+        vf,
+        gamma=1.0,
+        lamb=1.0,
+        monitor=monitor,
+    )
 
-    for i in range(100):
+    algorithm = TRPO(
+        policy,
+        old_policy,
+        critic,
+        gamma=0.99,
+        delta=0.2,
+        monitor=monitor
+    )
 
-        with tf.GradientTape() as tape_policy:
+    max_size = 32
+    num_warm_up_paths = 32
+    num_steps = 20000
+    num_paths_to_collect = 32
+    max_path_length = 100
+    batch_size = 32
+    num_trains_per_step = 1
 
-            loss = loss_function(policy)
+    trainer = LocalTrainer(
+        max_size,
+        num_warm_up_paths,
+        num_steps,
+        num_paths_to_collect,
+        max_path_length,
+        batch_size,
+        num_trains_per_step,
+        buffer,
+        algorithm,
+        monitor=monitor
+    )
 
-            print("expected_reward", -1.0 * loss)
+    try:
+        trainer.train()
 
-            grad = tape_policy.gradient(
-                loss,
-                policy.trainable_variables
-            )
-
-            grad, sAs = policy.naturalize(
-                observations,
-                grad
-            )
-
-            print("sAs", sAs)
-
-            grad = line_search(
-                loss_function,
-                policy,
-                grad,
-                tf.math.sqrt(delta / sAs),
-            )
-
-            policy.apply_gradients(grad)
-
-
-
-
+    except KeyboardInterrupt:
+        buffer.evaluate(1, render=True)

@@ -16,6 +16,7 @@ class TRPO(ActorCritic):
         gamma=1.0,
         delta=1.0,
         actor_delay=1,
+        old_policy_delay=1,
         monitor=None,
     ):
         ActorCritic.__init__(
@@ -28,6 +29,7 @@ class TRPO(ActorCritic):
         )
         self.old_policy = old_policy
         self.delta = delta
+        self.old_policy_delay = old_policy_delay
 
     def update_policy(
             self,
@@ -39,9 +41,11 @@ class TRPO(ActorCritic):
             def loss_function(
                 policy
             ):
-                kl = policy.get_kl_divergence(
-                    policy,
-                    self.old_policy
+                kl = tf.reduce_mean(
+                    policy.get_kl_divergence(
+                        self.old_policy,
+                        observations
+                    )
                 )
                 expected_return = tf.reduce_mean(
                     returns * policy.get_log_probs(
@@ -72,11 +76,12 @@ class TRPO(ActorCritic):
             self.policy.apply_gradients(
                 grad
             )
-            self.old_policy.set_weights(
-                self.policy.get_weights()
-            )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
                     loss_policy
                 )
+        if self.iteration % self.old_policy_delay == 0:
+            self.old_policy.soft_update(
+                self.policy.get_weights()
+            )
