@@ -36,12 +36,21 @@ class TRPO(ActorCritic):
             returns
     ):
         with tf.GradientTape() as tape_policy:
-            def loss_function(policy):
-                return -1.0 * tf.reduce_mean(
+            def loss_function(
+                policy
+            ):
+                kl = policy.get_kl_divergence(
+                    policy,
+                    self.old_policy
+                )
+                expected_return = tf.reduce_mean(
                     returns * policy.get_log_probs(
                         observations[:, :(-1), :],
                         actions
                     )
+                )
+                return -1.0 * expected_return + (
+                    0.0 if kl < self.delta else float("inf")
                 )
             loss_policy = loss_function(
                 self.policy
@@ -63,12 +72,11 @@ class TRPO(ActorCritic):
             self.policy.apply_gradients(
                 grad
             )
+            self.old_policy.set_weights(
+                self.policy.get_weights()
+            )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
                     loss_policy
-                )
-                self.monitor.record(
-                    "sAs",
-                    sAs
                 )

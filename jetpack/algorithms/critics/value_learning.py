@@ -19,7 +19,6 @@ class ValueLearning(Critic):
         self.gamma = gamma
         self.iteration = 0
         self.monitor = monitor
-        target_vf.set_weights(vf.get_weights())
 
     def get_target_values(
         self,

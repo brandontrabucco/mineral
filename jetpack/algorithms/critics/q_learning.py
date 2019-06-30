@@ -25,7 +25,6 @@ class QLearning(Critic):
         self.sigma = sigma
         self.iteration = 0
         self.monitor = monitor
-        target_qf.set_weights(qf.get_weights())
 
     def get_qvalues(
         self,

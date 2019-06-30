@@ -21,7 +21,6 @@ class DDPG(Base):
         self.actor_delay = actor_delay
         self.monitor = monitor
         self.iteration = 0
-        target_policy.set_weights(policy.get_weights())
 
     def update_policy(
         self,
