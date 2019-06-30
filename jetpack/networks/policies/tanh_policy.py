@@ -1,27 +1,24 @@
 """Author: Brandon Trabucco, Copyright 2019"""
-
+from abc import ABC
 
 import tensorflow as tf
-from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.functions.policy import Policy
 
 
-class TanhGaussianPolicy(GaussianPolicy, Policy):
+class TanhPolicy(Policy):
 
     def __init__(
         self,
-        hidden_sizes,
-        **kwargs
+        policy
     ):
-        GaussianPolicy.__init__(self, hidden_sizes, **kwargs)
+        self.policy = policy
 
     def get_stochastic_actions(
         self,
         observations
     ):
         return tf.math.tanh(
-            GaussianPolicy.get_stochastic_actions(
-                self,
+            self.policy.get_stochastic_actions(
                 observations
             )
         )
@@ -31,8 +28,7 @@ class TanhGaussianPolicy(GaussianPolicy, Policy):
         observations
     ):
         return tf.math.tanh(
-            GaussianPolicy.get_deterministic_actions(
-                self,
+            self.policy.get_deterministic_actions(
                 observations
             )
         )
@@ -47,8 +43,23 @@ class TanhGaussianPolicy(GaussianPolicy, Policy):
             tf.math.log(1.0 - tf.math.square(actions)),
             axis=-1
         )
-        return correction + GaussianPolicy.get_log_probs(
-            self,
+        return correction + self.policy.get_log_probs(
             observations,
             tf.math.atanh(actions)
         )
+
+    def get_kl_divergence(
+        self,
+        other_policy,
+        observations
+    ):
+        return self.policy.get_kl_divergence(
+            other_policy,
+            observations
+        )
+
+    def __getattr__(
+        self,
+        attr
+    ):
+        return getattr(self.policy, attr)

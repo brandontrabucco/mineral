@@ -13,16 +13,16 @@ class QLearning(Critic):
         target_policy,
         target_qf,
         gamma=1.0,
-        clip_radius=1.0,
         sigma=1.0,
+        clip_radius=1.0,
         monitor=None,
     ):
         self.qf = qf
         self.target_policy = target_policy
         self.target_qf = target_qf
         self.gamma = gamma
-        self.clip_radius = clip_radius
         self.sigma = sigma
+        self.clip_radius = clip_radius
         self.iteration = 0
         self.monitor = monitor
 
@@ -47,7 +47,7 @@ class QLearning(Critic):
         )
         epsilon = tf.clip_by_value(
             self.sigma * tf.random.normal(
-                next_actions.shape,
+                tf.shape(next_actions),
                 dtype=tf.float32
             ),
             -self.clip_radius,

@@ -2,7 +2,7 @@
 
 
 import gym
-from jetpack.networks.policies.tanh_gaussian_policy import TanhGaussianPolicy
+from jetpack.networks.policies.tanh_policy import TanhGaussianPolicy
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.policy_gradient import PolicyGradient

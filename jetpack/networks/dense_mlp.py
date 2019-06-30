@@ -3,7 +3,6 @@
 
 import tensorflow as tf
 from jetpack.networks.mlp import MLP
-from jetpack.fisher import inverse_fisher_vector_product
 
 
 class DenseMLP(MLP):
@@ -14,32 +13,29 @@ class DenseMLP(MLP):
         **kwargs
     ):
         MLP.__init__(self, **kwargs)
-        self.hidden_layers = [
+        self.dense_layers = [
             tf.keras.layers.Dense(size)
             for size in hidden_sizes
         ]
 
     def call(
         self,
-        data
+        *inputs
     ):
-        x = self.hidden_layers[0](data)
-        for layer in self.hidden_layers[1:]:
-            x = layer(tf.nn.relu(x))
-        return x
-
-    def naturalize(
-        self,
-        data,
-        grad,
-        tolerance=1e-3,
-        maximum_iterations=100
-    ):
-        return inverse_fisher_vector_product(
-            lambda: [self(data)[0]],
-            lambda mean: [tf.ones(tf.shape(mean))],
-            self.trainable_variables,
-            grad,
-            tolerance=tolerance,
-            maximum_iterations=maximum_iterations
+        activations = self.dense_layers[0](
+            tf.concat(inputs, -1)
         )
+        for layer in self.dense_layers[1:]:
+            activations = layer(
+                tf.nn.relu(activations)
+            )
+        return activations
+
+    def fisher_information_matrix(
+        self,
+        *outputs
+    ):
+        return [
+            tf.ones(tf.shape(activations))
+            for activations in outputs
+        ]

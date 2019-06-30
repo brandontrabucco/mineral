@@ -10,10 +10,10 @@ class DenseQFunction(DenseMLP, QFunction):
 
     def __init__(
         self,
-        hidden_sizes,
+        *args,
         **kwargs
     ):
-        DenseMLP.__init__(self, hidden_sizes, **kwargs)
+        DenseMLP.__init__(self, *args, **kwargs)
 
     def get_qvalues(
         self,
@@ -21,8 +21,6 @@ class DenseQFunction(DenseMLP, QFunction):
         actions
     ):
         return self(
-            tf.concat([
-                observations,
-                actions
-            ], -1)
+            observations,
+            actions
         )

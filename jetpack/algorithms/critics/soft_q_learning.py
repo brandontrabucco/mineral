@@ -13,8 +13,8 @@ class SoftQLearning(QLearning):
         target_policy,
         target_qf,
         gamma=1.0,
-        clip_radius=1.0,
         sigma=1.0,
+        clip_radius=1.0,
         monitor=None,
     ):
         QLearning.__init__(
@@ -23,8 +23,8 @@ class SoftQLearning(QLearning):
             target_policy,
             target_qf,
             gamma=gamma,
-            clip_radius=clip_radius,
             sigma=sigma,
+            clip_radius=clip_radius,
             monitor=monitor,
         )
 
@@ -43,7 +43,7 @@ class SoftQLearning(QLearning):
         )
         epsilon = tf.clip_by_value(
             self.sigma * tf.random.normal(
-                next_actions.shape,
+                tf.shape(next_actions),
                 dtype=tf.float32
             ),
             -self.clip_radius,

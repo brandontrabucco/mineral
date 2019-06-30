@@ -69,10 +69,7 @@ class TRPO(ActorCritic):
                 loss_policy,
                 self.policy.trainable_variables
             )
-            grad, sAs = self.policy.naturalize(
-                observations,
-                grad
-            )
+            grad, sAs = self.policy.naturalize(observations, grad)
             grad = line_search(
                 loss_function,
                 self.policy,

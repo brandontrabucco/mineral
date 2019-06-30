@@ -23,7 +23,8 @@ def fisher_vector_product(
             tape.gradient(
                 x_i,
                 trainable_variables,
-                output_gradients=v_i
+                output_gradients=v_i,
+                unconnected_gradients=tf.UnconnectedGradients.ZERO
             )
             for x_i, v_i in zip(x, v)
         ]
@@ -32,7 +33,8 @@ def fisher_vector_product(
         h_i * tape.gradient(
             g_i,
             v_i,
-            output_gradients=y
+            output_gradients=y,
+            unconnected_gradients=tf.UnconnectedGradients.ZERO
         )
         for h_i, g_i, v_i in zip(h, g, v)
     ]
@@ -40,7 +42,8 @@ def fisher_vector_product(
         tape.gradient(
             x_i,
             trainable_variables,
-            output_gradients=jvp_i
+            output_gradients=jvp_i,
+            unconnected_gradients=tf.UnconnectedGradients.ZERO
         )
         for x_i, jvp_i in zip(x, jvp)
     ]

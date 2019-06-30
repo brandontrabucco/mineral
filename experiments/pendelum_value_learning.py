@@ -2,7 +2,7 @@
 
 
 import gym
-from jetpack.networks.policies.mean_policy import MeanPolicy
+from jetpack.networks.policies.mean_gaussian_policy import MeanGaussianPolicy
 from jetpack.networks.dense_value_function import DenseValueFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = MeanPolicy(
+    policy = MeanGaussianPolicy(
         [6, 6, 1],
         lr=0.0001
     )
