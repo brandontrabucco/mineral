@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from jetpack.networks.mlp import MLP
+from jetpack.fisher import inverse_fisher_vector_product
 
 
 class DenseMLP(MLP):
@@ -20,9 +21,25 @@ class DenseMLP(MLP):
 
     def call(
         self,
-        observations
+        data
     ):
-        x = self.hidden_layers[0](observations)
+        x = self.hidden_layers[0](data)
         for layer in self.hidden_layers[1:]:
             x = layer(tf.nn.relu(x))
         return x
+
+    def naturalize(
+        self,
+        data,
+        grad,
+        tolerance=1e-3,
+        maximum_iterations=100
+    ):
+        return inverse_fisher_vector_product(
+            lambda: [self(data)[0]],
+            lambda mean: [tf.ones(tf.shape(mean))],
+            self.trainable_variables,
+            grad,
+            tolerance=tolerance,
+            maximum_iterations=maximum_iterations
+        )

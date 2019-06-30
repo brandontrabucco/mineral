@@ -4,7 +4,7 @@
 import tensorflow as tf
 from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.functions.policy import Policy
-from jetpack.fisher import inverse_fisher_vector_product
+from jetpack.networks.dense_mlp import DenseMLP
 
 
 class MeanPolicy(GaussianPolicy, Policy):
@@ -32,10 +32,9 @@ class MeanPolicy(GaussianPolicy, Policy):
         tolerance=1e-3,
         maximum_iterations=100
     ):
-        return inverse_fisher_vector_product(
-            lambda: [self.get_mean_std(observations)[0]],
-            lambda mean: [tf.ones(tf.shape(mean))],
-            self.trainable_variables,
+        return DenseMLP.naturalize(
+            self,
+            observations,
             y,
             tolerance=tolerance,
             maximum_iterations=maximum_iterations

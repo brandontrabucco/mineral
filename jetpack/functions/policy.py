@@ -46,11 +46,3 @@ class Policy(ABC):
         observations
     ):
         return NotImplemented
-
-    @abstractmethod
-    def naturalize(
-        self,
-        observations,
-        y,
-    ):
-        return NotImplemented

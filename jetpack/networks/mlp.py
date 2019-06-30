@@ -58,3 +58,10 @@ class MLP(tf.keras.models.Model, ABC):
         *inputs
     ):
         return NotImplemented
+
+    @abstractmethod
+    def naturalize(
+        self,
+        *inputs
+    ):
+        return NotImplemented
