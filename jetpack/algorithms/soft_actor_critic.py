@@ -5,7 +5,7 @@ import tensorflow as tf
 from jetpack.algorithms.ddpg import DDPG
 
 
-class SAC(DDPG):
+class SoftActorCritic(DDPG):
 
     def __init__(
         self,
