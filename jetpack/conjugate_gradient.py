@@ -35,11 +35,11 @@ def conjugate_gradient(
             for p_i, Ap_i in zip(p, Ap)
         ])
         alpha = rTr / pAp
-        xAx += alpha * pAp
         x = [
             x_i + alpha * p_i
             for x_i, p_i in zip(x, p)
         ]
+        xAx += rTr
         r = [
             r_i - alpha * Ap_i
             for r_i, Ap_i in zip(r, Ap)

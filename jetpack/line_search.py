@@ -27,8 +27,5 @@ def line_search(
             best_alpha = alpha
         if i < iterations - 1:
             alpha *= scale_factor
-    network.set_weights([
-        x - best_alpha * dx
-        for x, dx in zip(original_weights, grad)
-    ])
-    return network
+    network.set_weights(original_weights)
+    return [best_alpha * dx for dx in grad]

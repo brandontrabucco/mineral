@@ -2,8 +2,8 @@
 
 
 import tensorflow as tf
-import jetpack as jp
 from jetpack.algorithms.actor_critic import ActorCritic
+from jetpack.line_search import line_search
 
 
 class TRPO(ActorCritic):
@@ -30,64 +30,45 @@ class TRPO(ActorCritic):
         self.delta = delta
 
     def update_policy(
-        self,
-        observations,
-        actions,
-        returns
+            self,
+            observations,
+            actions,
+            returns
     ):
-
         with tf.GradientTape() as tape_policy:
-
-            means = self.policy.get_deterministic_actions(
-                observations
-            )
-
-            grads, vars = zip(*tf.gradients(
-                means,
-                self.policy.trainable_variables
-            ))
-
-            y = grads
-
-            Jy = jp.jacobian_vector_product(
-                means,
-                self.policy.trainable_variables,
-                y
-            )
-
-            J_TJy = tf.gradients(
-                means,
-                self.policy.trainable_variables,
-                grad_ys=Jy
-            )
-
-            ratio = tf.exp(
-                self.policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
-                ) - self.old_policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
-                )
-            )
-            loss_policy = -1.0 * tf.reduce_mean(
-                tf.minimum(
-                    returns * ratio,
-                    returns * tf.clip_by_value(
-                        ratio, 1 - self.epsilon, 1 + self.epsilon
+            def loss_function(policy):
+                return -1.0 * tf.reduce_mean(
+                    returns * policy.get_log_probs(
+                        observations[:, :(-1), :],
+                        actions
                     )
                 )
+            loss_policy = loss_function(
+                self.policy
             )
-            self.policy.minimize(
+            grad = tape_policy.gradient(
                 loss_policy,
-                tape_policy
+                self.policy.trainable_variables
+            )
+            grad, sAs = self.policy.naturalize(
+                observations,
+                grad
+            )
+            grad = line_search(
+                loss_function,
+                self.policy,
+                grad,
+                tf.math.sqrt(self.delta / sAs)
+            )
+            self.policy.apply_gradients(
+                grad
             )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
-                    tf.reduce_mean(loss_policy)
+                    loss_policy
                 )
-        if self.iteration % self.old_policy_delay == 0:
-            self.old_policy.soft_update(
-                self.policy.get_weights()
-            )
+                self.monitor.record(
+                    "sAs",
+                    sAs
+                )

@@ -47,8 +47,7 @@ class MLP(tf.keras.models.Model, ABC):
     ):
         self.apply_gradients(
             gradient_tape.gradient(
-                loss,
-                self.trainable_variables
+                loss
             )
         )
 
