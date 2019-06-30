@@ -88,6 +88,6 @@ class TRPO(ActorCritic):
                     loss_policy
                 )
         if self.iteration % self.old_policy_delay == 0:
-            self.old_policy.soft_update(
+            self.old_policy.set_weights(
                 self.policy.get_weights()
             )
