@@ -27,7 +27,7 @@ class DDPG(Base):
         observations
     ):
         with tf.GradientTape() as tape_policy:
-            policy_actions = self.policy.get_deterministic_actions(
+            policy_actions = self.policy.get_stochastic_actions(
                 observations
             )
             policy_qvalues = self.q_backup.get_qvalues(

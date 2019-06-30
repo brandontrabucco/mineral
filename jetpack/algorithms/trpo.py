@@ -47,11 +47,17 @@ class TRPO(ActorCritic):
                         observations
                     )
                 )
-                expected_return = tf.reduce_mean(
-                    returns * policy.get_log_probs(
+                ratio = tf.exp(
+                    policy.get_log_probs(
+                        observations[:, :(-1), :],
+                        actions
+                    ) - self.old_policy.get_log_probs(
                         observations[:, :(-1), :],
                         actions
                     )
+                )
+                expected_return = tf.reduce_mean(
+                    returns * ratio
                 )
                 return -1.0 * expected_return + (
                     0.0 if kl < self.delta else float("inf")
