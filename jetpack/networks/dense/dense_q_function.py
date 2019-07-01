@@ -1,8 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
-
-import tensorflow as tf
-from jetpack.networks.dense_mlp import DenseMLP
+from jetpack.networks.dense.dense_mlp import DenseMLP
 from jetpack.functions.q_function import QFunction
 
 

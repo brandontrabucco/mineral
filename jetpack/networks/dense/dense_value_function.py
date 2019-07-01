@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from jetpack.networks.dense_mlp import DenseMLP
+from jetpack.networks.dense.dense_mlp import DenseMLP
 from jetpack.functions.value_function import ValueFunction
 
 

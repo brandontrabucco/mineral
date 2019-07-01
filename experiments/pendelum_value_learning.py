@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.policies.mean_gaussian_policy import MeanGaussianPolicy
-from jetpack.networks.dense_value_function import DenseValueFunction
+from jetpack.networks.dense.dense_value_function import DenseValueFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.critics.value_learning import ValueLearning

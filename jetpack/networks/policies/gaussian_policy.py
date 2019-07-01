@@ -3,26 +3,39 @@
 
 import numpy as np
 import tensorflow as tf
-from abc import ABC, abstractmethod
-from jetpack.networks.dense_mlp import DenseMLP
+from jetpack.networks.dense.dense_mlp import DenseMLP
 from jetpack.functions.policy import Policy
 
 
-class GaussianPolicy(DenseMLP, Policy, ABC):
+class GaussianPolicy(DenseMLP, Policy):
 
     def __init__(
         self,
         *args,
+        std=None,
         **kwargs
     ):
         DenseMLP.__init__(self, *args, **kwargs)
+        self.std = std
 
-    @abstractmethod
     def get_mean_std(
         self,
         activations
     ):
-        return NotImplemented
+        if self.std is None:
+            mean, std = tf.split(
+                activations,
+                2,
+                axis=-1
+            )
+            std = tf.math.softplus(std)
+        else:
+            mean = activations
+            std = tf.fill(
+                tf.shape(mean),
+                self.std
+            )
+        return mean, std
 
     def call(
         self,
@@ -31,17 +44,6 @@ class GaussianPolicy(DenseMLP, Policy, ABC):
         return self.get_mean_std(
             DenseMLP.__call__(self, observations)
         )
-
-    def fisher_information_matrix(
-        self,
-        mean,
-        std
-    ):
-        mean_hessian = DenseMLP.fisher_information_matrix(
-            self,
-            mean
-        )
-        return mean_hessian + [2.0 / tf.square(std)]
 
     def get_stochastic_actions(
         self,

@@ -27,7 +27,7 @@ class SoftActorCritic(DDPG):
         self,
         observations
     ):
-        with tf.GradientTape() as tape_policy:
+        def loss_function():
             policy_actions = self.policy.get_stochastic_actions(
                 observations
             )
@@ -42,10 +42,6 @@ class SoftActorCritic(DDPG):
             loss_policy = tf.reduce_mean(
                 policy_log_probs - policy_qvalues
             )
-            self.policy.minimize(
-                loss_policy,
-                tape_policy
-            )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
@@ -59,3 +55,7 @@ class SoftActorCritic(DDPG):
                     "policy_log_probs_mean",
                     tf.reduce_mean(policy_log_probs)
                 )
+            return loss_policy
+        self.policy.minimize(
+            loss_function
+        )

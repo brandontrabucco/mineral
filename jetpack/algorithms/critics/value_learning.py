@@ -20,6 +20,14 @@ class ValueLearning(Critic):
         self.iteration = 0
         self.monitor = monitor
 
+    def get_values(
+        self,
+        observations
+    ):
+        return self.vf.get_values(
+            observations
+        )
+
     def get_target_values(
         self,
         rewards,
@@ -53,7 +61,7 @@ class ValueLearning(Critic):
         target_values,
         terminals
     ):
-        with tf.GradientTape() as tape_vf:
+        def loss_function():
             values = self.vf.get_values(
                 observations,
                 terminals
@@ -64,10 +72,6 @@ class ValueLearning(Critic):
                     values
                 )
             )
-            self.vf.minimize(
-                loss_vf,
-                tape_vf
-            )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_vf",
@@ -77,7 +81,10 @@ class ValueLearning(Critic):
                     "values_mean",
                     tf.reduce_mean(values)
                 )
-            return values
+            return loss_vf
+        self.vf.minimize(
+            loss_function
+        )
 
     def soft_update(
         self
@@ -123,7 +130,7 @@ class ValueLearning(Critic):
             next_observations,
             terminals
         )
-        next_values = self.vf.get_qvalues(
+        next_values = self.vf.get_values(
             next_observations
         )
         if self.monitor is not None:
@@ -131,4 +138,4 @@ class ValueLearning(Critic):
                 "next_values_mean",
                 tf.reduce_mean(next_values)
             )
-        return rewards + (self.gamma * next_values)
+        return rewards + (terminals * self.gamma * next_values)

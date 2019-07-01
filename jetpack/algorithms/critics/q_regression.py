@@ -56,7 +56,7 @@ class QRegression(Critic):
         returns = tf.math.cumsum(
             rewards * thermometer * weights
         ) / weights
-        with tf.GradientTape() as qf_tape:
+        def loss_function():
             qvalues = self.qf.get_qvalues(
                 observations[:, :(-1), :],
                 actions
@@ -67,15 +67,7 @@ class QRegression(Critic):
                     qvalues
                 )
             )
-            self.qf.minimize(
-                qf_loss,
-                qf_tape
-            )
             if self.monitor is not None:
-                self.monitor.record(
-                    "returns_mean",
-                    tf.reduce_mean(returns)
-                )
                 self.monitor.record(
                     "qvalues_mean",
                     tf.reduce_mean(qvalues)
@@ -84,7 +76,15 @@ class QRegression(Critic):
                     "qf_loss",
                     qf_loss
                 )
-            return qvalues
+            return qf_loss
+        self.qf.minimize(
+            loss_function
+        )
+        if self.monitor is not None:
+            self.monitor.record(
+                "returns_mean",
+                tf.reduce_mean(returns)
+            )
 
     def gradient_update_return_weights(
         self,
@@ -93,10 +93,14 @@ class QRegression(Critic):
         rewards,
         lengths
     ):
-        return self.gradient_update(
+        self.gradient_update(
             observations,
             actions,
             rewards,
             lengths
+        )
+        return self.get_qvalues(
+            observations,
+            actions
         )
 

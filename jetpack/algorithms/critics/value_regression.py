@@ -18,6 +18,14 @@ class ValueRegression(Critic):
         self.iteration = 0
         self.monitor = monitor
 
+    def get_values(
+        self,
+        observations
+    ):
+        return self.vf.get_values(
+            observations
+        )
+
     def gradient_update(
         self, 
         observations,
@@ -46,25 +54,22 @@ class ValueRegression(Critic):
         returns = tf.math.cumsum(
             rewards * thermometer[:, :(-1)] * weights
         ) / weights
-        with tf.GradientTape() as vf_tape:
-            values = self.vf.get_values(
+        if self.monitor is not None:
+            self.monitor.record(
+                "returns_mean",
+                tf.reduce_mean(returns)
+            )
+        def loss_function():
+            values = thermometer * self.vf.get_values(
                 observations,
-            )[:, :, 0] * thermometer
+            )[:, :, 0]
             vf_loss = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     returns,
                     values[:, :(-1)]
                 )
             )
-            self.vf.minimize(
-                vf_loss,
-                vf_tape
-            )
             if self.monitor is not None:
-                self.monitor.record(
-                    "returns_mean",
-                    tf.reduce_mean(returns)
-                )
                 self.monitor.record(
                     "values_mean",
                     tf.reduce_mean(values)
@@ -73,7 +78,11 @@ class ValueRegression(Critic):
                     "vf_loss",
                     vf_loss
                 )
-            return values, thermometer
+            return vf_loss
+        self.vf.minimize(
+            loss_function
+        )
+        return thermometer
 
     def gradient_update_return_weights(
         self,
@@ -82,14 +91,17 @@ class ValueRegression(Critic):
         rewards,
         lengths
     ):
-        values, thermometer = self.gradient_update(
+        thermometer = self.gradient_update(
             observations,
             actions,
             rewards,
             lengths
         )
+        values = self.vf.get_values(
+            observations
+        )
         return (
-            rewards * thermometer[:, :(-1)] +
-            values[:, 1:]
+            thermometer[:, :(-1)] * rewards +
+            thermometer[:, 1:] * values[:, 1:]
         )
 

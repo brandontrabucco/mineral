@@ -82,7 +82,7 @@ class QLearning(Critic):
         actions,
         target_values
     ):
-        with tf.GradientTape() as tape_qf:
+        def loss_function():
             qvalues = self.qf.get_qvalues(
                 observations,
                 actions
@@ -93,10 +93,6 @@ class QLearning(Critic):
                     qvalues
                 )
             )
-            self.qf.minimize(
-                loss_qf,
-                tape_qf
-            )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_qf",
@@ -106,7 +102,10 @@ class QLearning(Critic):
                     "qvalues_mean",
                     tf.reduce_mean(qvalues)
                 )
-            return qvalues
+            return loss_qf
+        self.qf.minimize(
+            loss_function
+        )
 
     def soft_update(
         self
@@ -131,13 +130,12 @@ class QLearning(Critic):
             next_observations,
             terminals
         )
-        qvalues = self.update_qf(
+        self.update_qf(
             observations,
             actions,
             target_values
         )
         self.soft_update()
-        return qvalues
 
     def gradient_update_return_weights(
         self,
@@ -147,10 +145,14 @@ class QLearning(Critic):
         next_observations,
         terminals
     ):
-        return self.gradient_update(
+        self.gradient_update(
             observations,
             actions,
             rewards,
             next_observations,
             terminals
+        )
+        return self.get_qvalues(
+            observations,
+            actions
         )

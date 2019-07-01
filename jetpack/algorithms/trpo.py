@@ -3,7 +3,6 @@
 
 import tensorflow as tf
 from jetpack.algorithms.actor_critic import ActorCritic
-from jetpack.line_search import line_search
 
 
 class TRPO(ActorCritic):
@@ -37,53 +36,40 @@ class TRPO(ActorCritic):
             actions,
             returns
     ):
-        with tf.GradientTape() as tape_policy:
-            def loss_function(
-                policy
-            ):
-                kl = tf.reduce_mean(
-                    policy.get_kl_divergence(
-                        self.old_policy,
-                        observations
-                    )
+        def loss_function():
+            ratio = tf.exp(
+                self.policy.get_log_probs(
+                    observations[:, :(-1), :],
+                    actions
+                ) - self.old_policy.get_log_probs(
+                    observations[:, :(-1), :],
+                    actions
                 )
-                ratio = tf.exp(
-                    policy.get_log_probs(
-                        observations[:, :(-1), :],
-                        actions
-                    ) - self.old_policy.get_log_probs(
-                        observations[:, :(-1), :],
-                        actions
-                    )
-                )
-                expected_return = tf.reduce_mean(
-                    returns * ratio
-                )
-                return -1.0 * expected_return + (
-                    0.0 if kl < self.delta else float("inf")
-                )
-            loss_policy = loss_function(
-                self.policy
             )
-            grad = tape_policy.gradient(
-                loss_policy,
-                self.policy.trainable_variables
+            loss_policy = -1.0 * tf.reduce_mean(
+                returns * ratio
             )
-            grad, sAs = self.policy.naturalize(observations, grad)
-            grad = line_search(
-                loss_function,
-                self.policy,
-                grad,
-                tf.math.sqrt(self.delta / sAs)
-            )
-            self.policy.apply_gradients(
-                grad
+            kl = tf.reduce_mean(
+                self.policy.get_kl_divergence(
+                    self.old_policy,
+                    observations
+                )
             )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
                     loss_policy
                 )
+                self.monitor.record(
+                    "kl",
+                    kl
+                )
+            return loss_policy + (
+                0.0 if kl < self.delta else 1e9
+            )
+        self.policy.minimize(
+            loss_function
+        )
         if self.iteration % self.old_policy_delay == 0:
             self.old_policy.set_weights(
                 self.policy.get_weights()

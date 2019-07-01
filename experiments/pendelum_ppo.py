@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.policies.tanh_policy import TanhGaussianPolicy
-from jetpack.networks.dense_value_function import DenseValueFunction
+from jetpack.networks.dense.dense_value_function import DenseValueFunction
 from jetpack.wrappers.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.ppo import PPO

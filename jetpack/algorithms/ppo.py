@@ -36,7 +36,7 @@ class PPO(ActorCritic):
         actions,
         returns
     ):
-        with tf.GradientTape() as tape_policy:
+        def loss_function():
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     observations[:, :(-1), :],
@@ -54,15 +54,15 @@ class PPO(ActorCritic):
                     )
                 )
             )
-            self.policy.minimize(
-                loss_policy,
-                tape_policy
-            )
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
-                    tf.reduce_mean(loss_policy)
+                    loss_policy
                 )
+            return loss_policy
+        self.policy.minimize(
+            loss_function
+        )
         if self.iteration % self.old_policy_delay == 0:
             self.old_policy.set_weights(
                 self.policy.get_weights()
