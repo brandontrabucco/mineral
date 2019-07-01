@@ -36,7 +36,9 @@ class PPO(ActorCritic):
         actions,
         returns
     ):
-        def loss_function():
+        def loss_function(
+            *inputs
+        ):
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     observations[:, :(-1), :],
@@ -61,7 +63,8 @@ class PPO(ActorCritic):
                 )
             return loss_policy
         self.policy.minimize(
-            loss_function
+            loss_function,
+            observations[:, :(-1), :]
         )
         if self.iteration % self.old_policy_delay == 0:
             self.old_policy.set_weights(

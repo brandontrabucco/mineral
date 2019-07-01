@@ -26,7 +26,9 @@ class DDPG(Base):
         self,
         observations
     ):
-        def loss_function():
+        def loss_function(
+            *inputs
+        ):
             policy_actions = self.policy.get_stochastic_actions(
                 observations
             )
@@ -48,7 +50,8 @@ class DDPG(Base):
                 )
             return loss_policy
         self.policy.minimize(
-            loss_function
+            loss_function,
+            observations
         )
 
     def gradient_update(

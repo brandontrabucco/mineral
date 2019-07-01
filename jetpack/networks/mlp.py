@@ -3,9 +3,10 @@
 
 import tensorflow as tf
 from abc import ABC, abstractmethod
+from jetpack.networks.gradient import Gradient
 
 
-class MLP(tf.keras.Model, ABC):
+class MLP(tf.keras.Model, Gradient, ABC):
 
     def __init__(
         self,
@@ -43,18 +44,6 @@ class MLP(tf.keras.Model, ABC):
             zip(
                 gradients,
                 self.trainable_variables
-            )
-        )
-
-    def minimize(
-        self,
-        loss_function,
-        *inputs
-    ):
-        self.apply_gradients(
-            self.compute_gradients(
-                loss_function,
-                *inputs
             )
         )
 

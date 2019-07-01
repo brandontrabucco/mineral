@@ -2,39 +2,32 @@
 
 
 import tensorflow as tf
-from jetpack.networks.mlp import MLP
+from jetpack.networks.gradient import Gradient
 from jetpack.line_search import line_search
 
 
-class LineSearchGradient(MLP):
+class LineSearchGradient(Gradient):
 
     def __init__(
         self,
-        mlp,
+        gradient,
         delta=1.0,
         scale_factor=0.5,
         iterations=100,
         use_sAs=False
     ):
-        MLP.__init__(self)
-        self.mlp = mlp
+        self.gradient = gradient
         self.delta = delta
         self.scale_factor = scale_factor
         self.iterations = iterations
         self.use_sAs = use_sAs
-
-    def call(
-        self,
-        *inputs
-    ):
-        return self.mlp(*inputs)
 
     def compute_gradients(
         self,
         loss_function,
         *inputs
     ):
-        outputs = self.mlp.compute_gradients(
+        outputs = self.gradient.compute_gradients(
             loss_function,
             *inputs
         )
@@ -46,7 +39,7 @@ class LineSearchGradient(MLP):
             alpha = self.delta
         return line_search(
             loss_function,
-            self.mlp,
+            self.gradient,
             gradients,
             alpha,
             scale_factor=self.scale_factor,
@@ -57,20 +50,18 @@ class LineSearchGradient(MLP):
         self,
         gradients
     ):
-        self.mlp.apply_gradients(
+        self.gradient.apply_gradients(
             gradients
         )
 
-    def soft_update(
+    def __call__(
         self,
-        weights
+        *inputs
     ):
-        self.mlp.soft_update(
-            weights
-        )
+        return self.gradient(*inputs)
 
     def __getattr__(
         self,
         attr
     ):
-        return getattr(self.mlp, attr)
+        return getattr(self.gradient, attr)

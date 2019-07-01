@@ -82,7 +82,9 @@ class QLearning(Critic):
         actions,
         target_values
     ):
-        def loss_function():
+        def loss_function(
+            *inputs
+        ):
             qvalues = self.qf.get_qvalues(
                 observations,
                 actions
@@ -104,7 +106,9 @@ class QLearning(Critic):
                 )
             return loss_qf
         self.qf.minimize(
-            loss_function
+            loss_function,
+            observations,
+            actions
         )
 
     def soft_update(

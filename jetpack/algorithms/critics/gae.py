@@ -35,9 +35,9 @@ class GAE(ValueRegression):
             rewards,
             lengths
         )
-        values = self.vf.get_values(
+        values = self.get_values(
             observations
-        )[:, :, 0]
+        )
         delta_v = (
             thermometer[:, :(-1)] * rewards -
             thermometer[:, :(-1)] * values[:, :(-1)] +

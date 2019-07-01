@@ -34,7 +34,7 @@ class ValueLearning(Critic):
         next_observations,
         terminals
     ):
-        next_target_values = self.target_vf.get_qvalues(
+        next_target_values = self.target_vf.get_values(
             next_observations
         )[:, 0]
         target_values = rewards + (
@@ -58,13 +58,13 @@ class ValueLearning(Critic):
     def update_vf(
         self,
         observations,
-        target_values,
-        terminals
+        target_values
     ):
-        def loss_function():
+        def loss_function(
+            *inputs
+        ):
             values = self.vf.get_values(
-                observations,
-                terminals
+                observations
             )[:, 0]
             loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
@@ -83,7 +83,8 @@ class ValueLearning(Critic):
                 )
             return loss_vf
         self.vf.minimize(
-            loss_function
+            loss_function,
+            observations
         )
 
     def soft_update(

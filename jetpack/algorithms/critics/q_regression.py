@@ -56,7 +56,9 @@ class QRegression(Critic):
         returns = tf.math.cumsum(
             rewards * thermometer * weights
         ) / weights
-        def loss_function():
+        def loss_function(
+            *inputs
+        ):
             qvalues = self.qf.get_qvalues(
                 observations[:, :(-1), :],
                 actions
@@ -78,7 +80,9 @@ class QRegression(Critic):
                 )
             return qf_loss
         self.qf.minimize(
-            loss_function
+            loss_function,
+            observations[:, :(-1), :],
+            actions
         )
         if self.monitor is not None:
             self.monitor.record(
