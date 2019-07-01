@@ -31,7 +31,7 @@ class TwinDelayedQLearning(QLearning):
             observations,
             actions,
         )
-        return tf.reduce_mean(qvalues1, qvalues2)
+        return 0.5 * (qvalues1 + qvalues2)
 
     def get_target_values(
         self,
@@ -78,21 +78,3 @@ class TwinDelayedQLearning(QLearning):
         self.q_backup2.target_qf.soft_update(
             self.q_backup2.qf.get_weights()
         )
-
-    def gradient_update_return_weights(
-        self,
-        observations,
-        actions,
-        rewards,
-        next_observations,
-        terminals
-    ):
-        qvalues1, qvalues2 = self.gradient_update(
-            observations,
-            actions,
-            rewards,
-            next_observations,
-            terminals
-        )
-        return tf.reduce_mean(qvalues1, qvalues2)
-

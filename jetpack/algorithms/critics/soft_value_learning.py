@@ -39,7 +39,7 @@ class SoftValueLearning(ValueLearning):
         )
         next_target_values = self.target_vf.get_qvalues(
             next_observations
-        )
+        )[:, 0]
         target_values = rewards + (
             terminals * self.gamma * (
                 next_target_values - next_target_log_probs

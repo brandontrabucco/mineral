@@ -26,7 +26,7 @@ class QRegression(Critic):
         return self.qf.get_qvalues(
             observations,
             actions
-        )
+        )[:, :, 0]
 
     def gradient_update(
         self, 
@@ -102,5 +102,5 @@ class QRegression(Critic):
         return self.get_qvalues(
             observations,
             actions
-        )
+        )[:, :, 0]
 

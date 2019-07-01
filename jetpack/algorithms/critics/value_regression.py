@@ -24,7 +24,7 @@ class ValueRegression(Critic):
     ):
         return self.vf.get_values(
             observations
-        )
+        )[:, :, 0]
 
     def gradient_update(
         self, 
@@ -99,9 +99,9 @@ class ValueRegression(Critic):
         )
         values = self.vf.get_values(
             observations
-        )
+        )[:, :, 0]
         return (
-            thermometer[:, :(-1)] * rewards +
-            thermometer[:, 1:] * values[:, 1:]
+            thermometer[:, 1:] * values[:, 1:] +
+            thermometer[:, :(-1)] * rewards
         )
 

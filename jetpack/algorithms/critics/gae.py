@@ -29,15 +29,19 @@ class GAE(ValueRegression):
         rewards,
         lengths
     ):
-        values, thermometer = self.gradient_update(
+        thermometer = self.gradient_update(
             observations,
             actions,
             rewards,
             lengths
         )
+        values = self.vf.get_values(
+            observations
+        )[:, :, 0]
         delta_v = (
-            rewards + values[:, 1:] * self.gamma -
-            values[:, :(-1)]
+            thermometer[:, :(-1)] * rewards -
+            thermometer[:, :(-1)] * values[:, :(-1)] +
+            thermometer[:, 1:] * values[:, 1:] * self.gamma
         )
         weights = tf.tile(
             [[self.gamma * self.lamb]],

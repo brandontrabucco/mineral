@@ -5,7 +5,7 @@ import tensorflow as tf
 from jetpack.functions.policy import Policy
 
 
-class TanhPolicy(Policy):
+class SoftplusPolicy(Policy):
 
     def __init__(
         self,
@@ -17,7 +17,7 @@ class TanhPolicy(Policy):
         self,
         observations
     ):
-        return tf.math.tanh(
+        return tf.math.softplus(
             self.policy.get_stochastic_actions(
                 observations
             )
@@ -27,7 +27,7 @@ class TanhPolicy(Policy):
         self,
         observations
     ):
-        return tf.math.tanh(
+        return tf.math.softplus(
             self.policy.get_deterministic_actions(
                 observations
             )
@@ -38,14 +38,14 @@ class TanhPolicy(Policy):
         observations,
         actions
     ):
-        actions = tf.clip_by_value(actions, -0.999, 0.999)
+        actions = tf.maximum(actions, 0.001)
         correction = -1.0 * tf.reduce_sum(
-            tf.math.log(1.0 - tf.math.square(actions)),
+            tf.math.log_sigmoid(actions),
             axis=-1
         )
         return correction + self.policy.get_log_probs(
             observations,
-            tf.math.atanh(actions)
+            tf.math.log(tf.math.exp(actions) - 1)
         )
 
     def get_kl_divergence(

@@ -2,8 +2,9 @@
 
 
 import gym
-from jetpack.networks.policies.tanh_policy import TanhGaussianPolicy
-from jetpack.wrappers.normalized_env import NormalizedEnv
+from jetpack.networks.policies.gaussian_policy import GaussianPolicy
+from jetpack.networks.policies.tanh_policy import TanhPolicy
+from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.policy_gradient import PolicyGradient
 from jetpack.core.local_trainer import LocalTrainer
@@ -18,9 +19,11 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = TanhGaussianPolicy(
-        [32, 32, 2],
-        lr=0.01
+    policy = TanhPolicy(
+        GaussianPolicy(
+            [32, 32, 2],
+            lr=0.01
+        )
     )
 
     buffer = OnPolicyBuffer(

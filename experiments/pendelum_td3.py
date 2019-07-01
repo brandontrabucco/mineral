@@ -2,9 +2,10 @@
 
 
 import gym
-from jetpack.networks.policies.mean_gaussian_policy import MeanGaussianPolicy
+from jetpack.networks.policies.gaussian_policy import GaussianPolicy
+from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_q_function import DenseQFunction
-from jetpack.wrappers.normalized_env import NormalizedEnv
+from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.off_policy_buffer import OffPolicyBuffer
 from jetpack.algorithms.ddpg import DDPG
 from jetpack.algorithms.critics.q_learning import QLearning
@@ -21,10 +22,12 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = MeanGaussianPolicy(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
+    policy = TanhPolicy(
+        GaussianPolicy(
+            [6, 6, 2],
+            tau=1e-2,
+            lr=0.0001
+        )
     )
 
     qf1 = DenseQFunction(
@@ -39,10 +42,12 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    target_policy = MeanGaussianPolicy(
-        [6, 6, 1],
-        tau=1e-2,
-        lr=0.0001
+    target_policy = TanhPolicy(
+        GaussianPolicy(
+            [6, 6, 2],
+            tau=1e-2,
+            lr=0.0001
+        )
     )
 
     target_qf1 = DenseQFunction(

@@ -26,7 +26,7 @@ class ValueLearning(Critic):
     ):
         return self.vf.get_values(
             observations
-        )
+        )[:, 0]
 
     def get_target_values(
         self,
@@ -36,7 +36,7 @@ class ValueLearning(Critic):
     ):
         next_target_values = self.target_vf.get_qvalues(
             next_observations
-        )
+        )[:, 0]
         target_values = rewards + (
             terminals * self.gamma * next_target_values
         )
@@ -65,7 +65,7 @@ class ValueLearning(Critic):
             values = self.vf.get_values(
                 observations,
                 terminals
-            )
+            )[:, 0]
             loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     target_values,
@@ -130,7 +130,7 @@ class ValueLearning(Critic):
             next_observations,
             terminals
         )
-        next_values = self.vf.get_values(
+        next_values = self.get_values(
             next_observations
         )
         if self.monitor is not None:

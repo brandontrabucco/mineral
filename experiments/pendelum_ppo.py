@@ -2,9 +2,10 @@
 
 
 import gym
-from jetpack.networks.policies.tanh_policy import TanhGaussianPolicy
+from jetpack.networks.policies.gaussian_policy import GaussianPolicy
+from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_value_function import DenseValueFunction
-from jetpack.wrappers.normalized_env import NormalizedEnv
+from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.ppo import PPO
 from jetpack.algorithms.critics.gae import GAE
@@ -20,19 +21,23 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = TanhGaussianPolicy(
-        [32, 32, 2],
-        lr=0.01
+    policy = TanhPolicy(
+        GaussianPolicy(
+            [32, 32, 2],
+            lr=0.0001
+        )
     )
 
-    old_policy = TanhGaussianPolicy(
-        [32, 32, 2],
-        lr=0.01
+    old_policy = TanhPolicy(
+        GaussianPolicy(
+            [32, 32, 2],
+            lr=0.0001
+        )
     )
 
     vf = DenseValueFunction(
         [6, 6, 1],
-        lr=0.0001
+        lr=0.01
     )
 
     buffer = OnPolicyBuffer(
@@ -52,10 +57,10 @@ if __name__ == "__main__":
         old_policy,
         critic,
         gamma=0.99,
-        epsilon=0.2,
+        delta=0.2,
         monitor=monitor
     )
-    
+
     max_size = 32
     num_warm_up_paths = 32
     num_steps = 20000

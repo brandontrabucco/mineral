@@ -53,7 +53,7 @@ class SoftQLearning(QLearning):
         next_target_qvalues = self.target_qf.get_qvalues(
             next_observations,
             noisy_next_actions
-        )
+        )[:, 0]
         target_values = rewards + (
             terminals * self.gamma * (
                 next_target_qvalues - next_target_log_probs

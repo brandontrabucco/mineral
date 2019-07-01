@@ -34,7 +34,7 @@ class QLearning(Critic):
         return self.qf.get_qvalues(
             observations,
             actions
-        )
+        )[:, 0]
 
     def get_target_values(
         self,
@@ -57,7 +57,7 @@ class QLearning(Critic):
         next_target_qvalues = self.target_qf.get_qvalues(
             next_observations,
             noisy_next_actions
-        )
+        )[:, 0]
         target_values = rewards + (
             terminals * self.gamma * next_target_qvalues
         )
@@ -86,7 +86,7 @@ class QLearning(Critic):
             qvalues = self.qf.get_qvalues(
                 observations,
                 actions
-            )
+            )[:, 0]
             loss_qf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     target_values,

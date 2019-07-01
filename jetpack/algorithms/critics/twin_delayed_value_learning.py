@@ -2,10 +2,10 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.critics.q_learning import QLearning
+from jetpack.algorithms.critics.value_learning import ValueLearning
 
 
-class TwinDelayedQLearning(QLearning):
+class TwinDelayedValueLearning(ValueLearning):
 
     def __init__(
         self,
@@ -20,18 +20,15 @@ class TwinDelayedQLearning(QLearning):
 
     def get_values(
         self,
-        observations,
-        actions
+        observations
     ):
         values1 = self.value_backup1.get_values(
-            observations,
-            actions,
+            observations
         )
         values2 = self.value_backup2.get_values(
-            observations,
-            actions,
+            observations
         )
-        return tf.reduce_mean(values1, values2)
+        return 0.5 * (values1 + values2)
 
     def get_target_values(
         self,
@@ -54,18 +51,18 @@ class TwinDelayedQLearning(QLearning):
     def update_vf(
         self,
         observations,
-        actions,
-        target_values
+        target_values,
+        terminals
     ):
         values1 = self.value_backup1.update_vf(
             observations,
-            actions,
-            target_values
+            target_values,
+            terminals
         )
         values2 = self.value_backup2.update_vf(
             observations,
-            actions,
-            target_values
+            target_values,
+            terminals
         )
         return values1, values2
 
@@ -78,20 +75,3 @@ class TwinDelayedQLearning(QLearning):
         self.value_backup2.target_vf.soft_update(
             self.value_backup2.vf.get_weights()
         )
-
-    def gradient_update_return_weights(
-        self,
-        observations,
-        actions,
-        rewards,
-        next_observations,
-        terminals
-    ):
-        values1, values2 = self.gradient_update(
-            observations,
-            actions,
-            rewards,
-            next_observations,
-            terminals
-        )
-        return tf.reduce_mean(values1, values2)

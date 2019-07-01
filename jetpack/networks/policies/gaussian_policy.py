@@ -42,7 +42,7 @@ class GaussianPolicy(DenseMLP, Policy):
         observations
     ):
         return self.get_mean_std(
-            DenseMLP.__call__(self, observations)
+            DenseMLP.call(self, observations)
         )
 
     def get_stochastic_actions(
