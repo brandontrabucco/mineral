@@ -2,11 +2,11 @@
 
 
 import tensorflow as tf
-from jetpack.networks.gradient import Gradient
+from jetpack.networks.optimizeable import Optimizeable
 from jetpack.line_search import line_search
 
 
-class LineSearchGradient(Gradient):
+class LineSearchGradient(Optimizeable):
 
     def __init__(
         self,

@@ -2,11 +2,11 @@
 
 
 from abc import ABC, abstractmethod
-from jetpack.networks.gradient import Gradient
+from jetpack.networks.optimizeable import Optimizeable
 from jetpack.fisher import inverse_fisher_vector_product
 
 
-class NaturalGradient(Gradient, ABC):
+class NaturalGradient(Optimizeable, ABC):
 
     def __init__(
         self,

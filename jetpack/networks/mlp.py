@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 from abc import ABC, abstractmethod
-from jetpack.networks.gradient import Gradient
+from jetpack.networks.gradients import Gradient
 
 
 class MLP(tf.keras.Model, Gradient, ABC):
