@@ -3,10 +3,10 @@
 
 import tensorflow as tf
 from abc import ABC, abstractmethod
-from jetpack.networks.gradients import Gradient
+from jetpack.has_gradient import HasGradient
 
 
-class MLP(tf.keras.Model, Gradient, ABC):
+class MLP(tf.keras.Model, HasGradient, ABC):
 
     def __init__(
         self,

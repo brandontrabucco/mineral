@@ -5,8 +5,8 @@ import gym
 from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_value_function import DenseValueFunction
-from jetpack.networks.gradients.gaussian_natural_gradient import GaussianNaturalGradient
-from jetpack.networks.gradients.line_search_gradient import LineSearchGradient
+from jetpack.gradients import GaussianNaturalGradient
+from jetpack.gradients import LineSearchGradient
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.on_policy_buffer import OnPolicyBuffer
 from jetpack.algorithms.trpo import TRPO

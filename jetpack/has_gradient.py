@@ -4,7 +4,7 @@
 from abc import ABC, abstractmethod
 
 
-class Optimizeable(ABC):
+class HasGradient(ABC):
 
     @abstractmethod
     def compute_gradients(
