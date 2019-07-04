@@ -60,9 +60,7 @@ class ValueLearning(Critic):
         observations,
         target_values
     ):
-        def loss_function(
-            *inputs
-        ):
+        def loss_function():
             values = self.vf.get_values(
                 observations
             )[:, 0]

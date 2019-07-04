@@ -56,9 +56,7 @@ class QRegression(Critic):
         returns = tf.math.cumsum(
             rewards * thermometer * weights
         ) / weights
-        def loss_function(
-            *inputs
-        ):
+        def loss_function():
             qvalues = self.qf.get_qvalues(
                 observations[:, :(-1), :],
                 actions

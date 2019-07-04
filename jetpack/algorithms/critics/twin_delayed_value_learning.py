@@ -51,18 +51,15 @@ class TwinDelayedValueLearning(ValueLearning):
     def update_vf(
         self,
         observations,
-        target_values,
-        terminals
+        target_values
     ):
         values1 = self.value_backup1.update_vf(
             observations,
-            target_values,
-            terminals
+            target_values
         )
         values2 = self.value_backup2.update_vf(
             observations,
-            target_values,
-            terminals
+            target_values
         )
         return values1, values2
 

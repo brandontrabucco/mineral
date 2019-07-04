@@ -59,9 +59,7 @@ class ValueRegression(Critic):
                 "returns_mean",
                 tf.reduce_mean(returns)
             )
-        def loss_function(
-            *inputs
-        ):
+        def loss_function():
             values = thermometer * self.vf.get_values(
                 observations
             )[:, :, 0]

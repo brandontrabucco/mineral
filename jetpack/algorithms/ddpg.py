@@ -26,9 +26,7 @@ class DDPG(Base):
         self,
         observations
     ):
-        def loss_function(
-            *inputs
-        ):
+        def loss_function():
             policy_actions = self.policy.get_stochastic_actions(
                 observations
             )

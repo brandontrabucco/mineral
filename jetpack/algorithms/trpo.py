@@ -36,9 +36,7 @@ class TRPO(ActorCritic):
             actions,
             returns
     ):
-        def loss_function(
-            *inputs
-        ):
+        def loss_function():
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     observations[:, :(-1), :],

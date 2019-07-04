@@ -82,9 +82,7 @@ class QLearning(Critic):
         actions,
         target_values
     ):
-        def loss_function(
-            *inputs
-        ):
+        def loss_function():
             qvalues = self.qf.get_qvalues(
                 observations,
                 actions
