@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.gradients import Optimizer
+from jetpack.gradients.optimizer import Optimizer
 from jetpack.gradients.utils.line_search import line_search
 
 

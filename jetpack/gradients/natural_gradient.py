@@ -2,7 +2,7 @@
 
 
 from abc import ABC, abstractmethod
-from jetpack.gradients import Optimizer
+from jetpack.gradients.optimizer import Optimizer
 from jetpack.gradients.utils.fisher import inverse_fisher_vector_product
 
 
