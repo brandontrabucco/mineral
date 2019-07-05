@@ -1,14 +1,25 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class Base(ABC):
 
-    @abstractmethod
-    def gradient_update(
-        self, 
-        *inputs
+    def __init__(
+        self,
+        monitor=None
     ):
-        return NotImplemented
+        self.monitor = monitor
+        self.iteration = 0
+
+    def gradient_update(
+        self,
+        observations,
+        actions,
+        rewards,
+        lengths
+    ):
+        if self.monitor is not None:
+            self.monitor.set_step(self.iteration)
+        self.iteration += 1

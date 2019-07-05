@@ -2,10 +2,10 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.critics.value_regression import ValueRegression
+from jetpack.algorithms.critics.value_learning import ValueLearning
 
 
-class GAE(ValueRegression):
+class GAE(ValueLearning):
 
     def __init__(
         self,
@@ -14,7 +14,7 @@ class GAE(ValueRegression):
         lamb=1.0,
         monitor=None,
     ):
-        ValueRegression.__init__(
+        ValueLearning.__init__(
             self,
             vf,
             gamma=gamma,
@@ -22,26 +22,20 @@ class GAE(ValueRegression):
         )
         self.lamb = lamb
 
-    def gradient_update_return_weights(
+    def get_advantages(
         self,
         observations,
         actions,
         rewards,
-        lengths
+        terminals
     ):
-        thermometer = self.gradient_update(
-            observations,
-            actions,
-            rewards,
-            lengths
-        )
-        values = self.get_values(
+        values = self.vf.get_values(
             observations
-        )
+        )[:, :, 0]
         delta_v = (
-            thermometer[:, :(-1)] * rewards -
-            thermometer[:, :(-1)] * values[:, :(-1)] +
-            thermometer[:, 1:] * values[:, 1:] * self.gamma
+            terminals[:, :(-1)] * rewards -
+            terminals[:, :(-1)] * values[:, :(-1)] +
+            terminals[:, 1:] * values[:, 1:] * self.gamma
         )
         weights = tf.tile(
             [[self.gamma * self.lamb]],

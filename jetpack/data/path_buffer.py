@@ -3,11 +3,10 @@
 
 import numpy as np
 import jetpack as jp
-from abc import ABC, abstractmethod
 from jetpack.data.buffer import Buffer
 
 
-class PathBuffer(Buffer, ABC):
+class PathBuffer(Buffer):
 
     def __init__(
         self,
@@ -15,12 +14,20 @@ class PathBuffer(Buffer, ABC):
         policy,
         selector=None,
     ):
-        self.selector = (lambda x: x) if selector is None else selector
         Buffer.__init__(
             self, 
             env,
             policy
         )
+        self.selector = (lambda x: x) if selector is None else selector
+        self.max_size = None
+        self.max_path_length = None
+        self.size = None
+        self.head = None
+        self.tail = None
+        self.observations = None
+        self.actions = None
+        self.rewards = None
 
     def reset(
         self,
@@ -31,121 +38,124 @@ class PathBuffer(Buffer, ABC):
         self.max_path_length = max_path_length
         self.size = 0
         self.head = 0
-        self.tail = np.zeros(
-            [self.max_size],
-            dtype=np.int32
+        self.tail = np.zeros([self.max_size], dtype=np.int32)
+
+    def create(
+        self,
+        observation,
+        action,
+        reward
+    ):
+        def create_backend(x):
+            return np.zeros([
+                self.max_size,
+                self.max_path_length,
+                *x.shape], dtype=np.float32
+            )
+        self.observations = jp.nested_apply(
+            create_backend,
+            observation
         )
-        self.seen = np.zeros(
-            [self.max_size, self.max_path_length],
-            dtype=np.int32
+        self.actions = jp.nested_apply(
+            create_backend,
+            action
         )
-        self.candidates = np.zeros(
-            [0, 2],
-            dtype=np.int32
+        self.rewards = jp.nested_apply(
+            create_backend,
+            reward
         )
 
-    def explore(
+    def put(
+        self,
+        j,
+        observation,
+        action,
+        reward
+    ):
+        def put_backend(x, y):
+            x[self.head, j, ...] = y
+        jp.nested_apply(
+            put_backend,
+            self.observations,
+            observation
+        )
+        jp.nested_apply(
+            put_backend,
+            self.actions,
+            action
+        )
+        jp.nested_apply(
+            put_backend,
+            self.rewards,
+            reward
+        )
+
+    def collect(
         self,
         num_paths_to_collect,
+        save_paths=True,
         render=False,
         **render_kwargs
     ):
-        exploration_returns = []
+        all_returns = []
         for i in range(num_paths_to_collect):
             observation = self.env.reset()
             path_return = 0.0
             for j in range(self.max_path_length):
-                if j > 0 and self.seen[self.head, j - 1] == 0:
-                    self.candidates = np.concatenate([
-                        self.candidates,
-                        np.array([[self.head, j - 1]])
-                    ], 0)
-                    self.seen[self.head, j - 1] = 1
-
                 action = self.policy.get_stochastic_actions(
-                    self.selector(observation)[np.newaxis, ...]
-                ).numpy()[0, ...]
-                next_observation, reward, done, info = self.env.step(
-                    action
-                )
+                    self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
+                next_observation, reward, done, info = self.env.step(action)
                 if render:
                     self.env.render(**render_kwargs)
-                if self.size == 0:
-                    def create(x):
-                        return np.zeros([
-                            self.max_size,
-                            self.max_path_length,
-                            *x.shape], dtype=np.float32
-                        )
-                    self.observations = jp.nested_apply(
-                        create,
-                        observation
-                    )
-                    self.actions = jp.nested_apply(
-                        create,
-                        action
-                    )
-                    self.rewards = jp.nested_apply(
-                        create,
-                        reward
-                    )
-
-                def put(x, y):
-                    x[self.head, j, ...] = y
-                jp.nested_apply(
-                    put,
-                    self.observations,
-                    observation
-                )
-                jp.nested_apply(
-                    put,
-                    self.actions,
-                    action
-                )
-                jp.nested_apply(
-                    put,
-                    self.rewards,
-                    reward
-                )
+                if save_paths:
+                    if self.size == 0:
+                        self.create(observation, action, reward)
+                    self.put(j, observation, action, reward)
+                    self.tail[self.head] = j + 1
                 path_return = path_return + reward
-                self.tail[self.head] = j + 1
-                observation = next_observation
                 if done:
                     break
-            self.head = (self.head + 1) % self.max_size
-            self.size = min(self.size + 1, self.max_size)
-            exploration_returns.append(path_return)
-        return np.mean(exploration_returns)
-
-    def evaluate(
-        self,
-        num_paths_to_collect,
-        render=False,
-        **render_kwargs
-    ):
-        evaluation_returns = []
-        for i in range(num_paths_to_collect):
-            observation = self.env.reset()
-            path_return = 0.0
-            for i in range(self.max_path_length):
-                action = self.policy.get_deterministic_actions(
-                    self.selector(observation)[np.newaxis, ...]
-                ).numpy()[0, ...]
-                next_observation, reward, done, info = self.env.step(
-                    action
-                )
-                if render:
-                    self.env.render(**render_kwargs)
-                path_return = path_return + reward
                 observation = next_observation
-                if done:
-                    break
-            evaluation_returns.append(path_return)
-        return np.mean(evaluation_returns)
+            if save_paths:
+                self.head = (self.head + 1) % self.max_size
+                self.size = min(self.size + 1, self.max_size)
+            all_returns.append(path_return)
+        return np.mean(all_returns)
 
-    @abstractmethod
     def sample(
         self,
         batch_size
     ):
-        return NotImplemented
+        indices = np.random.choice(
+            self.size,
+            size=batch_size,
+            replace=(self.size < batch_size)
+        )
+        select_minus_one = lambda x: x[indices, :(-1), ...]
+        select = lambda x: x[indices, ...]
+        observations = jp.nested_apply(
+            select,
+            self.observations
+        )
+        actions = jp.nested_apply(
+            select_minus_one,
+            self.actions
+        )
+        rewards = jp.nested_apply(
+            select_minus_one,
+            self.rewards
+        )
+        lengths = jp.nested_apply(
+            select,
+            self.tail
+        )
+        terminals = (
+            (lengths[:, np.newaxis] - 1) >
+            np.arange(self.max_path_length)[np.newaxis, :]).astype(np.float32)
+        rewards = terminals[:, :(-1)] * rewards
+        return (
+            observations,
+            actions,
+            rewards,
+            terminals
+        )

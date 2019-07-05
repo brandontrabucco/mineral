@@ -5,7 +5,7 @@ import gym
 from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.envs.normalized_env import NormalizedEnv
-from jetpack.data.on_policy_buffer import OnPolicyBuffer
+from jetpack.data.path_buffer import PathBuffer
 from jetpack.algorithms.policy_gradient import PolicyGradient
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         )
     )
 
-    buffer = OnPolicyBuffer(
+    buffer = PathBuffer(
         env,
         policy
     )

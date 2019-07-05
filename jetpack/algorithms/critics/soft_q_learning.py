@@ -9,71 +9,89 @@ class SoftQLearning(QLearning):
 
     def __init__(
         self,
+        policy,
         qf,
-        target_policy,
         target_qf,
         gamma=1.0,
-        sigma=1.0,
+        std=1.0,
         clip_radius=1.0,
-        monitor=None,
+        bellman_weight=1.0,
+        discount_weight=1.0,
+        **kwargs
     ):
         QLearning.__init__(
             self,
+            policy,
             qf,
-            target_policy,
             target_qf,
             gamma=gamma,
-            sigma=sigma,
+            std=std,
             clip_radius=clip_radius,
-            monitor=monitor,
+            bellman_weight=bellman_weight,
+            discount_weight=discount_weight,
+            **kwargs
         )
 
-    def get_target_values(
+    def bellman_target_values(
         self,
+        observations,
+        actions,
         rewards,
-        next_observations,
         terminals
     ):
-        next_actions = self.target_policy.get_deterministic_actions(
-            next_observations
+        next_actions = self.policy.get_deterministic_actions(
+            observations[:, 1:, ...]
         )
-        next_target_log_probs = self.target_policy.get_log_probs(
-            next_observations,
+        next_log_probs = self.policy.get_log_probs(
+            observations[:, 1:, ...],
             next_actions
         )
         epsilon = tf.clip_by_value(
-            self.sigma * tf.random.normal(
+            self.std * tf.random.normal(
                 tf.shape(next_actions),
                 dtype=tf.float32
-            ),
-            -self.clip_radius,
-            self.clip_radius
+            ), -self.clip_radius, self.clip_radius
         )
         noisy_next_actions = next_actions + epsilon
         next_target_qvalues = self.target_qf.get_qvalues(
-            next_observations,
+            observations[:, 1:, ...],
             noisy_next_actions
-        )[:, 0]
+        )
         target_values = rewards + (
-            terminals * self.gamma * (
-                next_target_qvalues - next_target_log_probs
+            terminals[:, 1:] * self.gamma * (
+                next_target_qvalues[:, :, 0] - next_log_probs
             )
         )
         if self.monitor is not None:
             self.monitor.record(
-                "rewards_mean",
-                tf.reduce_mean(rewards)
-            )
-            self.monitor.record(
-                "next_target_qvalues_mean",
-                tf.reduce_mean(next_target_qvalues)
-            )
-            self.monitor.record(
-                "next_target_log_probs_mean",
-                tf.reduce_mean(next_target_log_probs)
-            )
-            self.monitor.record(
-                "targets_mean",
+                "bellman_target_values_mean",
                 tf.reduce_mean(target_values)
             )
         return target_values
+
+    def discount_target_values(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+            observations[:, :(-1), ...],
+            actions
+        )
+        weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
+        weights = tf.math.cumprod(
+            weights,
+            axis=1,
+            exclusive=True
+        )
+        discount_target_values = 1.0 / weights * tf.math.cumsum(
+            weights * (rewards - log_probs)
+        )
+        if self.monitor is not None:
+            self.monitor.record(
+                "discount_target_values_mean",
+                tf.reduce_mean(discount_target_values)
+            )
+        return discount_target_values

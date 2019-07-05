@@ -2,8 +2,8 @@
 
 
 from abc import ABC, abstractmethod
-from jetpack.gradients.optimizer import Optimizer
-from jetpack.gradients.utils.fisher import inverse_fisher_vector_product
+from jetpack.optimizers.optimizer import Optimizer
+from jetpack.optimizers.utils.fisher import inverse_fisher_vector_product
 
 
 class NaturalGradient(Optimizer, ABC):
@@ -33,10 +33,10 @@ class NaturalGradient(Optimizer, ABC):
         *inputs
     ):
         gradients, sAs = inverse_fisher_vector_product(
-            lambda: self.gradient(*inputs),
+            lambda: self.mlp(*inputs),
             self.get_fisher_diagonals,
-            self.gradient.trainable_variables,
-            self.gradient.compute_gradients(
+            self.mlp.trainable_variables,
+            self.mlp.compute_gradients(
                 loss_function,
                 *inputs
             ),

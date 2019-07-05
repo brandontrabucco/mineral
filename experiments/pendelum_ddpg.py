@@ -6,7 +6,7 @@ from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_q_function import DenseQFunction
 from jetpack.envs.normalized_env import NormalizedEnv
-from jetpack.data.off_policy_buffer import OffPolicyBuffer
+from jetpack.data.path_buffer import PathBuffer
 from jetpack.algorithms.ddpg import DDPG
 from jetpack.algorithms.critics.q_learning import QLearning
 from jetpack.core.local_trainer import LocalTrainer
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         lr=0.0001
     )
 
-    buffer = OffPolicyBuffer(
+    buffer = PathBuffer(
         env,
         policy
     )

@@ -12,77 +12,107 @@ class ValueLearning(Critic):
         vf,
         target_vf,
         gamma=1.0,
-        monitor=None,
+        std=1.0,
+        clip_radius=1.0,
+        bellman_weight=1.0,
+        discount_weight=1.0,
+        **kwargs
     ):
+        Critic.__init__(self, **kwargs)
         self.vf = vf
         self.target_vf = target_vf
         self.gamma = gamma
-        self.iteration = 0
-        self.monitor = monitor
+        self.bellman_weight = bellman_weight
+        self.discount_weight = discount_weight
 
-    def get_values(
+    def bellman_target_values(
         self,
-        observations
-    ):
-        return self.vf.get_values(
-            observations
-        )[:, 0]
-
-    def get_target_values(
-        self,
+        observations,
+        actions,
         rewards,
-        next_observations,
         terminals
     ):
         next_target_values = self.target_vf.get_values(
-            next_observations
-        )[:, 0]
+            observations[:, 1:, ...]
+        )
         target_values = rewards + (
-            terminals * self.gamma * next_target_values
+            terminals[:, 1:] * self.gamma * next_target_values[:, :, 0]
         )
         if self.monitor is not None:
             self.monitor.record(
-                "rewards_mean",
-                tf.reduce_mean(rewards)
-            )
-            self.monitor.record(
-                "next_target_values_mean",
-                tf.reduce_mean(next_target_values)
-            )
-            self.monitor.record(
-                "targets_mean",
+                "bellman_target_values_mean",
                 tf.reduce_mean(target_values)
             )
         return target_values
 
-    def update_vf(
+    def discount_target_values(
         self,
         observations,
-        target_values
+        actions,
+        rewards,
+        terminals
+    ):
+        weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
+        weights = tf.math.cumprod(
+            weights,
+            axis=1,
+            exclusive=True
+        )
+        discount_target_values = 1.0 / weights * tf.math.cumsum(
+            rewards * weights
+        )
+        if self.monitor is not None:
+            self.monitor.record(
+                "discount_target_values_mean",
+                tf.reduce_mean(discount_target_values)
+            )
+        return discount_target_values
+
+    def update_critic(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals,
+        bellman_target_values,
+        discount_target_values
     ):
         def loss_function():
-            values = self.vf.get_values(
-                observations
-            )[:, 0]
-            loss_vf = tf.reduce_mean(
+            values = terminals[:, :(-1)] * self.vf.get_values(
+                observations[:, :(-1), ...]
+            )[:, :, 0]
+            bellman_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
-                    target_values,
+                    bellman_target_values,
+                    values
+                )
+            )
+            discount_loss_vf = tf.reduce_mean(
+                tf.losses.mean_squared_error(
+                    discount_target_values,
                     values
                 )
             )
             if self.monitor is not None:
                 self.monitor.record(
-                    "loss_vf",
-                    loss_vf
-                )
-                self.monitor.record(
                     "values_mean",
                     tf.reduce_mean(values)
                 )
-            return loss_vf
+                self.monitor.record(
+                    "bellman_loss_vf",
+                    bellman_loss_vf
+                )
+                self.monitor.record(
+                    "discount_loss_vf",
+                    discount_loss_vf
+                )
+            return (
+                self.bellman_weight * bellman_loss_vf +
+                self.discount_weight * discount_loss_vf
+            )
         self.vf.minimize(
             loss_function,
-            observations
+            observations[:, :(-1), ...]
         )
 
     def soft_update(
@@ -92,49 +122,19 @@ class ValueLearning(Critic):
             self.vf.get_weights()
         )
 
-    def gradient_update(
-        self, 
-        observations,
-        actions,
-        rewards,
-        next_observations,
-        terminals
-    ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
-        target_values = self.get_target_values(
-            rewards,
-            next_observations,
-            terminals
-        )
-        self.update_vf(
-            observations,
-            target_values
-        )
-        self.soft_update()
-
-    def gradient_update_return_weights(
+    def get_advantages(
         self,
         observations,
         actions,
         rewards,
-        next_observations,
         terminals
     ):
-        self.gradient_update(
-            observations,
-            actions,
-            rewards,
-            next_observations,
-            terminals
+        values = terminals[:, :(-1)] * self.vf.get_values(
+            observations[:, :(-1), ...]
         )
-        next_values = self.get_values(
-            next_observations
+        next_values = terminals[:, 1:] * self.vf.get_values(
+            observations[:, 1:, ...]
         )
-        if self.monitor is not None:
-            self.monitor.record(
-                "next_values_mean",
-                tf.reduce_mean(next_values)
-            )
-        return rewards + (terminals * self.gamma * next_values)
+        return (
+            rewards + next_values - values
+        )

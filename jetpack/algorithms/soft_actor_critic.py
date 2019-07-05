@@ -10,14 +10,14 @@ class SoftActorCritic(DDPG):
     def __init__(
         self,
         policy,
-        q_backup,
+        critic,
         target_policy,
         actor_delay=1,
         monitor=None,
     ):
         DDPG.__init__(
             policy,
-            q_backup,
+            critic,
             target_policy,
             actor_delay=actor_delay,
             monitor=monitor,
@@ -25,7 +25,10 @@ class SoftActorCritic(DDPG):
 
     def update_policy(
         self,
-        observations
+        observations,
+        actions,
+        rewards,
+        terminals
     ):
         def loss_function():
             policy_actions = self.policy.get_stochastic_actions(
@@ -35,12 +38,14 @@ class SoftActorCritic(DDPG):
                 observations,
                 policy_actions
             )
-            policy_qvalues = self.q_backup.get_qvalues(
+            policy_advantages = self.critic.get_advantages(
                 observations,
-                policy_actions
+                policy_actions,
+                rewards,
+                terminals
             )
             loss_policy = tf.reduce_mean(
-                policy_log_probs - policy_qvalues
+                policy_log_probs - policy_advantages
             )
             if self.monitor is not None:
                 self.monitor.record(
@@ -48,8 +53,8 @@ class SoftActorCritic(DDPG):
                     loss_policy
                 )
                 self.monitor.record(
-                    "policy_qvalues_mean",
-                    tf.reduce_mean(policy_qvalues)
+                    "policy_advantages_mean",
+                    tf.reduce_mean(policy_advantages)
                 )
                 self.monitor.record(
                     "policy_log_probs_mean",

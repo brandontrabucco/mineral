@@ -10,13 +10,13 @@ class DDPG(Base):
     def __init__(
         self,
         policy,
-        q_backup,
+        critic,
         target_policy,
         actor_delay=1,
         monitor=None,
     ):
         self.policy = policy
-        self.q_backup = q_backup
+        self.critic = critic
         self.target_policy = target_policy
         self.actor_delay = actor_delay
         self.monitor = monitor
@@ -24,18 +24,23 @@ class DDPG(Base):
 
     def update_policy(
         self,
-        observations
+        observations,
+        actions,
+        rewards,
+        terminals
     ):
         def loss_function():
             policy_actions = self.policy.get_stochastic_actions(
                 observations
             )
-            policy_qvalues = self.q_backup.get_qvalues(
+            policy_advantages = self.critic.get_advantages(
                 observations,
-                policy_actions
+                policy_actions,
+                rewards,
+                terminals
             )
             loss_policy = -1.0 * (
-                tf.reduce_mean(policy_qvalues)
+                tf.reduce_mean(policy_advantages)
             )
             if self.monitor is not None:
                 self.monitor.record(
@@ -43,8 +48,8 @@ class DDPG(Base):
                     loss_policy
                 )
                 self.monitor.record(
-                    "policy_qvalues_mean",
-                    tf.reduce_mean(policy_qvalues)
+                    "policy_advantages_mean",
+                    tf.reduce_mean(policy_advantages)
                 )
             return loss_policy
         self.policy.minimize(
@@ -57,22 +62,23 @@ class DDPG(Base):
         observations,
         actions,
         rewards,
-        next_observations,
         terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
         self.iteration += 1
-        self.q_backup.gradient_update(
+        self.critic.gradient_update(
             observations,
             actions,
             rewards,
-            next_observations,
             terminals
         )
         if self.iteration % self.actor_delay == 0:
             self.update_policy(
-                observations
+                observations,
+                actions,
+                rewards,
+                terminals
             )
             self.target_policy.soft_update(
                 self.policy.get_weights()

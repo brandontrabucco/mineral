@@ -9,103 +9,126 @@ class QLearning(Critic):
 
     def __init__(
         self,
+        policy,
         qf,
-        target_policy,
         target_qf,
         gamma=1.0,
-        sigma=1.0,
+        std=1.0,
         clip_radius=1.0,
-        monitor=None,
+        bellman_weight=1.0,
+        discount_weight=1.0,
+        **kwargs
     ):
+        Critic.__init__(self, **kwargs)
+        self.policy = policy
         self.qf = qf
-        self.target_policy = target_policy
         self.target_qf = target_qf
         self.gamma = gamma
-        self.sigma = sigma
+        self.std = std
         self.clip_radius = clip_radius
-        self.iteration = 0
-        self.monitor = monitor
+        self.bellman_weight = bellman_weight
+        self.discount_weight = discount_weight
 
-    def get_qvalues(
+    def bellman_target_values(
         self,
         observations,
-        actions
-    ):
-        return self.qf.get_qvalues(
-            observations,
-            actions
-        )[:, 0]
-
-    def get_target_values(
-        self,
+        actions,
         rewards,
-        next_observations,
         terminals
     ):
-        next_actions = self.target_policy.get_deterministic_actions(
-            next_observations
+        next_actions = self.policy.get_deterministic_actions(
+            observations[:, 1:, ...]
         )
         epsilon = tf.clip_by_value(
-            self.sigma * tf.random.normal(
+            self.std * tf.random.normal(
                 tf.shape(next_actions),
                 dtype=tf.float32
-            ),
-            -self.clip_radius,
-            self.clip_radius
+            ), -self.clip_radius, self.clip_radius
         )
         noisy_next_actions = next_actions + epsilon
         next_target_qvalues = self.target_qf.get_qvalues(
-            next_observations,
+            observations[:, 1:, ...],
             noisy_next_actions
-        )[:, 0]
+        )
         target_values = rewards + (
-            terminals * self.gamma * next_target_qvalues
+            terminals[:, 1:] * self.gamma * next_target_qvalues[:, :, 0]
         )
         if self.monitor is not None:
             self.monitor.record(
-                "rewards_mean",
-                tf.reduce_mean(rewards)
-            )
-            self.monitor.record(
-                "next_target_qvalues_mean",
-                tf.reduce_mean(next_target_qvalues)
-            )
-            self.monitor.record(
-                "targets_mean",
+                "bellman_target_values_mean",
                 tf.reduce_mean(target_values)
             )
         return target_values
 
-    def update_qf(
+    def discount_target_values(
         self,
         observations,
         actions,
-        target_values
+        rewards,
+        terminals
+    ):
+        weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
+        weights = tf.math.cumprod(
+            weights,
+            axis=1,
+            exclusive=True
+        )
+        discount_target_values = 1.0 / weights * tf.math.cumsum(
+            rewards * weights
+        )
+        if self.monitor is not None:
+            self.monitor.record(
+                "discount_target_values_mean",
+                tf.reduce_mean(discount_target_values)
+            )
+        return discount_target_values
+
+    def update_critic(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals,
+        bellman_target_values,
+        discount_target_values
     ):
         def loss_function():
-            qvalues = self.qf.get_qvalues(
-                observations,
+            qvalues = terminals[:, :(-1)] * self.qf.get_qvalues(
+                observations[:, :(-1), ...],
                 actions
-            )[:, 0]
-            loss_qf = tf.reduce_mean(
+            )[:, :, 0]
+            bellman_loss_qf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
-                    target_values,
+                    bellman_target_values,
+                    qvalues
+                )
+            )
+            discount_loss_qf = tf.reduce_mean(
+                tf.losses.mean_squared_error(
+                    discount_target_values,
                     qvalues
                 )
             )
             if self.monitor is not None:
                 self.monitor.record(
-                    "loss_qf",
-                    loss_qf
-                )
-                self.monitor.record(
                     "qvalues_mean",
                     tf.reduce_mean(qvalues)
                 )
-            return loss_qf
+                self.monitor.record(
+                    "bellman_loss_qf",
+                    bellman_loss_qf
+                )
+                self.monitor.record(
+                    "discount_loss_qf",
+                    discount_loss_qf
+                )
+            return (
+                self.bellman_weight * bellman_loss_qf +
+                self.discount_weight * discount_loss_qf
+            )
         self.qf.minimize(
             loss_function,
-            observations,
+            observations[:, :(-1), ...],
             actions
         )
 
@@ -116,45 +139,23 @@ class QLearning(Critic):
             self.qf.get_weights()
         )
 
-    def gradient_update(
-        self, 
-        observations,
-        actions,
-        rewards,
-        next_observations,
-        terminals
-    ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
-        target_values = self.get_target_values(
-            rewards,
-            next_observations,
-            terminals
-        )
-        self.update_qf(
-            observations,
-            actions,
-            target_values
-        )
-        self.soft_update()
-
-    def gradient_update_return_weights(
+    def get_advantages(
         self,
         observations,
         actions,
         rewards,
-        next_observations,
-        terminals
+        terminals,
     ):
-        self.gradient_update(
-            observations,
-            actions,
-            rewards,
-            next_observations,
-            terminals
-        )
-        return self.get_qvalues(
-            observations,
+        qvalues = self.qf.get_qvalues(
+            observations[:, :(-1), ...],
             actions
+        )
+        values = self.qf.get_qvalues(
+            observations[:, :(-1), ...],
+            self.policy.get_deterministic_actions(
+                observations[:, :(-1), ...]
+            )
+        )
+        return terminals[:, :(-1)] * (
+            qvalues[:, :, 0] - values[:, :, 0]
         )
