@@ -32,7 +32,7 @@ class OneStepRegression(TransitionDynamics):
                 observations[:, 1:, :]
             )
             loss_model = -1.0 * tf.reduce_mean(
-                log_probs_model
+                log_probs_model * terminals[:, :(-1)]
             )
             if self.monitor is not None:
                 self.monitor.record(
