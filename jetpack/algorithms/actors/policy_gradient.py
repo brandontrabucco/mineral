@@ -18,11 +18,12 @@ class PolicyGradient(Base):
         self.monitor = monitor
         self.iteration = 0
 
-    def update_policy(
+    def update_actor(
         self,
         observations,
         actions,
-        returns
+        returns,
+        terminals
     ):
         def loss_function():
             loss_policy = -1.0 * tf.reduce_mean(
@@ -73,9 +74,10 @@ class PolicyGradient(Base):
                 "returns_mean",
                 tf.reduce_mean(returns)
             )
-        self.update_policy(
+        self.update_actor(
             observations,
             actions,
-            returns
+            returns,
+            terminals
         )
 

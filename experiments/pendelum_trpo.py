@@ -9,7 +9,7 @@ from jetpack.optimizers.gradients.gaussian_natural_gradient import GaussianNatur
 from jetpack.optimizers.searches.line_search_optimizer import LineSearchOptimizer
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.path_buffer import PathBuffer
-from jetpack.algorithms.trpo import TRPO
+from jetpack.algorithms.actors.trpo import TRPO
 from jetpack.algorithms.critics.gae import GAE
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor

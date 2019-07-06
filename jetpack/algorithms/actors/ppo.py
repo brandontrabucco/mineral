@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.actor_critic import ActorCritic
+from jetpack.algorithms.actors.actor_critic import ActorCritic
 
 
 class PPO(ActorCritic):
@@ -30,11 +30,12 @@ class PPO(ActorCritic):
         self.epsilon = epsilon
         self.old_policy_delay = old_policy_delay
 
-    def update_policy(
+    def update_actor(
         self,
         observations,
         actions,
-        returns
+        returns,
+        terminals
     ):
         def loss_function():
             ratio = tf.exp(

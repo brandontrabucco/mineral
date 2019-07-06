@@ -7,7 +7,7 @@ from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_q_function import DenseQFunction
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.path_buffer import PathBuffer
-from jetpack.algorithms.soft_actor_critic import SoftActorCritic
+from jetpack.algorithms.actors.soft_actor_critic import SoftActorCritic
 from jetpack.algorithms.critics.soft_q_learning import SoftQLearning
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor

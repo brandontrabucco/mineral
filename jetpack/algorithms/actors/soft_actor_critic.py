@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.ddpg import DDPG
+from jetpack.algorithms.actors.ddpg import DDPG
 
 
 class SoftActorCritic(DDPG):
@@ -24,7 +24,7 @@ class SoftActorCritic(DDPG):
             monitor=monitor,
         )
 
-    def update_policy(
+    def update_actor(
         self,
         observations,
         actions,

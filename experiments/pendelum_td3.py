@@ -7,7 +7,7 @@ from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_q_function import DenseQFunction
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.path_buffer import PathBuffer
-from jetpack.algorithms.ddpg import DDPG
+from jetpack.algorithms.actors.ddpg import DDPG
 from jetpack.algorithms.critics.q_learning import QLearning
 from jetpack.algorithms.critics.twin_delayed_critic import TwinDelayedCritic
 from jetpack.core.local_trainer import LocalTrainer

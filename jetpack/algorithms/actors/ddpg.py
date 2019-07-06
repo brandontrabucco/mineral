@@ -22,7 +22,7 @@ class DDPG(Base):
         self.monitor = monitor
         self.iteration = 0
 
-    def update_policy(
+    def update_actor(
         self,
         observations,
         actions,
@@ -74,7 +74,7 @@ class DDPG(Base):
             terminals
         )
         if self.iteration % self.actor_delay == 0:
-            self.update_policy(
+            self.update_actor(
                 observations,
                 actions,
                 rewards,

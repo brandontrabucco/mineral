@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.policy_gradient import PolicyGradient
+from jetpack.algorithms.actors.policy_gradient import PolicyGradient
 
 
 class ActorCritic(PolicyGradient):
@@ -29,7 +29,7 @@ class ActorCritic(PolicyGradient):
         observations,
         actions,
         rewards,
-        lengths
+        terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
@@ -38,13 +38,13 @@ class ActorCritic(PolicyGradient):
             observations,
             actions,
             rewards,
-            lengths
+            terminals
         )
         returns = self.critic.get_advantages(
             observations,
             actions,
             rewards,
-            lengths
+            terminals
         )
         if self.monitor is not None:
             self.monitor.record(
@@ -56,10 +56,11 @@ class ActorCritic(PolicyGradient):
                 tf.reduce_mean(returns)
             )
         if self.iteration % self.actor_delay == 0:
-            self.update_policy(
+            self.update_actor(
                 observations,
                 actions,
-                returns
+                returns,
+                terminals
             )
 
 
