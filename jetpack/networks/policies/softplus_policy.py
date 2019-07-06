@@ -1,5 +1,4 @@
 """Author: Brandon Trabucco, Copyright 2019"""
-from abc import ABC
 
 import tensorflow as tf
 from jetpack.functions.policy import Policy
