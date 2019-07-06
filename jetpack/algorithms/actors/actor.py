@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from jetpack.algorithms.base import Base
 
 
-class Base(ABC):
+class Actor(Base, ABC):
 
     def __init__(
         self,

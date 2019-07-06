@@ -2,10 +2,10 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.base import Base
+from jetpack.algorithms.actors.actor import Actor
 
 
-class PolicyGradient(Base):
+class PolicyGradient(Actor):
 
     def __init__(
         self,
