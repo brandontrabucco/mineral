@@ -24,6 +24,13 @@ class TransitionDynamics(Base, ABC):
         rewards,
         terminals
     ):
+        Base.gradient_update(
+            self,
+            observations,
+            actions,
+            rewards,
+            terminals
+        )
         self.update_transition(
             observations,
             actions,

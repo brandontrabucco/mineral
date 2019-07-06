@@ -8,7 +8,7 @@ from jetpack.networks.models.gaussian_model import GaussianModel
 from jetpack.networks.models.tanh_model import TanhModel
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.path_buffer import PathBuffer
-from jetpack.algorithms.transition_dynamics.one_step_regression import OneStepRegression
+from jetpack.algorithms.transition_dynamics.one_step_prediction import OneStepPrediction
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         policy
     )
 
-    algorithm = OneStepRegression(
+    algorithm = OneStepPrediction(
         model,
         monitor=monitor
     )
@@ -48,10 +48,10 @@ if __name__ == "__main__":
     max_size = 32
     num_warm_up_paths = 32
     num_steps = 20000
-    num_paths_to_collect = 32
+    num_paths_to_collect = 1
     max_path_length = 100
-    batch_size = 32
-    num_trains_per_step = 1
+    batch_size = 8
+    num_trains_per_step = 100
 
     trainer = LocalTrainer(
         max_size,

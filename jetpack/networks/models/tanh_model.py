@@ -50,7 +50,7 @@ class TanhModel(Model):
         return correction + self.model.get_log_probs(
             observations,
             actions,
-            tf.math.log(tf.math.exp(next_observations) - 1)
+            tf.math.atanh(next_observations)
         )
 
     def get_kl_divergence(

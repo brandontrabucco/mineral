@@ -5,7 +5,7 @@ import tensorflow as tf
 from jetpack.algorithms.transition_dynamics.transition_dynamics import TransitionDynamics
 
 
-class OneStepRegression(TransitionDynamics):
+class OneStepPrediction(TransitionDynamics):
 
     def __init__(
         self,
