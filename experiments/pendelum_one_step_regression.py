@@ -8,7 +8,7 @@ from jetpack.networks.models.gaussian_model import GaussianModel
 from jetpack.networks.models.tanh_model import TanhModel
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.path_buffer import PathBuffer
-from jetpack.algorithms.transition_dynamics.model_learning import ModelLearning
+from jetpack.algorithms.transition_dynamics.one_step_regression import OneStepRegression
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         policy
     )
 
-    algorithm = ModelLearning(
+    algorithm = OneStepRegression(
         model,
         monitor=monitor
     )
