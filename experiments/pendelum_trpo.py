@@ -5,8 +5,8 @@ import gym
 from jetpack.networks.policies.gaussian_policy import GaussianPolicy
 from jetpack.networks.policies.tanh_policy import TanhPolicy
 from jetpack.networks.dense.dense_value_function import DenseValueFunction
-from jetpack.optimizers.gaussian_natural_gradient import GaussianNaturalGradient
-from jetpack.optimizers.line_search_optimizer import LineSearchOptimizer
+from jetpack.optimizers.gradients.gaussian_natural_gradient import GaussianNaturalGradient
+from jetpack.optimizers.searches.line_search_optimizer import LineSearchOptimizer
 from jetpack.envs.normalized_env import NormalizedEnv
 from jetpack.data.path_buffer import PathBuffer
 from jetpack.algorithms.trpo import TRPO
@@ -48,6 +48,11 @@ if __name__ == "__main__":
         lr=0.01
     )
 
+    target_vf = DenseValueFunction(
+        [6, 6, 1],
+        lr=0.01
+    )
+
     buffer = PathBuffer(
         env,
         policy
@@ -55,6 +60,7 @@ if __name__ == "__main__":
 
     critic = GAE(
         vf,
+        target_vf,
         gamma=1.0,
         lamb=1.0,
         monitor=monitor,
@@ -94,4 +100,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, render=True)
+        buffer.collect(1, save_paths=False, render=True)

@@ -31,7 +31,7 @@ class DDPG(Base):
     ):
         def loss_function():
             policy_actions = self.policy.get_stochastic_actions(
-                observations
+                observations[:, :(-1), :]
             )
             policy_advantages = self.critic.get_advantages(
                 observations,

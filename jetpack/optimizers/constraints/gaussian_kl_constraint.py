@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.optimizers.kl_constraint import KLConstraint
+from jetpack.optimizers.constraints.kl_constraint import KLConstraint
 
 
 class GaussianKLConstraint(KLConstraint):

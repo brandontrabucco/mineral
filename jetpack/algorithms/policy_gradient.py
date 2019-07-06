@@ -47,7 +47,7 @@ class PolicyGradient(Base):
         observations,
         actions,
         rewards,
-        lengths
+        terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
@@ -61,14 +61,8 @@ class PolicyGradient(Base):
             axis=1,
             exclusive=True
         )
-        thermometer = tf.cast(
-            tf.range(
-                tf.shape(observations)[1]
-            )[tf.newaxis, :] < lengths[:, tf.newaxis],
-            tf.float32
-        )
         returns = tf.math.cumsum(
-            rewards * thermometer[:, :(-1)] * weights
+            rewards * weights
         ) / weights
         if self.monitor is not None:
             self.monitor.record(

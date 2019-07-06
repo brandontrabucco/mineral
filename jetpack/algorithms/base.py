@@ -18,7 +18,7 @@ class Base(ABC):
         observations,
         actions,
         rewards,
-        lengths
+        terminals
     ):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)

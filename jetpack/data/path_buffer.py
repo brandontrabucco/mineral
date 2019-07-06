@@ -149,8 +149,7 @@ class PathBuffer(Buffer):
             select,
             self.tail
         )
-        terminals = (
-            (lengths[:, np.newaxis] - 1) >
+        terminals = ((lengths[:, np.newaxis] - 1) >
             np.arange(self.max_path_length)[np.newaxis, :]).astype(np.float32)
         rewards = terminals[:, :(-1)] * rewards
         return (

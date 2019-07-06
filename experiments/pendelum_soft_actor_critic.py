@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     policy = TanhPolicy(
         GaussianPolicy(
-            [6, 6, 1],
+            [6, 6, 2],
             lr=0.0001
         )
     )
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     target_policy = TanhPolicy(
         GaussianPolicy(
-            [6, 6, 1],
+            [6, 6, 2],
             lr=0.0001
         )
     )
@@ -51,17 +51,17 @@ if __name__ == "__main__":
     )
 
     clip_radius = 0.2
-    sigma = 0.1
+    std = 0.1
     gamma = 0.99
     actor_delay = 10
 
     q_backup = SoftQLearning(
-        qf,
         target_policy,
+        qf,
         target_qf,
         gamma=gamma,
         clip_radius=clip_radius,
-        sigma=sigma,
+        std=std,
         monitor=monitor,
     )
 
@@ -98,4 +98,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, render=True)
+        buffer.collect(1, save_paths=False, render=True)

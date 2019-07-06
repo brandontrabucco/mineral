@@ -10,6 +10,7 @@ class GAE(ValueLearning):
     def __init__(
         self,
         vf,
+        target_vf,
         gamma=1.0,
         lamb=1.0,
         monitor=None,
@@ -17,6 +18,7 @@ class GAE(ValueLearning):
         ValueLearning.__init__(
             self,
             vf,
+            target_vf,
             gamma=gamma,
             monitor=monitor
         )

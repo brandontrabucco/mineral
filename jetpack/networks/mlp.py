@@ -32,7 +32,7 @@ class MLP(tf.keras.Model, HasGradient, ABC):
     ):
         with tf.GradientTape() as gradient_tape:
             return gradient_tape.gradient(
-                loss_function(*inputs),
+                loss_function(),
                 self.trainable_variables
             )
 

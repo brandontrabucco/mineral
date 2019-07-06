@@ -54,6 +54,7 @@ class Critic(Base, ABC):
         terminals
     ):
         Base.gradient_update(
+            self,
             observations,
             actions,
             rewards,

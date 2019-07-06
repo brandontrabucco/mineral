@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 from jetpack.optimizers.optimizer import Optimizer
-from jetpack.optimizers.utils.line_search import line_search
+from jetpack.optimizers.searches.line_search import line_search
 
 
 class LineSearchOptimizer(Optimizer):
@@ -27,7 +27,7 @@ class LineSearchOptimizer(Optimizer):
         loss_function,
         *inputs
     ):
-        outputs = self.gradient.compute_gradients(
+        outputs = self.mlp.compute_gradients(
             loss_function,
             *inputs
         )
@@ -39,7 +39,7 @@ class LineSearchOptimizer(Optimizer):
             alpha = self.delta
         return line_search(
             loss_function,
-            self.gradient,
+            self.mlp,
             gradients,
             alpha,
             scale_factor=self.scale_factor,

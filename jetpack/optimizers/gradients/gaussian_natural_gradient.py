@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.optimizers.natural_gradient import NaturalGradient
+from jetpack.optimizers.gradients.natural_gradient import NaturalGradient
 
 
 class GaussianNaturalGradient(NaturalGradient):

@@ -40,6 +40,11 @@ if __name__ == "__main__":
         lr=0.01
     )
 
+    target_vf = DenseValueFunction(
+        [6, 6, 1],
+        lr=0.01
+    )
+
     buffer = PathBuffer(
         env,
         policy
@@ -47,6 +52,7 @@ if __name__ == "__main__":
 
     critic = GAE(
         vf,
+        target_vf,
         gamma=1.0,
         lamb=1.0,
         monitor=monitor,
@@ -57,7 +63,7 @@ if __name__ == "__main__":
         old_policy,
         critic,
         gamma=0.99,
-        delta=0.2,
+        epsilon=0.2,
         monitor=monitor
     )
 
@@ -86,4 +92,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, render=True)
+        buffer.collect(1, save_paths=False, render=True)

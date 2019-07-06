@@ -68,27 +68,27 @@ if __name__ == "__main__":
     )
 
     clip_radius = 0.2
-    sigma = 0.1
+    std = 0.1
     gamma = 0.99
     actor_delay = 10
 
     q_backup1 = QLearning(
-        qf1,
         target_policy,
+        qf1,
         target_qf1,
         gamma=gamma,
         clip_radius=clip_radius,
-        sigma=sigma,
+        std=std,
         monitor=monitor,
     )
 
     q_backup2 = QLearning(
-        qf2,
         target_policy,
+        qf2,
         target_qf2,
         gamma=gamma,
         clip_radius=clip_radius,
-        sigma=sigma,
+        std=std,
         monitor=monitor,
     )
 
@@ -130,4 +130,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, render=True)
+        buffer.collect(1, save_paths=False, render=True)

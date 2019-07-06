@@ -34,7 +34,13 @@ class ActorCritic(PolicyGradient):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
         self.iteration += 1
-        returns = self.critic.gradient_update_return_weights(
+        self.critic.gradient_update(
+            observations,
+            actions,
+            rewards,
+            lengths
+        )
+        returns = self.critic.get_advantages(
             observations,
             actions,
             rewards,

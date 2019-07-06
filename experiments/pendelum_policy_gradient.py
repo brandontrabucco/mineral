@@ -62,4 +62,4 @@ if __name__ == "__main__":
         trainer.train()
 
     except KeyboardInterrupt:
-        buffer.evaluate(1, render=True)
+        buffer.collect(1, save_paths=False, render=True)

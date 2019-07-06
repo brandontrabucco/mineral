@@ -17,7 +17,7 @@ def line_search(
             x - beta * dx
             for x, dx in zip(original_weights, grad)
         ])
-        return loss_function(network)
+        return loss_function()
     best_alpha = alpha
     best_loss = float("inf")
     for i in range(iterations):
