@@ -18,7 +18,7 @@ class GaussianNaturalGradient(NaturalGradient):
             )
         if len(inputs) > 1:
             outputs.append(
-                2.0 / tf.square(inputs[1])
+                2.0 / tf.exp(inputs[1])
             )
         return outputs
 

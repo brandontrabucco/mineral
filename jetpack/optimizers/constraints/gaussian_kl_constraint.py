@@ -12,21 +12,17 @@ class GaussianKLConstraint(KLConstraint):
         mlp_outputs,
         old_mlp_outputs
     ):
-        if len(mlp_outputs) > 0:
-            mean = mlp_outputs[0]
-            std = 1
+        mean = mlp_outputs[0]
+        log_variance = tf.ones(tf.shape(mean))
         if len(mlp_outputs) > 1:
-            std = mlp_outputs[1]
-        if len(old_mlp_outputs) > 0:
-            other_mean = old_mlp_outputs[0]
-            other_std = 1
+            log_variance = mlp_outputs[1]
+        other_mean = old_mlp_outputs[0]
+        other_log_variance = tf.ones(tf.shape(other_mean))
         if len(old_mlp_outputs) > 1:
-            other_std = old_mlp_outputs[1]
-        std_ratio = tf.square(std / other_std)
+            other_log_variance = old_mlp_outputs[1]
         return 0.5 * tf.reduce_sum(
-            std_ratio +
-            tf.square((other_mean - mean) / other_std) -
-            tf.math.log(std_ratio) -
-            tf.ones(tf.shape(mean)),
-            axis=-1
-        )
+            tf.math.exp(log_variance - other_log_variance) +
+            other_log_variance - log_variance -
+            tf.square(other_mean - mean) / tf.math.exp(
+                other_log_variance) +
+            tf.ones(tf.shape(mean)), axis=-1)

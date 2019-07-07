@@ -18,30 +18,24 @@ class GaussianPolicy(DenseMLP, Policy):
         DenseMLP.__init__(self, *args, **kwargs)
         self.std = std
 
-    def get_mean_std(
+    def get_mean_log_variance(
         self,
         activations
     ):
         if self.std is None:
-            mean, std = tf.split(
-                activations,
-                2,
-                axis=-1
-            )
-            std = tf.math.softplus(std)
+            mean, log_variance = tf.split(
+                activations, 2, axis=-1)
         else:
             mean = activations
-            std = tf.fill(
-                tf.shape(mean),
-                self.std
-            )
-        return mean, std
+            log_variance = 2.0 * tf.math.log(
+                tf.fill(tf.shape(mean), self.std))
+        return mean, log_variance
 
     def call(
         self,
         observations
     ):
-        return self.get_mean_std(
+        return self.get_mean_log_variance(
             DenseMLP.call(self, observations)
         )
 
@@ -49,11 +43,9 @@ class GaussianPolicy(DenseMLP, Policy):
         self,
         observations
     ):
-        mean, std = self(observations)
-        return mean + std * tf.random.normal(
-            tf.shape(mean),
-            dtype=tf.float32
-        )
+        mean, log_variance = self(observations)
+        return mean + tf.math.exp(0.5 * log_variance) * tf.random.normal(
+            tf.shape(mean), dtype=tf.float32)
 
     def get_deterministic_actions(
         self,
@@ -66,26 +58,22 @@ class GaussianPolicy(DenseMLP, Policy):
         observations,
         actions
     ):
-        mean, std = self(observations)
+        mean, log_variance = self(observations)
         return -0.5 * tf.reduce_sum(
-            tf.math.square((actions - mean) / std) + tf.math.log(
-                tf.math.square(std) * tf.fill(tf.shape(mean), 2.0 * np.pi)
-            ),
-            axis=-1
-        )
+            tf.math.square(actions - mean) / tf.math.exp(
+                log_variance) + log_variance + tf.math.log(
+                    tf.fill(tf.shape(mean), 2.0 * np.pi)), axis=-1)
 
     def get_kl_divergence(
         self,
         other_policy,
         observations
     ):
-        mean, std = self(observations)
-        other_mean, other_std = other_policy(observations)
-        std_ratio = tf.square(std / other_std)
+        mean, log_variance = self(observations)
+        other_mean, other_log_variance = other_policy(observations)
         return 0.5 * tf.reduce_sum(
-            std_ratio +
-            tf.square((other_mean - mean) / other_std) -
-            tf.math.log(std_ratio) -
-            tf.ones(tf.shape(mean)),
-            axis=-1
-        )
+            tf.math.exp(log_variance - other_log_variance) +
+            other_log_variance - log_variance -
+            tf.square(other_mean - mean) / tf.math.exp(
+                other_log_variance) +
+            tf.ones(tf.shape(mean)), axis=-1)
