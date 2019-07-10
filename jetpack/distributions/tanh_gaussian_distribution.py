@@ -21,11 +21,11 @@ class TanhGaussianDistribution(GaussianDistribution, ABC):
         self,
         *inputs
     ):
-        return tf.math.exp(self.distribution.sample(*inputs))
+        return tf.math.tanh(self.distribution.sample(*inputs))
 
     def get_expected_value(
         self,
         *inputs
     ):
         mean, log_variance = self.get_parameters(*inputs)
-        return tf.exp(mean + 0.5 * tf.math.exp(log_variance))
+        return tf.tanh(mean)
