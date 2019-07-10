@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
-from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
+from jetpack.distributions.gaussian.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_q_function import DenseQFunction
 from jetpack.core.environments.normalized_environment import NormalizedEnvironment
 from jetpack.buffers.path_buffer import PathBuffer
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     )
 
     policy = DensePolicy(
-        [32, 32, 2],
+        [32, 32, 1],
         optimizer_kwargs={"lr": 0.0001},
         distribution_class=TanhGaussianDistribution
     )
@@ -30,11 +30,11 @@ if __name__ == "__main__":
     qf = DenseQFunction(
         [6, 6, 1],
         tau=1e-2,
-        lr=0.0001
+        optimizer_kwargs={"lr": 0.0001},
     )
 
     target_policy = DensePolicy(
-        [32, 32, 2],
+        [32, 32, 1],
         optimizer_kwargs={"lr": 0.0001},
         distribution_class=TanhGaussianDistribution
     )
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     target_qf = DenseQFunction(
         [6, 6, 1],
         tau=1e-2,
-        lr=0.0001
+        optimizer_kwargs={"lr": 0.0001},
     )
 
     buffer = PathBuffer(

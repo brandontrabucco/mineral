@@ -25,8 +25,8 @@ class NaturalGradient(Optimizer):
         *inputs
     ):
         gradients, sAs = inverse_fisher_vector_product(
-            lambda: self.mlp(*inputs),
-            self.mlp.get_fisher_information,
+            lambda: self.mlp.get_parameters(*inputs),
+            lambda: self.mlp.get_fisher_information(*inputs),
             self.mlp.trainable_variables,
             self.mlp.compute_gradients(loss_function, *inputs),
             tolerance=self.tolerance,

@@ -11,7 +11,7 @@ class GaussianDistribution(Distribution, ABC):
 
     def __init__(
         self,
-        std=None
+        std=1.0
     ):
         self.std = std
 

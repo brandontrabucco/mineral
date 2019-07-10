@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 from abc import ABC
-from jetpack.distributions.gaussian_distribution import GaussianDistribution
+from jetpack.distributions.gaussian.gaussian_distribution import GaussianDistribution
 
 
 class ExpGaussianDistribution(GaussianDistribution, ABC):

@@ -5,7 +5,7 @@ import tensorflow as tf
 from abc import ABC, abstractmethod
 from jetpack.core.has_gradient import HasGradient
 from jetpack.distributions.distribution import Distribution
-from jetpack.distributions.gaussian_distribution import GaussianDistribution
+from jetpack.distributions.gaussian.gaussian_distribution import GaussianDistribution
 
 
 class Network(tf.keras.Model, Distribution, HasGradient, ABC):
@@ -21,6 +21,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
         tf.keras.Model.__init__(self)
         distribution_class.__init__(self, **distribution_kwargs)
         self.tau = tau
+        self.distribution_class = distribution_class
         self.optimizer = optimizer_class(**optimizer_kwargs)
 
     @abstractmethod
@@ -30,12 +31,6 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
     ):
         return NotImplemented
 
-    def get_activations(
-        self,
-        *inputs
-    ):
-        return self(*inputs)
-
     def compute_gradients(
         self,
         loss_function,
@@ -43,8 +38,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
     ):
         with tf.GradientTape() as gradient_tape:
             return gradient_tape.gradient(
-                loss_function(),
-                self.trainable_variables
+                loss_function(), self.trainable_variables
             )
 
     def apply_gradients(
@@ -52,10 +46,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
         gradients
     ):
         self.optimizer.apply_gradients(
-            zip(
-                gradients,
-                self.trainable_variables
-            )
+            zip(gradients, self.trainable_variables)
         )
 
     def soft_update(
@@ -64,8 +55,47 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
     ):
         self.set_weights([
             self.tau * w + (1.0 - self.tau) * w_self
-            for w, w_self in zip(
-                weights,
-                self.get_weights()
-            )
+            for w, w_self in zip(weights, self.get_weights())
         ])
+
+    def get_activations(
+        self,
+        *inputs
+    ):
+        return self(*inputs)
+
+    def get_parameters(
+        self,
+        *inputs
+    ):
+        return self.distribution_class.get_parameters(self, *inputs)
+
+    def sample(
+        self,
+        *inputs
+    ):
+        return self.distribution_class.sample(self, *inputs)
+
+    def get_expected_value(
+        self,
+        *inputs
+    ):
+        return self.distribution_class.get_expected_value(self, *inputs)
+
+    def get_log_probs(
+        self,
+        *inputs
+    ):
+        return self.distribution_class.get_log_probs(self, *inputs)
+
+    def get_kl_divergence(
+        self,
+        *inputs
+    ):
+        return self.distribution_class.get_kl_divergence(self, *inputs)
+
+    def get_fisher_information(
+        self,
+        *inputs
+    ):
+        return self.distribution_class.get_fisher_information(self, *inputs)

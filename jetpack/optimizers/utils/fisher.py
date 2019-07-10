@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.optimizers.utils import conjugate_gradient
+from jetpack.optimizers.utils.conjugate_gradient import conjugate_gradient
 
 
 def fisher_vector_product(
@@ -28,7 +28,7 @@ def fisher_vector_product(
             )
             for x_i, v_i in zip(x, v)
         ]
-    h = hessian_function(*x)
+    h = hessian_function()
     jvp = [
         h_i * tape.gradient(
             g_i,
