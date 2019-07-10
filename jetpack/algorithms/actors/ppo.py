@@ -2,10 +2,10 @@
 
 
 import tensorflow as tf
-from jetpack.algorithms.actors.actor_critic import ActorCritic
+from jetpack.algorithms.actors.importance_sampling import ImportanceSampling
 
 
-class PPO(ActorCritic):
+class PPO(ImportanceSampling):
 
     def __init__(
         self,
@@ -18,17 +18,17 @@ class PPO(ActorCritic):
         old_policy_delay=1,
         monitor=None,
     ):
-        ActorCritic.__init__(
+        ImportanceSampling.__init__(
             self,
             policy,
+            old_policy,
             critic,
             gamma=gamma,
             actor_delay=actor_delay,
+            old_policy_delay=old_policy_delay,
             monitor=monitor,
         )
-        self.old_policy = old_policy
         self.epsilon = epsilon
-        self.old_policy_delay = old_policy_delay
 
     def update_actor(
         self,

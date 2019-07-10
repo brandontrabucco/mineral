@@ -2,7 +2,7 @@
 
 
 from jetpack.networks.dense.dense_network import DenseNetwork
-from jetpack.functions.value_function import ValueFunction
+from jetpack.core.functions.value_function import ValueFunction
 
 
 class DenseValueFunction(DenseNetwork, ValueFunction):

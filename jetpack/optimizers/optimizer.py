@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from jetpack.has_gradient import HasGradient
+from jetpack.core.has_gradient import HasGradient
 
 
 class Optimizer(HasGradient):

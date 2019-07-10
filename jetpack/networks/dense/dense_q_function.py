@@ -2,7 +2,7 @@
 
 
 from jetpack.networks.dense.dense_network import DenseNetwork
-from jetpack.functions.q_function import QFunction
+from jetpack.core.functions.q_function import QFunction
 
 
 class DenseQFunction(DenseNetwork, QFunction):

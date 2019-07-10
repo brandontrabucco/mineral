@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 from jetpack.optimizers.optimizer import Optimizer
-from jetpack.utils.line_search import line_search
+from jetpack.optimizers.utils.line_search import line_search
 
 
 class LineSearch(Optimizer):

@@ -4,7 +4,7 @@
 import numpy as np
 import jetpack as jp
 from gym.spaces import Box, Dict, Tuple
-from jetpack.envs.proxy_env import ProxyEnv
+from jetpack.core.envs import ProxyEnv
 
 
 class NormalizedEnv(ProxyEnv):

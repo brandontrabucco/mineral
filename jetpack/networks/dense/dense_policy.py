@@ -2,7 +2,7 @@
 
 
 from jetpack.networks.dense.dense_network import DenseNetwork
-from jetpack.functions.policy import Policy
+from jetpack.core.functions import Policy
 
 
 class DensePolicy(DenseNetwork, Policy):

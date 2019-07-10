@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 from tensorboard import program
-from jetpack.core.monitor import Monitor
+from jetpack.core.monitors.monitor import Monitor
 
 
 class LocalMonitor(Monitor):

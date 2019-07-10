@@ -14,18 +14,17 @@ class TanhGaussianDistribution(GaussianDistribution, ABC):
     ):
         x = tf.clip_by_value(x, -0.999, 0.999)
         correction = -1.0 * tf.reduce_sum(tf.math.log(1.0 - tf.math.square(x)), axis=-1)
-        return correction + self.policy.get_log_probs(
-            tf.math.atanh(x), *inputs)
+        return correction + GaussianDistribution.get_log_probs(
+            self, tf.math.atanh(x), *inputs)
 
     def sample(
         self,
         *inputs
     ):
-        return tf.math.tanh(self.distribution.sample(*inputs))
+        return tf.math.tanh(GaussianDistribution.sample(self, *inputs))
 
     def get_expected_value(
         self,
         *inputs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
-        return tf.tanh(mean)
+        return tf.math.tanh(GaussianDistribution.get_expected_value(self, *inputs))

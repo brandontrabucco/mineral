@@ -2,7 +2,7 @@
 
 
 from jetpack.networks.dense.dense_network import DenseNetwork
-from jetpack.functions.forward_model import ForwardModel
+from jetpack.core.functions.forward_model import ForwardModel
 
 
 class DenseForwardModel(DenseNetwork, ForwardModel):

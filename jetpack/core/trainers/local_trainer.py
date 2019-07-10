@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from jetpack.core.trainer import Trainer
+from jetpack.core.trainers.trainer import Trainer
 
 
 class LocalTrainer(Trainer):

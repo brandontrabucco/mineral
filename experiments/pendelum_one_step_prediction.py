@@ -5,11 +5,11 @@ import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
 from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_forward_model import DenseForwardModel
-from jetpack.envs.normalized_env import NormalizedEnv
+from jetpack.core.envs.normalized_env import NormalizedEnv
 from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.transition_dynamics.one_step_prediction import OneStepPrediction
-from jetpack.core.local_trainer import LocalTrainer
-from jetpack.core.local_monitor import LocalMonitor
+from jetpack.core.trainers.local_trainer import LocalTrainer
+from jetpack.core.monitors.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":

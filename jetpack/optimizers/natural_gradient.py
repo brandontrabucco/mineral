@@ -2,7 +2,7 @@
 
 
 from jetpack.optimizers.optimizer import Optimizer
-from jetpack.utils.fisher import inverse_fisher_vector_product
+from jetpack.optimizers.utils.fisher import inverse_fisher_vector_product
 
 
 class NaturalGradient(Optimizer):

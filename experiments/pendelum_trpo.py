@@ -7,12 +7,13 @@ from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistrib
 from jetpack.networks.dense.dense_value_function import DenseValueFunction
 from jetpack.optimizers.natural_gradient import NaturalGradient
 from jetpack.optimizers.line_search import LineSearch
-from jetpack.envs.normalized_env import NormalizedEnv
+from jetpack.optimizers.kl_constraint import KLConstraint
+from jetpack.core.envs.normalized_env import NormalizedEnv
 from jetpack.buffers.path_buffer import PathBuffer
-from jetpack.algorithms.actors.trpo import TRPO
+from jetpack.algorithms.actors.importance_sampling import ImportanceSampling
 from jetpack.algorithms.critics.gae import GAE
-from jetpack.core.local_trainer import LocalTrainer
-from jetpack.core.local_monitor import LocalMonitor
+from jetpack.core.trainers.local_trainer import LocalTrainer
+from jetpack.core.monitors.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":
@@ -23,18 +24,24 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = LineSearch(NaturalGradient(
-        DensePolicy(
-            [32, 32, 2],
-            optimizer_kwargs={"lr": 0.0001},
-            distribution_class=TanhGaussianDistribution
-        ), return_sAs=True
-    ), use_sAs=True)
+    policy = DensePolicy(
+        [32, 32, 2],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
+    )
 
     old_policy = DensePolicy(
         [32, 32, 2],
         optimizer_kwargs={"lr": 0.0001},
         distribution_class=TanhGaussianDistribution
+    )
+
+    policy = KLConstraint(
+        LineSearch(
+            NaturalGradient(
+                policy, return_sAs=True
+            ), use_sAs=True
+        ), old_policy, delta=0.1
     )
 
     vf = DenseValueFunction(
@@ -60,12 +67,11 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    algorithm = TRPO(
+    algorithm = ImportanceSampling(
         policy,
         old_policy,
         critic,
         gamma=0.99,
-        delta=0.2,
         monitor=monitor
     )
 
