@@ -5,7 +5,7 @@ import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
 from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_forward_model import DenseForwardModel
-from jetpack.core.envs.normalized_env import NormalizedEnv
+from jetpack.core.environments.normalized_environment import NormalizedEnvironment
 from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.transition_dynamics.one_step_prediction import OneStepPrediction
 from jetpack.core.trainers.local_trainer import LocalTrainer
@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = NormalizedEnv(
+    env = NormalizedEnvironment(
         gym.make("Pendulum-v0")
     )
 

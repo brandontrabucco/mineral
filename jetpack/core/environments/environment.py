@@ -6,7 +6,7 @@ import jetpack as jp
 from gym import Env
 
 
-class ProxyEnv(Env):
+class Environment(Env):
 
     def __init__(
         self, 

@@ -5,7 +5,7 @@ import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
 from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_q_function import DenseQFunction
-from jetpack.core.envs.normalized_env import NormalizedEnv
+from jetpack.core.environments.normalized_environment import NormalizedEnvironment
 from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.actors.ddpg import DDPG
 from jetpack.algorithms.critics.q_learning import QLearning
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = NormalizedEnv(
+    env = NormalizedEnvironment(
         gym.make("Pendulum-v0")
     )
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         actor_delay=actor_delay,
         monitor=None,
     )
-    
+
     max_size = 1000
     num_warm_up_paths = 10
     num_steps = 20000

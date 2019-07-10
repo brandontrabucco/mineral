@@ -5,7 +5,7 @@ import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
 from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_q_function import DenseQFunction
-from jetpack.core.envs.normalized_env import NormalizedEnv
+from jetpack.core.environments.normalized_environment import NormalizedEnvironment
 from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.actors.soft_actor_critic import SoftActorCritic
 from jetpack.algorithms.critics.soft_q_learning import SoftQLearning
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = NormalizedEnv(
+    env = NormalizedEnvironment(
         gym.make("Pendulum-v0")
     )
 

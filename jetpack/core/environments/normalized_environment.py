@@ -4,10 +4,10 @@
 import numpy as np
 import jetpack as jp
 from gym.spaces import Box, Dict, Tuple
-from jetpack.core.envs import ProxyEnv
+from jetpack.core.environments.environment import Environment
 
 
-class NormalizedEnv(ProxyEnv):
+class NormalizedEnvironment(Environment):
 
     def __init__(
         self, 
@@ -17,7 +17,7 @@ class NormalizedEnv(ProxyEnv):
         def create_space(space):
             upper_bound = np.ones(space.shape)
             return Box(-1 * upper_bound, upper_bound)
-        ProxyEnv.__init__(
+        Environment.__init__(
             self,
             wrapped_env,
             reward_scale=reward_scale
@@ -36,7 +36,7 @@ class NormalizedEnv(ProxyEnv):
         self,
         **kwargs
     ):
-        observation = ProxyEnv.reset(self, **kwargs)
+        observation = Environment.reset(self, **kwargs)
         observation_space = self.wrapped_env.observation_space
         if (isinstance(observation_space, Dict) or
                 isinstance(observation_space, Tuple)):
@@ -52,7 +52,7 @@ class NormalizedEnv(ProxyEnv):
         self, 
         action
     ):
-        observation, reward, done, info = ProxyEnv.step(
+        observation, reward, done, info = Environment.step(
             self,
             denormalize(action, self.wrapped_env.action_space)
         )

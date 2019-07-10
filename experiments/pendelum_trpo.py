@@ -8,7 +8,7 @@ from jetpack.networks.dense.dense_value_function import DenseValueFunction
 from jetpack.optimizers.natural_gradient import NaturalGradient
 from jetpack.optimizers.line_search import LineSearch
 from jetpack.optimizers.kl_constraint import KLConstraint
-from jetpack.core.envs.normalized_env import NormalizedEnv
+from jetpack.core.environments.normalized_environment import NormalizedEnvironment
 from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.actors.importance_sampling import ImportanceSampling
 from jetpack.algorithms.critics.gae import GAE
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = NormalizedEnv(
+    env = NormalizedEnvironment(
         gym.make("Pendulum-v0")
     )
 
