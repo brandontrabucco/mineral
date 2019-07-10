@@ -2,13 +2,13 @@
 
 
 import gym
-from jetpack.networks.policies.gaussian_policy import GaussianPolicy
-from jetpack.networks.policies.tanh_policy import TanhPolicy
+from jetpack.networks.dense.dense_policy import DensePolicy
+from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_value_function import DenseValueFunction
-from jetpack.optimizers.gradients.gaussian_natural_gradient import GaussianNaturalGradient
-from jetpack.optimizers.searches.line_search_optimizer import LineSearchOptimizer
+from jetpack.optimizers.natural_gradient import NaturalGradient
+from jetpack.optimizers.line_search import LineSearch
 from jetpack.envs.normalized_env import NormalizedEnv
-from jetpack.data.path_buffer import PathBuffer
+from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.actors.trpo import TRPO
 from jetpack.algorithms.critics.gae import GAE
 from jetpack.core.local_trainer import LocalTrainer
@@ -23,34 +23,28 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = LineSearchOptimizer(
-        GaussianNaturalGradient(
-            TanhPolicy(
-                GaussianPolicy(
-                    [32, 32, 2],
-                    lr=0.0001
-                )
-            ),
-            return_sAs=True
-        ),
-        use_sAs=True
-    )
-
-    old_policy = TanhPolicy(
-        GaussianPolicy(
+    policy = LineSearch(NaturalGradient(
+        DensePolicy(
             [32, 32, 2],
-            lr=0.0001
-        )
+            optimizer_kwargs={"lr": 0.0001},
+            distribution_class=TanhGaussianDistribution
+        ), return_sAs=True
+    ), use_sAs=True)
+
+    old_policy = DensePolicy(
+        [32, 32, 2],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
     )
 
     vf = DenseValueFunction(
         [6, 6, 1],
-        lr=0.01
+        optimizer_kwargs={"lr": 0.01}
     )
 
     target_vf = DenseValueFunction(
         [6, 6, 1],
-        lr=0.01
+        optimizer_kwargs={"lr": 0.01}
     )
 
     buffer = PathBuffer(

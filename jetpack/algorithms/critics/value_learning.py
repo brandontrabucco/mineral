@@ -12,8 +12,6 @@ class ValueLearning(Critic):
         vf,
         target_vf,
         gamma=1.0,
-        std=1.0,
-        clip_radius=1.0,
         bellman_weight=1.0,
         discount_weight=1.0,
         **kwargs

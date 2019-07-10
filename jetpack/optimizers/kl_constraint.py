@@ -2,11 +2,10 @@
 
 
 import tensorflow as tf
-from abc import ABC, abstractmethod
 from jetpack.optimizers.optimizer import Optimizer
 
 
-class KLConstraint(Optimizer, ABC):
+class KLConstraint(Optimizer):
 
     def __init__(
         self,
@@ -23,14 +22,6 @@ class KLConstraint(Optimizer, ABC):
         self.infinity = infinity
         self.iteration = 0
 
-    @abstractmethod
-    def get_kl_divergence(
-        self,
-        mlp_outputs,
-        old_mlp_outputs
-    ):
-        return NotImplemented
-
     def compute_gradients(
         self,
         loss_function,
@@ -38,30 +29,20 @@ class KLConstraint(Optimizer, ABC):
     ):
         def wrapped_loss_function():
             kl = tf.reduce_mean(
-                self.get_kl_divergence(
-                    self.mlp(*inputs),
-                    self.other_mlp(*input)
-                )
-            )
+                self.mlp.get_kl_divergence(
+                    self.other_mlp, *inputs))
             return loss_function() + (
-                0.0 if kl < self.delta else self.infinity
-            )
+                0.0 if kl < self.delta else self.infinity)
         return self.mlp.compute_gradients(
-            wrapped_loss_function,
-            *inputs
-        )
+            wrapped_loss_function, *inputs)
 
     def apply_gradients(
         self,
         gradients
     ):
-        self.mlp.apply_gradients(
-            gradients
-        )
+        self.mlp.apply_gradients(gradients)
         self.iteration += 1
         if (self.iterations_per_copy is not None and
                 self.iteration > self.iterations_per_copy):
-            self.other_mlp.set_weights(
-                self.mlp.get_weights()
-            )
+            self.other_mlp.set_weights(self.mlp.get_weights())
             self.iteration = 0

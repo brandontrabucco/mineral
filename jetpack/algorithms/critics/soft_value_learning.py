@@ -35,8 +35,8 @@ class SoftValueLearning(ValueLearning):
             observations[:, 1:, ...]
         )
         next_log_probs = self.policy.get_log_probs(
-            observations[:, 1:, ...],
-            next_actions
+            next_actions,
+            observations[:, 1:, ...]
         )
         next_target_values = self.target_vf.get_values(
             observations[:, 1:, ...]

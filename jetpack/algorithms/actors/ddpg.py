@@ -64,9 +64,13 @@ class DDPG(Actor):
         rewards,
         terminals
     ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
+        Actor.gradient_update(
+            self,
+            observations,
+            actions,
+            rewards,
+            terminals
+        )
         self.critic.gradient_update(
             observations,
             actions,

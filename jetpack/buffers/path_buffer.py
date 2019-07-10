@@ -3,7 +3,7 @@
 
 import numpy as np
 import jetpack as jp
-from jetpack.data.buffer import Buffer
+from jetpack.buffers.buffer import Buffer
 
 
 class PathBuffer(Buffer):

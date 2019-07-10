@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from jetpack.optimizers.utils.conjugate_gradient import conjugate_gradient
+from jetpack.utils.conjugate_gradient import conjugate_gradient
 
 
 def fisher_vector_product(

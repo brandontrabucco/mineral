@@ -2,11 +2,11 @@
 
 
 import gym
-from jetpack.networks.policies.gaussian_policy import GaussianPolicy
-from jetpack.networks.policies.tanh_policy import TanhPolicy
+from jetpack.networks.dense.dense_policy import DensePolicy
+from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_q_function import DenseQFunction
 from jetpack.envs.normalized_env import NormalizedEnv
-from jetpack.data.path_buffer import PathBuffer
+from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.actors.soft_actor_critic import SoftActorCritic
 from jetpack.algorithms.critics.soft_q_learning import SoftQLearning
 from jetpack.core.local_trainer import LocalTrainer
@@ -21,11 +21,10 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = TanhPolicy(
-        GaussianPolicy(
-            [6, 6, 2],
-            lr=0.0001
-        )
+    policy = DensePolicy(
+        [32, 32, 2],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
     )
 
     qf = DenseQFunction(
@@ -33,11 +32,10 @@ if __name__ == "__main__":
         lr=0.001
     )
 
-    target_policy = TanhPolicy(
-        GaussianPolicy(
-            [6, 6, 2],
-            lr=0.0001
-        )
+    target_policy = DensePolicy(
+        [32, 32, 2],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
     )
 
     target_qf = DenseQFunction(

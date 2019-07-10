@@ -3,10 +3,10 @@
 
 import tensorflow as tf
 from jetpack.optimizers.optimizer import Optimizer
-from jetpack.optimizers.searches.line_search import line_search
+from jetpack.utils.line_search import line_search
 
 
-class LineSearchOptimizer(Optimizer):
+class LineSearch(Optimizer):
 
     def __init__(
         self,
@@ -31,12 +31,14 @@ class LineSearchOptimizer(Optimizer):
             loss_function,
             *inputs
         )
+
         if self.use_sAs:
             gradients, sAs = outputs
             alpha = tf.math.sqrt(self.delta / sAs)
         else:
             gradients = outputs
             alpha = self.delta
+
         return line_search(
             loss_function,
             self.mlp,

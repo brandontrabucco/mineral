@@ -2,12 +2,11 @@
 
 
 import gym
-from jetpack.networks.policies.gaussian_policy import GaussianPolicy
-from jetpack.networks.policies.tanh_policy import TanhPolicy
-from jetpack.networks.models.gaussian_model import GaussianModel
-from jetpack.networks.models.tanh_model import TanhModel
+from jetpack.networks.dense.dense_policy import DensePolicy
+from jetpack.distributions.tanh_gaussian_distribution import TanhGaussianDistribution
+from jetpack.networks.dense.dense_forward_model import DenseForwardModel
 from jetpack.envs.normalized_env import NormalizedEnv
-from jetpack.data.path_buffer import PathBuffer
+from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.transition_dynamics.one_step_prediction import OneStepPrediction
 from jetpack.core.local_trainer import LocalTrainer
 from jetpack.core.local_monitor import LocalMonitor
@@ -21,18 +20,16 @@ if __name__ == "__main__":
         gym.make("Pendulum-v0")
     )
 
-    policy = TanhPolicy(
-        GaussianPolicy(
-            [32, 32, 2],
-            lr=0.01
-        )
+    policy = DensePolicy(
+        [32, 32, 2],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
     )
 
-    model = TanhModel(
-        GaussianModel(
-            [32, 32, 6],
-            lr=0.0001
-        )
+    model = DenseForwardModel(
+        [32, 32, 6],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
     )
 
     buffer = PathBuffer(

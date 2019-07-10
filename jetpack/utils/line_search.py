@@ -10,6 +10,7 @@ def line_search(
     iterations=100
 ):
     original_weights = network.get_weights()
+
     def wrapped_loss_function(
         beta
     ):
@@ -18,6 +19,7 @@ def line_search(
             for x, dx in zip(original_weights, grad)
         ])
         return loss_function()
+
     best_alpha = alpha
     best_loss = float("inf")
     for i in range(iterations):
@@ -28,4 +30,5 @@ def line_search(
         if i < iterations - 1:
             alpha *= scale_factor
     network.set_weights(original_weights)
-    return [best_alpha * dx for dx in grad]
+    return [
+        best_alpha * dx for dx in grad]

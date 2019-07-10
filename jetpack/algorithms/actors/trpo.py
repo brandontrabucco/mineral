@@ -40,11 +40,11 @@ class TRPO(ActorCritic):
         def loss_function():
             ratio = tf.exp(
                 self.policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
+                    actions,
+                    observations[:, :(-1), :]
                 ) - self.old_policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
+                    actions,
+                    observations[:, :(-1), :]
                 )
             )
             loss_policy = -1.0 * tf.reduce_mean(

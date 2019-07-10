@@ -43,8 +43,8 @@ class SoftQLearning(QLearning):
             observations[:, 1:, ...]
         )
         next_log_probs = self.policy.get_log_probs(
-            observations[:, 1:, ...],
-            next_actions
+            next_actions,
+            observations[:, 1:, ...]
         )
         epsilon = tf.clip_by_value(
             self.std * tf.random.normal(
@@ -77,8 +77,8 @@ class SoftQLearning(QLearning):
         terminals
     ):
         log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
-            observations[:, :(-1), ...],
-            actions
+            actions,
+            observations[:, :(-1), ...]
         )
         weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
         weights = tf.math.cumprod(

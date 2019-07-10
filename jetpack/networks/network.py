@@ -4,17 +4,22 @@
 import tensorflow as tf
 from abc import ABC, abstractmethod
 from jetpack.has_gradient import HasGradient
+from jetpack.distributions.distribution import Distribution
+from jetpack.distributions.gaussian_distribution import GaussianDistribution
 
 
-class MLP(tf.keras.Model, HasGradient, ABC):
+class Network(tf.keras.Model, Distribution, HasGradient, ABC):
 
     def __init__(
         self,
         tau=1e-3,
         optimizer_class=tf.keras.optimizers.Adam,
-        **optimizer_kwargs
+        optimizer_kwargs={},
+        distribution_class=GaussianDistribution,
+        distribution_kwargs={}
     ):
-        super(MLP, self).__init__()
+        tf.keras.Model.__init__(self)
+        distribution_class.__init__(self, **distribution_kwargs)
         self.tau = tau
         self.optimizer = optimizer_class(**optimizer_kwargs)
 
@@ -24,6 +29,12 @@ class MLP(tf.keras.Model, HasGradient, ABC):
         *inputs
     ):
         return NotImplemented
+
+    def get_activations(
+        self,
+        *inputs
+    ):
+        return self(*inputs)
 
     def compute_gradients(
         self,

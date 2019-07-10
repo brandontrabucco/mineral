@@ -2,10 +2,10 @@
 
 
 from jetpack.networks.dense.dense_network import DenseNetwork
-from jetpack.functions.q_function import QFunction
+from jetpack.functions.forward_model import ForwardModel
 
 
-class DenseQFunction(DenseNetwork, QFunction):
+class DenseForwardModel(DenseNetwork, ForwardModel):
 
     def __init__(
         self,
@@ -14,7 +14,14 @@ class DenseQFunction(DenseNetwork, QFunction):
     ):
         DenseNetwork.__init__(self, *args, **kwargs)
 
-    def get_qvalues(
+    def get_stochastic_observations(
+        self,
+        observations,
+        actions
+    ):
+        return self.sample(observations, actions)
+
+    def get_deterministic_observations(
         self,
         observations,
         actions

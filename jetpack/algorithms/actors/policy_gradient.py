@@ -26,10 +26,11 @@ class PolicyGradient(Actor):
         terminals
     ):
         def loss_function():
+            advantage = returns - tf.reduce_mean(returns)
             loss_policy = -1.0 * tf.reduce_mean(
-                (returns - tf.reduce_mean(returns)) * self.policy.get_log_probs(
-                    observations[:, :(-1), :],
-                    actions
+                advantage * self.policy.get_log_probs(
+                    actions,
+                    observations[:, :(-1), :]
                 )
             )
             if self.monitor is not None:
@@ -50,9 +51,13 @@ class PolicyGradient(Actor):
         rewards,
         terminals
     ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
-        self.iteration += 1
+        Actor.gradient_update(
+            self,
+            observations,
+            actions,
+            rewards,
+            terminals
+        )
         weights = tf.tile(
             [[self.gamma]],
             [1, tf.shape(rewards)[1]]

@@ -4,18 +4,20 @@
 from abc import ABC, abstractmethod
 
 
-class Policy(ABC):
+class ForwardModel(ABC):
 
     @abstractmethod
-    def get_stochastic_actions(
+    def get_stochastic_observations(
         self,
-        observations
+        observations,
+        actions
     ):
         return NotImplemented
 
     @abstractmethod
-    def get_deterministic_actions(
+    def get_deterministic_observations(
         self,
-        observations
+        observations,
+        actions
     ):
         return NotImplemented

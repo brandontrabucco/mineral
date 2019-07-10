@@ -1,12 +1,11 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from abc import ABC, abstractmethod
 from jetpack.optimizers.optimizer import Optimizer
-from jetpack.optimizers.utils.fisher import inverse_fisher_vector_product
+from jetpack.utils.fisher import inverse_fisher_vector_product
 
 
-class NaturalGradient(Optimizer, ABC):
+class NaturalGradient(Optimizer):
 
     def __init__(
         self,
@@ -20,13 +19,6 @@ class NaturalGradient(Optimizer, ABC):
         self.maximum_iterations = maximum_iterations
         self.return_sAs = return_sAs
 
-    @abstractmethod
-    def get_fisher_diagonals(
-        self,
-        *inputs
-    ):
-        return NotImplemented
-
     def compute_gradients(
         self,
         loss_function,
@@ -34,16 +26,9 @@ class NaturalGradient(Optimizer, ABC):
     ):
         gradients, sAs = inverse_fisher_vector_product(
             lambda: self.mlp(*inputs),
-            self.get_fisher_diagonals,
+            self.mlp.get_fisher_information,
             self.mlp.trainable_variables,
-            self.mlp.compute_gradients(
-                loss_function,
-                *inputs
-            ),
+            self.mlp.compute_gradients(loss_function, *inputs),
             tolerance=self.tolerance,
-            maximum_iterations=self.maximum_iterations
-        )
-        return (
-            (gradients, sAs)
-            if self.return_sAs else gradients
-        )
+            maximum_iterations=self.maximum_iterations)
+        return (gradients, sAs) if self.return_sAs else gradients

@@ -2,10 +2,10 @@
 
 
 from jetpack.networks.dense.dense_network import DenseNetwork
-from jetpack.functions.value_function import ValueFunction
+from jetpack.functions.policy import Policy
 
 
-class DenseValueFunction(DenseNetwork, ValueFunction):
+class DensePolicy(DenseNetwork, Policy):
 
     def __init__(
         self,
@@ -14,7 +14,13 @@ class DenseValueFunction(DenseNetwork, ValueFunction):
     ):
         DenseNetwork.__init__(self, *args, **kwargs)
 
-    def get_values(
+    def get_stochastic_actions(
+        self,
+        observations
+    ):
+        return self.sample(observations)
+
+    def get_deterministic_actions(
         self,
         observations
     ):

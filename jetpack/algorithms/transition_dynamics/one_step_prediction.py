@@ -27,9 +27,9 @@ class OneStepPrediction(TransitionDynamics):
     ):
         def loss_function():
             log_probs_model = self.model.get_log_probs(
+                observations[:, 1:, :],
                 observations[:, :(-1), :],
-                actions,
-                observations[:, 1:, :]
+                actions
             )
             loss_model = -1.0 * tf.reduce_mean(
                 log_probs_model * terminals[:, :(-1)]

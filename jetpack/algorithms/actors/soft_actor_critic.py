@@ -36,8 +36,8 @@ class SoftActorCritic(DDPG):
                 observations[:, :(-1), :]
             )
             policy_log_probs = self.policy.get_log_probs(
-                observations[:, :(-1), :],
-                policy_actions
+                policy_actions,
+                observations[:, :(-1), :]
             )
             policy_advantages = self.critic.get_advantages(
                 observations,
