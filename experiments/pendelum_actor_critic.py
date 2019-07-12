@@ -27,12 +27,6 @@ if __name__ == "__main__":
         distribution_class=TanhGaussianDistribution
     )
 
-    old_policy = DensePolicy(
-        [32, 32, 1],
-        optimizer_kwargs={"lr": 0.0001},
-        distribution_class=TanhGaussianDistribution
-    )
-
     vf = DenseValueFunction(
         [6, 6, 1],
         optimizer_kwargs={"lr": 0.0001},

@@ -25,3 +25,76 @@ Check progress by visiting http://localhost:6006.
 ```
 python experiments/pendelum_trpo.py
 ```
+
+## Designing Experiments
+
+Experiments are launched by calling the **train** method:
+
+```
+trainer.train()
+```
+
+The **trainer** that performs gradient updates.
+
+```
+trainer = LocalTrainer(
+    max_num_paths,
+    num_warm_up_paths,
+    num_gradient_updates,
+    num_paths_to_collect,
+    max_path_length,
+    batch_size,
+    num_trains_per_step,
+    buffer,
+    algorithm
+)
+```
+
+Several **algorithms** define gradient updates.
+
+```
+critic = GAE(
+    vf,
+    target_vf
+)
+
+algorithm = ActorCritic(
+    policy,
+    critic
+)
+```
+
+A **buffer** stores transitions.
+
+```
+buffer = PathBuffer(
+    env,
+    policy
+)
+```
+
+Several **neural networks** shall be trained.
+
+```
+policy = DensePolicy(
+    [hidden_size, hidden_size, action_size]
+)
+
+vf = DenseValueFunction(
+    [hidden_size, hidden_size, 1]
+)
+
+target_vf = DenseValueFunction(
+    [hidden_size, hidden_size, 1]
+)
+```
+
+A single **environment** samples transitions.
+
+```
+env = NormalizedEnvironment(
+    gym.make(env_name)
+)
+```
+
+Have fun! -Brandon
