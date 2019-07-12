@@ -66,6 +66,7 @@ class PathBuffer(Buffer):
     def collect(
         self,
         num_paths_to_collect,
+        random=False,
         save_paths=True,
         render=False,
         **render_kwargs
@@ -75,8 +76,12 @@ class PathBuffer(Buffer):
             observation = self.env.reset()
             path_return = 0.0
             for j in range(self.max_path_length):
-                action = self.policy.get_stochastic_actions(
-                    self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
+                if random:
+                    action = self.policy.get_stochastic_actions(
+                        self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
+                else:
+                    action = self.policy.get_deterministic_actions(
+                        self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
                 next_observation, reward, done, info = self.env.step(action)
                 if render:
                     self.env.render(**render_kwargs)
@@ -107,9 +112,4 @@ class PathBuffer(Buffer):
         max_lengths = np.arange(self.max_path_length)[np.newaxis, :]
         terminals = ((lengths[:, np.newaxis] - 1) > max_lengths).astype(np.float32)
         rewards = terminals[:, :(-1)] * rewards
-        return (
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
+        return observations, actions, rewards, terminals
