@@ -14,14 +14,14 @@ class ExpGaussianDistribution(GaussianDistribution, ABC):
     ):
         x = tf.maximum(x, 0.001)
         correction = -1.0 * tf.reduce_sum(x, axis=-1)
-        return correction + self.policy.get_log_probs(
-            tf.math.log(x), *inputs)
+        return correction + GaussianDistribution.get_log_probs(
+            self, tf.math.log(x), *inputs)
 
     def sample(
         self,
         *inputs
     ):
-        return tf.math.exp(self.distribution.sample(*inputs))
+        return tf.math.exp(GaussianDistribution.sample(self, *inputs))
 
     def get_expected_value(
         self,
