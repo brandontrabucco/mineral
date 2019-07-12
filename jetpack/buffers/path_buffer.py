@@ -14,11 +14,7 @@ class PathBuffer(Buffer):
         policy,
         selector=None,
     ):
-        Buffer.__init__(
-            self, 
-            env,
-            policy
-        )
+        Buffer.__init__(self, env, policy)
         self.selector = (lambda x: x) if selector is None else selector
         self.max_size = None
         self.max_path_length = None
@@ -47,23 +43,11 @@ class PathBuffer(Buffer):
         reward
     ):
         def create_backend(x):
-            return np.zeros([
-                self.max_size,
-                self.max_path_length,
-                *x.shape], dtype=np.float32
-            )
-        self.observations = jp.nested_apply(
-            create_backend,
-            observation
-        )
-        self.actions = jp.nested_apply(
-            create_backend,
-            action
-        )
-        self.rewards = jp.nested_apply(
-            create_backend,
-            reward
-        )
+            return np.zeros([self.max_size, self.max_path_length, *x.shape], dtype=np.float32)
+
+        self.observations = jp.nested_apply(create_backend, observation)
+        self.actions = jp.nested_apply(create_backend, action)
+        self.rewards = jp.nested_apply(create_backend, reward)
 
     def put(
         self,
@@ -74,21 +58,10 @@ class PathBuffer(Buffer):
     ):
         def put_backend(x, y):
             x[self.head, j, ...] = y
-        jp.nested_apply(
-            put_backend,
-            self.observations,
-            observation
-        )
-        jp.nested_apply(
-            put_backend,
-            self.actions,
-            action
-        )
-        jp.nested_apply(
-            put_backend,
-            self.rewards,
-            reward
-        )
+
+        jp.nested_apply(put_backend, self.observations, observation)
+        jp.nested_apply(put_backend, self.actions, action)
+        jp.nested_apply(put_backend, self.rewards, reward)
 
     def collect(
         self,
@@ -126,31 +99,13 @@ class PathBuffer(Buffer):
         self,
         batch_size
     ):
-        indices = np.random.choice(
-            self.size,
-            size=batch_size,
-            replace=(self.size < batch_size)
-        )
-        select_minus_one = lambda x: x[indices, :(-1), ...]
-        select = lambda x: x[indices, ...]
-        observations = jp.nested_apply(
-            select,
-            self.observations
-        )
-        actions = jp.nested_apply(
-            select_minus_one,
-            self.actions
-        )
-        rewards = jp.nested_apply(
-            select_minus_one,
-            self.rewards
-        )
-        lengths = jp.nested_apply(
-            select,
-            self.tail
-        )
-        terminals = ((lengths[:, np.newaxis] - 1) >
-            np.arange(self.max_path_length)[np.newaxis, :]).astype(np.float32)
+        indices = np.random.choice(self.size, size=batch_size, replace=(self.size < batch_size))
+        observations = jp.nested_apply(lambda x: x[indices, ...], self.observations)
+        actions = jp.nested_apply(lambda x: x[indices, :(-1), ...], self.actions)
+        rewards = jp.nested_apply(lambda x: x[indices, :(-1), ...], self.rewards)
+        lengths = jp.nested_apply(lambda x: x[indices, ...], self.tail)
+        max_lengths = np.arange(self.max_path_length)[np.newaxis, :]
+        terminals = ((lengths[:, np.newaxis] - 1) > max_lengths).astype(np.float32)
         rewards = terminals[:, :(-1)] * rewards
         return (
             observations,

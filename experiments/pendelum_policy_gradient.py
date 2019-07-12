@@ -21,7 +21,6 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [32, 32, 2],
-        optimizer_kwargs={"lr": 0.0001},
         distribution_class=TanhGaussianDistribution
     )
 
@@ -38,7 +37,7 @@ if __name__ == "__main__":
     
     max_size = 32
     num_warm_up_paths = 1
-    num_steps = 100
+    num_steps = 1000
     num_paths_to_collect = 32
     max_path_length = 200
     batch_size = 32
@@ -57,8 +56,4 @@ if __name__ == "__main__":
         monitor=monitor
     )
 
-    try:
-        trainer.train()
-
-    except KeyboardInterrupt:
-        buffer.collect(1, save_paths=False, render=True)
+    trainer.train()
