@@ -34,7 +34,7 @@ Experiments are launched by calling the **train** method.
 trainer.train()
 ```
 
-The **trainer** that performs gradient updates.
+The **trainer** performs gradient updates.
 
 ```
 trainer = LocalTrainer(
@@ -50,7 +50,7 @@ trainer = LocalTrainer(
 )
 ```
 
-Several **algorithms** define gradient updates.
+Several **algorithms** implement gradient updates.
 
 ```
 critic = GAE(
