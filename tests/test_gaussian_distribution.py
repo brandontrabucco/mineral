@@ -3,8 +3,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from jetpack.distributions.gaussians.gaussian_distribution import GaussianDistribution
-from jetpack.networks.dense.dense_policy import DensePolicy
+from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
+from mineral.networks.dense.dense_policy import DensePolicy
 
 
 if __name__ == "__main__":

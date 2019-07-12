@@ -2,18 +2,18 @@
 
 
 import gym
-from jetpack.networks.dense.dense_policy import DensePolicy
-from jetpack.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
-from jetpack.networks.dense.dense_value_function import DenseValueFunction
-from jetpack.optimizers.gradients.natural_gradient import NaturalGradient
-from jetpack.optimizers.line_search import LineSearch
-from jetpack.optimizers.constraints.kl_constraint import KLConstraint
-from jetpack.core.environments.normalized_environment import NormalizedEnvironment
-from jetpack.buffers.path_buffer import PathBuffer
-from jetpack.algorithms.actors.importance_sampling import ImportanceSampling
-from jetpack.algorithms.critics.gae import GAE
-from jetpack.core.trainers.local_trainer import LocalTrainer
-from jetpack.core.monitors.local_monitor import LocalMonitor
+from mineral.networks.dense.dense_policy import DensePolicy
+from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.networks.dense.dense_value_function import DenseValueFunction
+from mineral.optimizers.gradients.natural_gradient import NaturalGradient
+from mineral.optimizers.line_search import LineSearch
+from mineral.optimizers.constraints.kl_constraint import KLConstraint
+from mineral.core.environments.normalized_environment import NormalizedEnvironment
+from mineral.buffers.path_buffer import PathBuffer
+from mineral.algorithms.actors.importance_sampling import ImportanceSampling
+from mineral.algorithms.critics.gae import GAE
+from mineral.core.trainers.local_trainer import LocalTrainer
+from mineral.core.monitors.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":

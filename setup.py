@@ -14,12 +14,12 @@ REQUIRED_PACKAGES = [
 
 
 setup(
-    name='jetpack', 
+    name='mineral',
     version='0.1',
     install_requires=REQUIRED_PACKAGES,
     include_package_data=True,
     packages=[
-        p for p in find_packages() if p.startswith('jetpack')
+        p for p in find_packages() if p.startswith('mineral')
     ],
-    description='Reinforcement Learning Jetpack'
+    description='A minimalist reinforcement learning package for TensorFlow 2.0'
 )

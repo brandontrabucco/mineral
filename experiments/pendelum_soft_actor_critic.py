@@ -2,15 +2,15 @@
 
 
 import gym
-from jetpack.networks.dense.dense_policy import DensePolicy
-from jetpack.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
-from jetpack.networks.dense.dense_q_function import DenseQFunction
-from jetpack.core.environments.normalized_environment import NormalizedEnvironment
-from jetpack.buffers.path_buffer import PathBuffer
-from jetpack.algorithms.actors.soft_actor_critic import SoftActorCritic
-from jetpack.algorithms.critics.soft_q_learning import SoftQLearning
-from jetpack.core.trainers.local_trainer import LocalTrainer
-from jetpack.core.monitors.local_monitor import LocalMonitor
+from mineral.networks.dense.dense_policy import DensePolicy
+from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.networks.dense.dense_q_function import DenseQFunction
+from mineral.core.environments.normalized_environment import NormalizedEnvironment
+from mineral.buffers.path_buffer import PathBuffer
+from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
+from mineral.algorithms.critics.soft_q_learning import SoftQLearning
+from mineral.core.trainers.local_trainer import LocalTrainer
+from mineral.core.monitors.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":

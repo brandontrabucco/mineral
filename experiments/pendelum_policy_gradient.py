@@ -2,13 +2,13 @@
 
 
 import gym
-from jetpack.networks.dense.dense_policy import DensePolicy
-from jetpack.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
-from jetpack.core.environments.normalized_environment import NormalizedEnvironment
-from jetpack.buffers.path_buffer import PathBuffer
-from jetpack.algorithms.actors.policy_gradient import PolicyGradient
-from jetpack.core.trainers.local_trainer import LocalTrainer
-from jetpack.core.monitors.local_monitor import LocalMonitor
+from mineral.networks.dense.dense_policy import DensePolicy
+from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.core.environments.normalized_environment import NormalizedEnvironment
+from mineral.buffers.path_buffer import PathBuffer
+from mineral.algorithms.actors.policy_gradient import PolicyGradient
+from mineral.core.trainers.local_trainer import LocalTrainer
+from mineral.core.monitors.local_monitor import LocalMonitor
 
 
 if __name__ == "__main__":

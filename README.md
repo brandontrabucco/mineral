@@ -1,4 +1,4 @@
-# Jetpack
+# mineral
 
 A minimalist reinforcement learning package for TensorFlow 2.0.
 
@@ -14,8 +14,8 @@ Available algorithms for training policies.
 Clone and install with pip.
 
 ```
-git clone git@github.com:brandontrabucco/jetpack.git
-pip install -e jetpack
+git clone git@github.com:brandontrabucco/mineral.git
+pip install -e mineral
 ```
 
 ## Training
