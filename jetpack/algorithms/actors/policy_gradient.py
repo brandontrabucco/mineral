@@ -26,9 +26,8 @@ class PolicyGradient(Actor):
         terminals
     ):
         def loss_function():
-            advantage = returns - tf.reduce_mean(returns)
-            loss_policy = -1.0 * tf.reduce_mean(
-                advantage * self.policy.get_log_probs(
+            loss_policy = tf.reduce_mean(
+                returns * self.policy.get_log_probs(
                     actions,
                     observations[:, :(-1), :]
                 )
@@ -70,6 +69,7 @@ class PolicyGradient(Actor):
         returns = tf.math.cumsum(
             rewards * weights
         ) / weights
+        returns = returns - tf.reduce_mean(returns)
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
