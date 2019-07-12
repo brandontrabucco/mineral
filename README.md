@@ -20,7 +20,7 @@ pip install -e mineral
 
 ## Training
 
-Check progress by visiting http://localhost:6006.
+Launch experiments, then check progress at http://localhost:6006.
 
 ```
 python experiments/pendelum_trpo.py
@@ -28,7 +28,7 @@ python experiments/pendelum_trpo.py
 
 ## Designing Experiments
 
-Experiments are launched by calling the **train** method:
+Experiments are launched by calling the **train** method.
 
 ```
 trainer.train()
@@ -58,7 +58,7 @@ critic = GAE(
     target_vf
 )
 
-algorithm = ActorCritic(
+algorithm = PPO(
     policy,
     critic
 )
