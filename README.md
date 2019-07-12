@@ -2,6 +2,8 @@
 
 A minimalist reinforcement learning package for TensorFlow 2.0.
 
+Have fun! -Brandon
+
 ## Features
 
 Available algorithms for training policies.
@@ -89,12 +91,10 @@ target_vf = DenseValueFunction(
 )
 ```
 
-A single **environment** samples transitions.
+An **environment** samples transitions.
 
 ```
 env = NormalizedEnvironment(
     gym.make(env_name)
 )
 ```
-
-Have fun! -Brandon
