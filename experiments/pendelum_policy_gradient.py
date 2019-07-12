@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
-from jetpack.distributions.gaussian.tanh_gaussian_distribution import TanhGaussianDistribution
+from jetpack.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.core.environments.normalized_environment import NormalizedEnvironment
 from jetpack.buffers.path_buffer import PathBuffer
 from jetpack.algorithms.actors.policy_gradient import PolicyGradient

@@ -5,7 +5,7 @@ import tensorflow as tf
 from abc import ABC, abstractmethod
 from jetpack.core.has_gradient import HasGradient
 from jetpack.distributions.distribution import Distribution
-from jetpack.distributions.gaussian.gaussian_distribution import GaussianDistribution
+from jetpack.distributions.gaussians.gaussian_distribution import GaussianDistribution
 
 
 class Network(tf.keras.Model, Distribution, HasGradient, ABC):

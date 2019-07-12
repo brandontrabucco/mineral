@@ -3,7 +3,7 @@
 
 import gym
 from jetpack.networks.dense.dense_policy import DensePolicy
-from jetpack.distributions.gaussian.tanh_gaussian_distribution import TanhGaussianDistribution
+from jetpack.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from jetpack.networks.dense.dense_value_function import DenseValueFunction
 from jetpack.optimizers.gradients.natural_gradient import NaturalGradient
 from jetpack.optimizers.line_search import LineSearch
