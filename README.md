@@ -6,7 +6,7 @@ A minimalist reinforcement learning package for TensorFlow 2.0.
 
 Available algorithms for training policies.
 
-- TRPO, PPO, SAC, TD3 , DDPG, Actor Critic, Policy Gradient
+- TRPO, PPO, SAC, TD3, DDPG, Actor Critic, Policy Gradient, Model Based RL
 - Natural Gradient, Line Search, KL Constraint, KL Penalty
 
 ## Setup
