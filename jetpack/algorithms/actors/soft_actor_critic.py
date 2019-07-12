@@ -39,14 +39,14 @@ class SoftActorCritic(DDPG):
                 policy_actions,
                 observations[:, :(-1), :]
             )
-            policy_advantages = self.critic.get_advantages(
+            returns = self.critic.get_advantages(
                 observations,
                 policy_actions,
                 rewards,
                 terminals
             )
             loss_policy = tf.reduce_mean(
-                policy_log_probs - policy_advantages
+                policy_log_probs - returns
             )
             if self.monitor is not None:
                 self.monitor.record(
@@ -54,12 +54,20 @@ class SoftActorCritic(DDPG):
                     loss_policy
                 )
                 self.monitor.record(
-                    "policy_advantages_mean",
-                    tf.reduce_mean(policy_advantages)
-                )
-                self.monitor.record(
                     "policy_log_probs_mean",
                     tf.reduce_mean(policy_log_probs)
+                )
+                self.monitor.record(
+                    "returns_max",
+                    tf.reduce_max(returns)
+                )
+                self.monitor.record(
+                    "returns_min",
+                    tf.reduce_min(returns)
+                )
+                self.monitor.record(
+                    "returns_mean",
+                    tf.reduce_mean(returns)
                 )
             return loss_policy
         self.policy.minimize(

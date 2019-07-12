@@ -57,6 +57,14 @@ class ActorCritic(PolicyGradient):
                 tf.reduce_mean(rewards)
             )
             self.monitor.record(
+                "returns_max",
+                tf.reduce_max(returns)
+            )
+            self.monitor.record(
+                "returns_min",
+                tf.reduce_min(returns)
+            )
+            self.monitor.record(
                 "returns_mean",
                 tf.reduce_mean(returns)
             )

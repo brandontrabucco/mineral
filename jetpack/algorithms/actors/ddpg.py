@@ -33,14 +33,14 @@ class DDPG(Actor):
             policy_actions = self.policy.get_stochastic_actions(
                 observations[:, :(-1), :]
             )
-            policy_advantages = self.critic.get_advantages(
+            returns = self.critic.get_advantages(
                 observations,
                 policy_actions,
                 rewards,
                 terminals
             )
             loss_policy = -1.0 * (
-                tf.reduce_mean(policy_advantages)
+                tf.reduce_mean(returns)
             )
             if self.monitor is not None:
                 self.monitor.record(
@@ -48,8 +48,16 @@ class DDPG(Actor):
                     loss_policy
                 )
                 self.monitor.record(
-                    "policy_advantages_mean",
-                    tf.reduce_mean(policy_advantages)
+                    "returns_max",
+                    tf.reduce_max(returns)
+                )
+                self.monitor.record(
+                    "returns_min",
+                    tf.reduce_min(returns)
+                )
+                self.monitor.record(
+                    "returns_mean",
+                    tf.reduce_mean(returns)
                 )
             return loss_policy
         self.policy.minimize(

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     
     max_size = 32
     num_warm_up_paths = 1
-    num_steps = 1000
+    num_steps = 10000
     num_paths_to_collect = 32
     max_path_length = 200
     batch_size = 32
