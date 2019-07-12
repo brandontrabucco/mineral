@@ -1,5 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
+
 import tensorflow as tf
 from abc import ABC
 from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution

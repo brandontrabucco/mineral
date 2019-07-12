@@ -55,7 +55,7 @@ if __name__ == "__main__":
     gamma = 0.99
     actor_delay = 10
 
-    q_backup = SoftQLearning(
+    critic = SoftQLearning(
         target_policy,
         qf,
         target_qf,
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     algorithm = SoftActorCritic(
         policy,
-        q_backup,
+        critic,
         target_policy,
         actor_delay=actor_delay,
         monitor=None,

@@ -68,7 +68,7 @@ if __name__ == "__main__":
     gamma = 0.99
     actor_delay = 10
 
-    q_backup1 = QLearning(
+    critic1 = QLearning(
         target_policy,
         qf1,
         target_qf1,
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    q_backup2 = QLearning(
+    critic2 = QLearning(
         target_policy,
         qf2,
         target_qf2,
@@ -88,14 +88,14 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    twin_delayed_q_backup = TwinDelayedCritic(
-        q_backup1,
-        q_backup2
+    twin_delayed_critic = TwinDelayedCritic(
+        critic1,
+        critic2
     )
 
     algorithm = DDPG(
         policy,
-        twin_delayed_q_backup,
+        twin_delayed_critic,
         target_policy,
         actor_delay=actor_delay,
         monitor=None,

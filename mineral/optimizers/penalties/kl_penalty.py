@@ -12,12 +12,12 @@ class KLPenalty(Optimizer):
         mlp,
         other_mlp,
         iterations_per_copy=1,
-        delta=1.0
+        alpha=1.0
     ):
         Optimizer.__init__(self, mlp)
         self.other_mlp = other_mlp
         self.iterations_per_copy = iterations_per_copy
-        self.delta = delta
+        self.alpha = alpha
         self.iteration = 0
 
     def compute_gradients(
@@ -26,10 +26,9 @@ class KLPenalty(Optimizer):
         *inputs
     ):
         def wrapped_loss_function():
-            kl = tf.reduce_mean(
+            return loss_function() + self.alpha * tf.reduce_mean(
                 self.mlp.get_kl_divergence(
                     self.other_mlp, *inputs))
-            return loss_function() + self.delta * kl
         return self.mlp.compute_gradients(
             wrapped_loss_function, *inputs)
 
