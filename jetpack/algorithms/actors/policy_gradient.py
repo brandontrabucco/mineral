@@ -26,7 +26,7 @@ class PolicyGradient(Actor):
         terminals
     ):
         def loss_function():
-            loss_policy = tf.reduce_mean(
+            loss_policy = -1.0 * tf.reduce_mean(
                 returns * self.policy.get_log_probs(
                     actions,
                     observations[:, :(-1), :]
