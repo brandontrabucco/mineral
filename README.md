@@ -1,8 +1,6 @@
 # mineral
 
-A minimalist reinforcement learning package for TensorFlow 2.0.
-
-Have fun! -Brandon
+A minimalist reinforcement learning package for TensorFlow 2.0. Have fun! -Brandon
 
 ## Features
 
