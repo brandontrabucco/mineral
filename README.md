@@ -66,7 +66,7 @@ algorithm = PPO(
 )
 ```
 
-A **buffer** stores transitions.
+A **buffer** stores transitions for training.
 
 ```
 buffer = PathBuffer(
@@ -91,7 +91,7 @@ target_vf = DenseValueFunction(
 )
 ```
 
-An **environment** samples transitions.
+An **environment** samples transitions for training.
 
 ```
 env = NormalizedEnvironment(
