@@ -19,13 +19,12 @@ if __name__ == "__main__":
 
     env = NormalizedEnvironment(
         gym.make("Pendulum-v0"),
-        reward_scale=(1 / max_path_length),
-        reward_shift=-0.021
+        reward_scale=(1 / max_path_length)
     )
 
     policy = DensePolicy(
         [512, 512, 1],
-        optimizer_kwargs=dict(lr=0.01),
+        optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
         distribution_kwargs=dict(std=0.1)
     )
@@ -41,7 +40,7 @@ if __name__ == "__main__":
         monitor=monitor
     )
     
-    max_size = 512
+    max_size = 8
     num_warm_up_paths = 0
     num_steps = 100
     num_paths_to_collect = max_size

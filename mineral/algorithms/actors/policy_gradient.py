@@ -77,6 +77,7 @@ class PolicyGradient(Actor):
         weights = tf.math.cumprod(
             weights, axis=1, exclusive=True)
         returns = tf.math.cumsum(rewards * weights, axis=1) / weights
+        returns = returns - tf.reduce_mean(returns)
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
