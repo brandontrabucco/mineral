@@ -42,7 +42,7 @@ if __name__ == "__main__":
     
     max_size = 8
     num_warm_up_paths = 0
-    num_steps = 100
+    num_steps = 1000
     num_paths_to_collect = max_size
     batch_size = max_size
     num_trains_per_step = 1
