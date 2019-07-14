@@ -11,12 +11,14 @@ class Environment(Env):
     def __init__(
         self, 
         wrapped_env,
-        reward_scale=1.0
+        reward_scale=1.0,
+        reward_shift=0.0
     ):
         self.wrapped_env = wrapped_env
         self.observation_space = self.wrapped_env.observation_space
         self.action_space = self.wrapped_env.action_space.shape
         self.reward_scale = reward_scale
+        self.reward_shift = reward_shift
 
     def reset(
         self, 
@@ -38,7 +40,7 @@ class Environment(Env):
             lambda x: np.array(x, dtype=np.float32),
             observation
         )
-        reward = self.reward_scale * np.array(
+        reward = self.reward_shift + self.reward_scale * np.array(
             reward,
             dtype=np.float32
         )

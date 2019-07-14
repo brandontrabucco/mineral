@@ -15,13 +15,19 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
+    max_path_length = 256
+
     env = NormalizedEnvironment(
-        gym.make("Pendulum-v0")
+        gym.make("Pendulum-v0"),
+        reward_scale=(1 / max_path_length),
+        reward_shift=-0.021
     )
 
     policy = DensePolicy(
-        [32, 32, 2],
-        distribution_class=TanhGaussianDistribution
+        [512, 512, 1],
+        optimizer_kwargs=dict(lr=0.01),
+        distribution_class=TanhGaussianDistribution,
+        distribution_kwargs=dict(std=0.1)
     )
 
     buffer = PathBuffer(
@@ -35,12 +41,11 @@ if __name__ == "__main__":
         monitor=monitor
     )
     
-    max_size = 32
-    num_warm_up_paths = 1
-    num_steps = 10000
-    num_paths_to_collect = 32
-    max_path_length = 200
-    batch_size = 32
+    max_size = 512
+    num_warm_up_paths = 0
+    num_steps = 100
+    num_paths_to_collect = max_size
+    batch_size = max_size
     num_trains_per_step = 1
 
     trainer = LocalTrainer(

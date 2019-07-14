@@ -12,7 +12,7 @@ class NormalizedEnvironment(Environment):
     def __init__(
         self, 
         wrapped_env,
-        reward_scale=1.0
+        **kwargs
     ):
         def create_space(space):
             upper_bound = np.ones(space.shape)
@@ -20,7 +20,7 @@ class NormalizedEnvironment(Environment):
         Environment.__init__(
             self,
             wrapped_env,
-            reward_scale=reward_scale
+            **kwargs
         )
         observation_space = self.wrapped_env.observation_space
         if (isinstance(observation_space, Dict) or

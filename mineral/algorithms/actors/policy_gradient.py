@@ -26,13 +26,26 @@ class PolicyGradient(Actor):
         terminals
     ):
         def loss_function():
+            log_probs = self.policy.get_log_probs(
+                actions,
+                observations[:, :(-1), :]
+            )
             loss_policy = -1.0 * tf.reduce_mean(
-                returns * self.policy.get_log_probs(
-                    actions,
-                    observations[:, :(-1), :]
-                )
+                returns * log_probs
             )
             if self.monitor is not None:
+                self.monitor.record(
+                    "log_probs_policy_mean",
+                    tf.reduce_mean(log_probs)
+                )
+                self.monitor.record(
+                    "log_probs_policy_max",
+                    tf.reduce_max(log_probs)
+                )
+                self.monitor.record(
+                    "log_probs_policy_min",
+                    tf.reduce_min(log_probs)
+                )
                 self.monitor.record(
                     "loss_policy",
                     loss_policy
@@ -62,14 +75,8 @@ class PolicyGradient(Actor):
             [1, tf.shape(rewards)[1]]
         )
         weights = tf.math.cumprod(
-            weights,
-            axis=1,
-            exclusive=True
-        )
-        returns = tf.math.cumsum(
-            rewards * weights
-        ) / weights
-        returns = returns - tf.reduce_mean(returns)
+            weights, axis=1, exclusive=True)
+        returns = tf.math.cumsum(rewards * weights, axis=1) / weights
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",

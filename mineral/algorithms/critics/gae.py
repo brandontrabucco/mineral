@@ -44,13 +44,9 @@ class GAE(ValueLearning):
             [1, tf.shape(delta_v)[1]]
         )
         weights = tf.math.cumprod(
-            weights,
-            axis=1,
-            exclusive=True
-        )
+            weights, axis=1, exclusive=True)
         advantages = tf.math.cumsum(
-            delta_v * weights
-        ) / weights
+            delta_v * weights, axis=1) / weights
         if self.monitor is not None:
             self.monitor.record(
                 "advantages_mean",
