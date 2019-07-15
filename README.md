@@ -13,7 +13,7 @@ Available algorithms for training policies.
 
 Clone and install with pip.
 
-```shell 
+```console 
 git clone git@github.com:brandontrabucco/mineral.git
 pip install -e mineral
 ```
@@ -22,7 +22,7 @@ pip install -e mineral
 
 Launch experiments, then check progress at http://localhost:6006.
 
-```shell 
+```console 
 python experiments/pendelum_trpo.py
 ```
 
