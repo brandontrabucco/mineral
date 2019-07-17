@@ -68,10 +68,8 @@ class QLearning(Critic):
         terminals
     ):
         weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
-        weights = tf.math.cumprod(
-            weights, axis=1, exclusive=True)
-        discount_target_values = tf.math.cumsum(
-            rewards * weights, axis=1) / weights
+        weights = tf.math.cumprod(weights, axis=1, exclusive=True)
+        discount_target_values = tf.math.cumsum(rewards * weights, axis=1, reverse=True) / weights
         if self.monitor is not None:
             self.monitor.record(
                 "discount_target_values_mean",

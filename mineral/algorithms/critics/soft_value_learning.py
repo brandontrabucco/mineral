@@ -52,3 +52,24 @@ class SoftValueLearning(ValueLearning):
                 tf.reduce_mean(target_values)
             )
         return target_values
+
+    def discount_target_values(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+            actions,
+            observations[:, :(-1), ...]
+        )
+        weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
+        weights = tf.math.cumprod(weights, axis=1, exclusive=True)
+        discount_target_values = tf.math.cumsum(weights * (rewards - log_probs), axis=1, reverse=True) / weights
+        if self.monitor is not None:
+            self.monitor.record(
+                "discount_target_values_mean",
+                tf.reduce_mean(discount_target_values)
+            )
+        return discount_target_values
