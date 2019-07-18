@@ -13,7 +13,7 @@ Available algorithms for training policies.
 
 Clone and install with pip.
 
-```
+```console 
 git clone git@github.com:brandontrabucco/mineral.git
 pip install -e mineral
 ```
@@ -22,7 +22,7 @@ pip install -e mineral
 
 Launch experiments, then check progress at http://localhost:6006.
 
-```
+```console 
 python experiments/pendelum_trpo.py
 ```
 
@@ -30,13 +30,13 @@ python experiments/pendelum_trpo.py
 
 Experiments are launched by calling the **train** method.
 
-```
+```python
 trainer.train()
 ```
 
 The **trainer** performs gradient updates.
 
-```
+```python
 trainer = LocalTrainer(
     max_num_paths,
     num_warm_up_paths,
@@ -52,7 +52,7 @@ trainer = LocalTrainer(
 
 Several **algorithms** implement gradient updates.
 
-```
+```python
 critic = GAE(
     vf,
     target_vf
@@ -66,7 +66,7 @@ algorithm = PPO(
 
 A **buffer** stores transitions for training.
 
-```
+```python
 buffer = PathBuffer(
     env,
     policy
@@ -75,7 +75,7 @@ buffer = PathBuffer(
 
 Several **neural networks** shall be trained.
 
-```
+```python
 policy = DensePolicy(
     [hidden_size, hidden_size, action_size]
 )
@@ -91,7 +91,7 @@ target_vf = DenseValueFunction(
 
 An **environment** samples transitions for training.
 
-```
+```python
 env = NormalizedEnvironment(
     gym.make(env_name)
 )
