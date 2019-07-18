@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.algorithms.actors.actor import Actor
+from mineral import discounted_sum
 
 
 class PolicyGradient(Actor):
@@ -70,12 +71,7 @@ class PolicyGradient(Actor):
             rewards,
             terminals
         )
-        weights = tf.tile(
-            [[self.gamma]],
-            [1, tf.shape(rewards)[1]]
-        )
-        weights = tf.math.cumprod(weights, axis=1, exclusive=True)
-        returns = tf.math.cumsum(rewards * weights, axis=1, reverse=True) / weights
+        returns = discounted_sum(rewards, self.gamma)
         returns = returns - tf.reduce_mean(returns)
         if self.monitor is not None:
             self.monitor.record(

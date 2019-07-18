@@ -15,11 +15,12 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    max_path_length = 1000
+    max_path_length = 256
+    reward_scale = 100.0
 
     env = NormalizedEnvironment(
         gym.make("Pendulum-v0"),
-        reward_scale=(1 / max_path_length)
+        reward_scale=(1 / max_path_length) * reward_scale
     )
 
     policy = DensePolicy(
@@ -40,7 +41,7 @@ if __name__ == "__main__":
         monitor=monitor
     )
     
-    max_size = 4
+    max_size = 32
     num_warm_up_paths = 1
     num_steps = 1000
     num_paths_to_collect = max_size

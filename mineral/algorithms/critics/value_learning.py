@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.algorithms.critics.critic import Critic
+from mineral import discounted_sum
 
 
 class ValueLearning(Critic):
@@ -50,9 +51,7 @@ class ValueLearning(Critic):
         rewards,
         terminals
     ):
-        weights = tf.tile([[self.gamma]], [1, tf.shape(rewards)[1]])
-        weights = tf.math.cumprod(weights, axis=1, exclusive=True)
-        discount_target_values = tf.math.cumsum(rewards * weights, axis=1, reverse=True) / weights
+        discount_target_values = discounted_sum(rewards, self.gamma)
         if self.monitor is not None:
             self.monitor.record(
                 "discount_target_values_mean",

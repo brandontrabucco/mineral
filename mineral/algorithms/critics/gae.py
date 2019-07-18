@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.algorithms.critics.value_learning import ValueLearning
+from mineral import discounted_sum
 
 
 class GAE(ValueLearning):
@@ -31,20 +32,12 @@ class GAE(ValueLearning):
         rewards,
         terminals
     ):
-        values = self.vf.get_values(
-            observations
-        )[:, :, 0]
-        delta_v = (
-            terminals[:, :(-1)] * rewards -
-            terminals[:, :(-1)] * values[:, :(-1)] +
-            terminals[:, 1:] * values[:, 1:] * self.gamma
+        values = self.vf.get_values(observations)[:, :, 0]
+        advantages = discounted_sum(
+            (terminals[:, :(-1)] * (rewards - values[:, :(-1)]) +
+             terminals[:, 1:] * values[:, 1:] * self.gamma),
+            self.gamma
         )
-        weights = tf.tile(
-            [[self.gamma * self.lamb]],
-            [1, tf.shape(delta_v)[1]]
-        )
-        weights = tf.math.cumprod(weights, axis=1, exclusive=True)
-        advantages = tf.math.cumsum(delta_v * weights, axis=1, reverse=True) / weights
         if self.monitor is not None:
             self.monitor.record(
                 "advantages_mean",
