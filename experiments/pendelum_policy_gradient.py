@@ -16,7 +16,7 @@ if __name__ == "__main__":
     monitor = LocalMonitor("./")
 
     max_path_length = 256
-    reward_scale = 100.0
+    reward_scale = 10.0
 
     env = NormalizedEnvironment(
         gym.make("Pendulum-v0"),

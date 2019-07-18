@@ -72,7 +72,7 @@ class PolicyGradient(Actor):
             terminals
         )
         returns = discounted_sum(rewards, self.gamma)
-        returns = returns - tf.reduce_mean(returns)
+        advantages = returns - tf.reduce_mean(returns)
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
@@ -90,10 +90,14 @@ class PolicyGradient(Actor):
                 "returns_mean",
                 tf.reduce_mean(returns)
             )
+            self.monitor.record(
+                "cumulative_returns_mean,timestep,discounted_return",
+                tf.reduce_mean(returns, axis=0)
+            )
         self.update_actor(
             observations,
             actions,
-            returns,
+            advantages,
             terminals
         )
 

@@ -41,13 +41,12 @@ class LocalTrainer(Trainer):
 
         for i in range(self.num_steps):
             expl_r = self.buffer.collect(self.num_paths_to_collect, random=True, save_paths=True)
-            if self.monitor is not None:
-                self.monitor.record("exploration_return", expl_r)
-
             eval_r = self.buffer.collect(self.num_paths_to_collect, random=False, save_paths=False)
-            if self.monitor is not None:
-                self.monitor.record("evaluation_return", eval_r)
 
             for j in range(self.num_trains_per_step):
                 batch = self.buffer.sample(self.batch_size)
                 self.algorithm.gradient_update(*batch)
+
+            if self.monitor is not None:
+                self.monitor.record("exploration_return", expl_r)
+                self.monitor.record("evaluation_return", eval_r)
