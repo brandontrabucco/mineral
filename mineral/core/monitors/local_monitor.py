@@ -12,6 +12,7 @@ class LocalMonitor(Monitor):
         self,
         logging_dir
     ):
+        tf.io.gfile.makedirs(logging_dir)
         self.writer = tf.summary.create_file_writer(logging_dir)
         self.set_step(0)
         tb = program.TensorBoard()
