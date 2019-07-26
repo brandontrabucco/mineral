@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.algorithms.critics.value_learning import ValueLearning
+from mineral import discounted_sum
 
 
 class SoftValueLearning(ValueLearning):
@@ -52,3 +53,22 @@ class SoftValueLearning(ValueLearning):
                 tf.reduce_mean(target_values)
             )
         return target_values
+
+    def discount_target_values(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+            actions,
+            observations[:, :(-1), ...]
+        )
+        discount_target_values = discounted_sum((rewards - log_probs), self.gamma)
+        if self.monitor is not None:
+            self.monitor.record(
+                "discount_target_values_mean",
+                tf.reduce_mean(discount_target_values)
+            )
+        return discount_target_values

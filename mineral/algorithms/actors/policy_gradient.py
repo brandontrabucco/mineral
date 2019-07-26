@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.algorithms.actors.actor import Actor
+from mineral import discounted_sum
 
 
 class PolicyGradient(Actor):
@@ -70,14 +71,8 @@ class PolicyGradient(Actor):
             rewards,
             terminals
         )
-        weights = tf.tile(
-            [[self.gamma]],
-            [1, tf.shape(rewards)[1]]
-        )
-        weights = tf.math.cumprod(
-            weights, axis=1, exclusive=True)
-        returns = tf.math.cumsum(rewards * weights, axis=1) / weights
-        returns = returns - tf.reduce_mean(returns)
+        returns = discounted_sum(rewards, self.gamma)
+        advantages = returns - tf.reduce_mean(returns)
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
@@ -95,10 +90,14 @@ class PolicyGradient(Actor):
                 "returns_mean",
                 tf.reduce_mean(returns)
             )
+            self.monitor.record(
+                "cumulative_returns_mean,timestep,discounted_return",
+                tf.reduce_mean(returns, axis=0)
+            )
         self.update_actor(
             observations,
             actions,
-            returns,
+            advantages,
             terminals
         )
 

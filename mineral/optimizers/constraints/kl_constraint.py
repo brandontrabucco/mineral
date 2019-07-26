@@ -11,7 +11,7 @@ class KLConstraint(Optimizer):
         self,
         mlp,
         other_mlp,
-        iterations_per_copy=1,
+        iterations_per_copy=None,
         delta=1.0,
         infinity=1e9
     ):

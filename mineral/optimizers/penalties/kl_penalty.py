@@ -11,7 +11,7 @@ class KLPenalty(Optimizer):
         self,
         mlp,
         other_mlp,
-        iterations_per_copy=1,
+        iterations_per_copy=None,
         alpha=1.0
     ):
         Optimizer.__init__(self, mlp)

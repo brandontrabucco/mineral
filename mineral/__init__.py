@@ -61,3 +61,12 @@ def nested_apply(
             )
             for key, *values in zip(*merged_list)
         }
+
+
+def discounted_sum(
+    terms,
+    discount_factor
+):
+    weights = tf.tile([[discount_factor]], [1, tf.shape(terms)[1]])
+    weights = tf.math.cumprod(weights, axis=1, exclusive=True)
+    return tf.math.cumsum(terms * weights, axis=1, reverse=True) / weights
