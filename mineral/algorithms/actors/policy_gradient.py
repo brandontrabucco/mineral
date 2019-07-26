@@ -92,7 +92,7 @@ class PolicyGradient(Actor):
             )
             self.monitor.record(
                 "cumulative_returns_mean,timestep,discounted_return",
-                tf.reduce_mean(returns, axis=0)
+                returns
             )
         self.update_actor(
             observations,

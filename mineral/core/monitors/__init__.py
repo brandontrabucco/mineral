@@ -14,7 +14,8 @@ def plot_to_tensor(
     y_label
 ):
     plt.clf()
-    plt.plot(xs, ys)
+    for xxss, yyss in zip(xs, ys):
+        plt.plot(xxss, yyss)
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -23,5 +24,4 @@ def plot_to_tensor(
     buffer.seek(0)
     return tf.expand_dims(
         tf.image.decode_png(buffer.getvalue(), channels=4),
-        0
-    )
+        0)

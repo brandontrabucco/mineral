@@ -7,8 +7,6 @@ from mineral.core.monitors.monitor import Monitor
 from mineral.core.monitors import plot_to_tensor
 
 
-
-
 class LocalMonitor(Monitor):
 
     def __init__(
@@ -33,16 +31,14 @@ class LocalMonitor(Monitor):
         key,
         value,
     ):
-        value = tf.reshape(value, [-1])
         with self.writer.as_default():
             if tf.size(value) > 1:
                 splits = key.split(",")
                 tf.summary.image(splits[0], plot_to_tensor(
-                    tf.range(tf.size(value)),
+                    tf.tile(tf.expand_dims(tf.range(tf.shape(value)[1]), 0), [tf.shape(value)[0], 1]),
                     value,
                     splits[0],
                     splits[1],
-                    splits[2]
-                ))
+                    splits[2]))
             else:
-                tf.summary.scalar(key, value[0])
+                tf.summary.scalar(key, value)

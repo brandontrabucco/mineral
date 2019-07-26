@@ -15,7 +15,7 @@ class PointmassEnv(Env):
             -1.0 * np.ones([size]), np.ones([size]))
         self.action_space = Box(
             -1.0 * np.ones([size]), np.ones([size]))
-        self.position = np.zeros([size])
+        self.position = np.random.normal(0.0, 0.1, [size])
         self.goal = np.ones([size])
         self.size = size
         self.ord = ord
@@ -24,7 +24,7 @@ class PointmassEnv(Env):
         self,
         **kwargs
     ):
-        self.position = np.zeros([self.size])
+        self.position = np.random.normal(0.0, 0.1, [self.size])
 
     def step(
         self, 
