@@ -33,11 +33,11 @@ class SoftActorCritic(DDPG):
     ):
         def loss_function():
             policy_actions = self.policy.get_stochastic_actions(
-                observations[:, :(-1), :]
+                observations[:, :(-1), ...]
             )
             policy_log_probs = self.policy.get_log_probs(
                 policy_actions,
-                observations[:, :(-1), :]
+                observations[:, :(-1), ...]
             )
             returns = self.critic.get_advantages(
                 observations,

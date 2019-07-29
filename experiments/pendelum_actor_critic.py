@@ -5,7 +5,7 @@ import gym
 from mineral.networks.dense.dense_policy import DensePolicy
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.networks.dense.dense_value_function import DenseValueFunction
-from mineral.core.environments.normalized_environment import NormalizedEnvironment
+from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.algorithms.actors.actor_critic import ActorCritic
 from mineral.algorithms.critics.gae import GAE
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = NormalizedEnvironment(
+    env = NormalizedEnv(
         gym.make("Pendulum-v0")
     )
 

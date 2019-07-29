@@ -4,7 +4,7 @@
 import gym
 from mineral.networks.dense.dense_policy import DensePolicy
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
-from mineral.core.environments.normalized_environment import NormalizedEnvironment
+from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.algorithms.actors.policy_gradient import PolicyGradient
 from mineral.core.trainers.local_trainer import LocalTrainer
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     max_path_length = 256
     reward_scale = 10.0
 
-    env = NormalizedEnvironment(
+    env = NormalizedEnv(
         gym.make("Pendulum-v0"),
         reward_scale=(1 / max_path_length) * reward_scale
     )

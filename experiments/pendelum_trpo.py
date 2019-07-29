@@ -8,7 +8,7 @@ from mineral.networks.dense.dense_value_function import DenseValueFunction
 from mineral.optimizers.gradients.natural_gradient import NaturalGradient
 from mineral.optimizers.line_search import LineSearch
 from mineral.optimizers.constraints.kl_constraint import KLConstraint
-from mineral.core.environments.normalized_environment import NormalizedEnvironment
+from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.algorithms.actors.importance_sampling import ImportanceSampling
 from mineral.algorithms.critics.gae import GAE
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     monitor = LocalMonitor("./")
 
-    env = NormalizedEnvironment(
+    env = NormalizedEnv(
         gym.make("Pendulum-v0")
     )
 

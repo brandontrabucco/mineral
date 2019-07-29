@@ -15,8 +15,7 @@ class DenseNetwork(Network):
         Network.__init__(self, **kwargs)
         self.dense_layers = [
             tf.keras.layers.Dense(size)
-            for size in hidden_sizes
-        ]
+            for size in hidden_sizes]
 
     def call(
         self,

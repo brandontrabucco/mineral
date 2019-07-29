@@ -1,10 +1,10 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from mineral.networks.dense.dense_policy import DensePolicy
+from mineral.networks.conv.conv_policy import ConvPolicy
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.pointmass_env import PointmassEnv
+from mineral.core.envs.image_pointmass_env import ImagePointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.algorithms.actors.policy_gradient import PolicyGradient
 from mineral.core.trainers.local_trainer import LocalTrainer
@@ -13,20 +13,23 @@ from mineral.core.monitors.local_monitor import LocalMonitor
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./pointmass_policy_gradient")
+    monitor = LocalMonitor("./image_pointmass_policy_gradient")
 
     max_path_length = 10
 
     env = NormalizedEnv(
-        PointmassEnv(size=2, ord=2),
+        ImagePointmassEnv(image_size=48, size=2, ord=2),
         reward_scale=(1 / max_path_length)
     )
 
-    policy = DensePolicy(
-        [32, 32, 1],
+    policy = ConvPolicy(
+        [8, 16, 32],
+        [5, 5, 5],
+        [2, 2, 2],
+        [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
-        distribution_kwargs=dict(std=0.5)
+        distribution_kwargs=dict(std=None)
     )
 
     buffer = PathBuffer(

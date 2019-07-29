@@ -29,7 +29,7 @@ class PolicyGradient(Actor):
         def loss_function():
             log_probs = self.policy.get_log_probs(
                 actions,
-                observations[:, :(-1), :]
+                observations[:, :(-1), ...]
             )
             loss_policy = -1.0 * tf.reduce_mean(
                 returns * log_probs
@@ -54,7 +54,7 @@ class PolicyGradient(Actor):
             return loss_policy
         self.policy.minimize(
             loss_function,
-            observations
+            observations[:, :(-1), ...]
         )
 
     def gradient_update(
