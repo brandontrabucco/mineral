@@ -1,19 +1,24 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+from mineral.algorithms.actors.importance_sampling import ImportanceSampling
+from mineral.algorithms.critics.gae import GAE
 from mineral.networks.dense.dense_policy import DensePolicy
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.algorithms.actors.policy_gradient import PolicyGradient
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
+from mineral.networks.dense.dense_value_function import DenseValueFunction
+from mineral.optimizers.constraints.kl_constraint import KLConstraint
+from mineral.optimizers.gradients.natural_gradient import NaturalGradient
+from mineral.optimizers.line_search import LineSearch
 
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./pointmass/policy_gradient")
+    monitor = LocalMonitor("./pointmass/trpo")
 
     max_path_length = 10
 
@@ -24,9 +29,32 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [32, 32, 1],
-        optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=TanhGaussianDistribution,
-        distribution_kwargs=dict(std=0.5)
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
+    )
+
+    old_policy = DensePolicy(
+        [32, 32, 1],
+        optimizer_kwargs={"lr": 0.0001},
+        distribution_class=TanhGaussianDistribution
+    )
+
+    vf = DenseValueFunction(
+        [6, 6, 1],
+        optimizer_kwargs={"lr": 0.0001},
+    )
+
+    policy = KLConstraint(
+        LineSearch(
+            NaturalGradient(
+                policy, return_sAs=True
+            ), use_sAs=True
+        ), old_policy, delta=0.1
+    )
+
+    target_vf = DenseValueFunction(
+        [6, 6, 1],
+        optimizer_kwargs={"lr": 0.0001},
     )
 
     buffer = PathBuffer(
@@ -34,8 +62,18 @@ if __name__ == "__main__":
         policy
     )
 
-    algorithm = PolicyGradient(
+    critic = GAE(
+        vf,
+        target_vf,
+        gamma=1.0,
+        lamb=1.0,
+        monitor=monitor,
+    )
+
+    algorithm = ImportanceSampling(
         policy,
+        old_policy,
+        critic,
         gamma=0.99,
         monitor=monitor
     )
