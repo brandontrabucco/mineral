@@ -1,8 +1,10 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import tensorflow as tf
 from mineral.networks.dense.dense_policy import DensePolicy
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.optimizers.gradients.natural_gradient import NaturalGradient
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
@@ -13,7 +15,7 @@ from mineral.core.monitors.local_monitor import LocalMonitor
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./pointmass/policy_gradient")
+    monitor = LocalMonitor("./pointmass/natural_policy_gradient")
 
     max_path_length = 10
 
@@ -24,9 +26,14 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [32, 32, 4],
-        optimizer_kwargs=dict(lr=0.0001),
+        optimizer_class=tf.keras.optimizers.SGD,
+        optimizer_kwargs=dict(lr=1.0),
         distribution_class=TanhGaussianDistribution,
         distribution_kwargs=dict(std=None)
+    )
+
+    policy = NaturalGradient(
+        policy
     )
 
     buffer = PathBuffer(
