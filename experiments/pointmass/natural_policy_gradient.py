@@ -26,8 +26,8 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [32, 32, 4],
-        optimizer_class=tf.keras.optimizers.SGD,
-        optimizer_kwargs=dict(lr=1.0),
+        optimizer_class=tf.keras.optimizers.Adam,
+        optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
         distribution_kwargs=dict(std=None)
     )

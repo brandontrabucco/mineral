@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import tensorflow as tf
 from mineral.algorithms.actors.actor_critic import ActorCritic
 from mineral.algorithms.critics.gae import GAE
 from mineral.networks.dense.dense_policy import DensePolicy
@@ -11,11 +12,12 @@ from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 from mineral.networks.dense.dense_value_function import DenseValueFunction
+from mineral.optimizers.gradients.natural_gradient import NaturalGradient
 
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./pointmass/actor_critic")
+    monitor = LocalMonitor("./pointmass/natural_actor_critic")
 
     max_path_length = 10
 
@@ -26,19 +28,23 @@ if __name__ == "__main__":
 
     policy = DensePolicy(
         [32, 32, 4],
-        optimizer_kwargs={"lr": 0.0001},
+        optimizer_class=tf.keras.optimizers.Adam,
+        optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
         distribution_kwargs=dict(std=None)
     )
 
+    policy = NaturalGradient(
+        policy
+    )
+
     vf = DenseValueFunction(
         [6, 6, 1],
-        optimizer_kwargs={"lr": 0.0001},
+        optimizer_kwargs={"lr": 0.01},
     )
 
     target_vf = DenseValueFunction(
-        [6, 6, 1],
-        optimizer_kwargs={"lr": 0.0001},
+        [6, 6, 1]
     )
 
     buffer = PathBuffer(
