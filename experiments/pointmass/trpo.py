@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import tensorflow as tf
 from mineral.algorithms.actors.importance_sampling import ImportanceSampling
 from mineral.algorithms.critics.gae import GAE
 from mineral.networks.dense.dense_policy import DensePolicy
@@ -28,15 +29,19 @@ if __name__ == "__main__":
     )
 
     policy = DensePolicy(
-        [32, 32, 1],
-        optimizer_kwargs={"lr": 0.0001},
-        distribution_class=TanhGaussianDistribution
+        [32, 32, 4],
+        optimizer_class=tf.keras.optimizers.Adam,
+        optimizer_kwargs=dict(lr=0.0001),
+        distribution_class=TanhGaussianDistribution,
+        distribution_kwargs=dict(std=None)
     )
 
     old_policy = DensePolicy(
-        [32, 32, 1],
-        optimizer_kwargs={"lr": 0.0001},
-        distribution_class=TanhGaussianDistribution
+        [32, 32, 4],
+        optimizer_class=tf.keras.optimizers.Adam,
+        optimizer_kwargs=dict(lr=0.0001),
+        distribution_class=TanhGaussianDistribution,
+        distribution_kwargs=dict(std=None)
     )
 
     vf = DenseValueFunction(
@@ -62,11 +67,14 @@ if __name__ == "__main__":
         policy
     )
 
+    num_trains_per_step = 32
+    off_policy_updates = 10
+
     critic = GAE(
         vf,
         target_vf,
-        gamma=1.0,
-        lamb=1.0,
+        gamma=0.99,
+        lamb=0.95,
         monitor=monitor,
     )
 
@@ -75,6 +83,8 @@ if __name__ == "__main__":
         old_policy,
         critic,
         gamma=0.99,
+        actor_delay=num_trains_per_step // off_policy_updates,
+        old_policy_delay=num_trains_per_step,
         monitor=monitor
     )
     
@@ -83,7 +93,6 @@ if __name__ == "__main__":
     num_steps = 1000
     num_paths_to_collect = max_size
     batch_size = max_size
-    num_trains_per_step = 1
 
     trainer = LocalTrainer(
         max_size,
