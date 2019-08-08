@@ -62,7 +62,7 @@ class DDPG(Actor):
             return loss_policy
         self.policy.minimize(
             loss_function,
-            observations
+            observations[:, :(-1), ...]
         )
 
     def gradient_update(
