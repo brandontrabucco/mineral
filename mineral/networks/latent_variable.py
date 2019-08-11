@@ -12,6 +12,7 @@ class LatentVariable(Network):
         encoder,
         decoder,
         latent_size,
+        sample_encoder=False,
         sample_decoder=False,
         beta=1.0
     ):
@@ -19,31 +20,21 @@ class LatentVariable(Network):
         self.encoder = encoder
         self.decoder = decoder
         self.latent_size = latent_size
+        self.sample_encoder = sample_encoder
         self.sample_decoder = sample_decoder
         self.beta = beta
         self.grad_length = 0
 
-    def call(
-        self,
-        *inputs,
-        **kwargs
-    ):
+    def call(self, *inputs, **kwargs):
         pass
 
-    def compute_gradients(
-        self,
-        loss_function,
-        *inputs
-    ):
-        encoder_grad = self.encoder.compute_gradients(loss_function, *inputs)
-        decoder_grad = self.decoder.compute_gradients(loss_function, *inputs)
+    def compute_gradients(self, loss_function, *inputs, **kwargs):
+        encoder_grad = self.encoder.compute_gradients(loss_function, *inputs, **kwargs)
+        decoder_grad = self.decoder.compute_gradients(loss_function, *inputs, **kwargs)
         self.grad_length = len(encoder_grad)
         return encoder_grad + decoder_grad
 
-    def apply_gradients(
-        self,
-        gradients
-    ):
+    def apply_gradients(self, gradients):
         self.encoder.apply_gradients(gradients[:self.grad_length])
         self.decoder.apply_gradients(gradients[self.grad_length:])
 
@@ -51,19 +42,28 @@ class LatentVariable(Network):
         pass
 
     def get_parameters(self, *inputs, **kwargs):
-        latent_variable = self.encoder.sample(*inputs, **kwargs)
+        if self.sample_encoder:
+            latent_variable = self.encoder.sample(*inputs, **kwargs)
+        else:
+            latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
         return (self.encoder.get_parameters(*inputs, **kwargs) +
                 self.decoder.get_parameters(latent_variable, **kwargs))
 
     def sample(self, *inputs, **kwargs):
-        latent_variable = self.encoder.sample(*inputs, **kwargs)
+        if self.sample_encoder:
+            latent_variable = self.encoder.sample(*inputs, **kwargs)
+        else:
+            latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
         if self.sample_decoder:
             return self.decoder.sample(latent_variable, **kwargs)
         else:
             return self.decoder.get_expected_value(latent_variable, **kwargs)
 
     def sample_from_prior(self, **kwargs):
-        latent_variable = tf.random.normal([1, self.latent_size])
+        if self.sample_encoder:
+            latent_variable = tf.random.normal([1, self.latent_size])
+        else:
+            latent_variable = tf.zeros([1, self.latent_size])
         if self.sample_decoder:
             return self.decoder.sample(latent_variable, **kwargs)
         else:

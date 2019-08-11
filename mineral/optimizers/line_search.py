@@ -25,11 +25,13 @@ class LineSearch(Optimizer):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         outputs = self.mlp.compute_gradients(
             loss_function,
-            *inputs
+            *inputs,
+            **kwargs
         )
 
         if self.use_sAs:

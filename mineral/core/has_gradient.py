@@ -10,7 +10,8 @@ class HasGradient(ABC):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
@@ -24,11 +25,13 @@ class HasGradient(ABC):
     def minimize(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         self.apply_gradients(
             self.compute_gradients(
                 loss_function,
-                *inputs
+                *inputs,
+                **kwargs
             )
         )

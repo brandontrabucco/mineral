@@ -15,7 +15,8 @@ class Optimizer(HasGradient):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 

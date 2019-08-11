@@ -23,14 +23,15 @@ class KLPenalty(Optimizer):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         def wrapped_loss_function():
             return loss_function() + self.alpha * tf.reduce_mean(
                 self.mlp.get_kl_divergence(
                     self.other_mlp, *inputs))
         return self.mlp.compute_gradients(
-            wrapped_loss_function, *inputs)
+            wrapped_loss_function, *inputs, **kwargs)
 
     def apply_gradients(
         self,

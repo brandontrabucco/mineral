@@ -22,13 +22,14 @@ class NaturalGradient(Optimizer):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         gradients, sAs = inverse_fisher_vector_product(
             lambda: self.mlp.get_parameters(*inputs),
             lambda: self.mlp.get_fisher_information(*inputs),
             self.mlp.trainable_variables,
-            self.mlp.compute_gradients(loss_function, *inputs),
+            self.mlp.compute_gradients(loss_function, *inputs, **kwargs),
             tolerance=self.tolerance,
             maximum_iterations=self.maximum_iterations)
         return (gradients, sAs) if self.return_sAs else gradients

@@ -25,7 +25,8 @@ class KLConstraint(Optimizer):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         def wrapped_loss_function():
             kl = tf.reduce_mean(
@@ -34,7 +35,7 @@ class KLConstraint(Optimizer):
             return loss_function() + (
                 0.0 if kl < self.delta else self.infinity)
         return self.mlp.compute_gradients(
-            wrapped_loss_function, *inputs)
+            wrapped_loss_function, *inputs, **kwargs)
 
     def apply_gradients(
         self,

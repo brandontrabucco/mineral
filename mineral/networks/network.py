@@ -35,7 +35,8 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
     def compute_gradients(
         self,
         loss_function,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         with tf.GradientTape() as gradient_tape:
             return gradient_tape.gradient(
