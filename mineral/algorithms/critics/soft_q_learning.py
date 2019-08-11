@@ -40,7 +40,7 @@ class SoftQLearning(QLearning):
         rewards,
         terminals
     ):
-        next_actions = self.policy.get_deterministic_actions(
+        next_actions = self.policy.get_expected_value(
             observations[:, 1:, ...]
         )
         next_log_probs = self.policy.get_log_probs(
@@ -54,7 +54,7 @@ class SoftQLearning(QLearning):
             ), -self.clip_radius, self.clip_radius
         )
         noisy_next_actions = next_actions + epsilon
-        next_target_qvalues = self.target_qf.get_qvalues(
+        next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
             noisy_next_actions
         )

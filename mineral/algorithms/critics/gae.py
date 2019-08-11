@@ -32,7 +32,7 @@ class GAE(ValueLearning):
         rewards,
         terminals
     ):
-        values = self.vf.get_values(observations)[:, :, 0]
+        values = self.vf.get_expected_value(observations)[:, :, 0]
         advantages = discounted_sum(
             (terminals[:, :(-1)] * (rewards - values[:, :(-1)]) +
              terminals[:, 1:] * values[:, 1:] * self.gamma),

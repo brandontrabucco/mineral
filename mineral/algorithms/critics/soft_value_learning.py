@@ -32,14 +32,14 @@ class SoftValueLearning(ValueLearning):
         rewards,
         terminals
     ):
-        next_actions = self.policy.get_deterministic_actions(
+        next_actions = self.policy.get_expected_value(
             observations[:, 1:, ...]
         )
         next_log_probs = self.policy.get_log_probs(
             next_actions,
             observations[:, 1:, ...]
         )
-        next_target_values = self.target_vf.get_values(
+        next_target_values = self.target_vf.get_expected_value(
             observations[:, 1:, ...]
         )
         target_values = rewards + (

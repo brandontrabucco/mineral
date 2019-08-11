@@ -53,8 +53,7 @@ class ConvNetwork(Network):
             activations = self.dropout_layers[i](activations, training=training)
         activations = tf.reshape(activations, tf.concat([batch_shape, [-1]], 0))
         proprioceptive_inputs = [x for x in inputs if 2 <= len(x.shape) < 4]
-        dense_inputs = tf.concat([activations] + proprioceptive_inputs, -1)
-        activations = self.dense_layers[0](tf.nn.relu(dense_inputs))
-        for layer in self.dense_layers[1:]:
+        activations = tf.concat([activations] + proprioceptive_inputs, -1)
+        for layer in self.dense_layers:
             activations = layer(tf.nn.relu(activations))
         return activations

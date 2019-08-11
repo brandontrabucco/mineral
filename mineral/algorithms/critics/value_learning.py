@@ -31,7 +31,7 @@ class ValueLearning(Critic):
         rewards,
         terminals
     ):
-        next_target_values = self.target_vf.get_values(
+        next_target_values = self.target_vf.get_expected_value(
             observations[:, 1:, ...]
         )
         target_values = rewards + (
@@ -69,7 +69,7 @@ class ValueLearning(Critic):
         discount_target_values
     ):
         def loss_function():
-            values = terminals[:, :(-1)] * self.vf.get_values(
+            values = terminals[:, :(-1)] * self.vf.get_expected_value(
                 observations[:, :(-1), ...]
             )[:, :, 0]
             bellman_loss_vf = tf.reduce_mean(
@@ -120,10 +120,10 @@ class ValueLearning(Critic):
         rewards,
         terminals
     ):
-        values = terminals[:, :(-1)] * self.vf.get_values(
+        values = terminals[:, :(-1)] * self.vf.get_expected_value(
             observations[:, :(-1), ...]
         )
-        next_values = terminals[:, 1:] * self.vf.get_values(
+        next_values = terminals[:, 1:] * self.vf.get_expected_value(
             observations[:, 1:, ...]
         )
         return (

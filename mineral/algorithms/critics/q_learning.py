@@ -37,7 +37,7 @@ class QLearning(Critic):
         rewards,
         terminals
     ):
-        next_actions = self.policy.get_deterministic_actions(
+        next_actions = self.policy.get_expected_value(
             observations[:, 1:, ...]
         )
         epsilon = tf.clip_by_value(
@@ -86,7 +86,7 @@ class QLearning(Critic):
         discount_target_values
     ):
         def loss_function():
-            qvalues = terminals[:, :(-1)] * self.qf.get_qvalues(
+            qvalues = terminals[:, :(-1)] * self.qf.get_expected_value(
                 observations[:, :(-1), ...],
                 actions
             )[:, :, 0]
@@ -139,13 +139,13 @@ class QLearning(Critic):
         rewards,
         terminals,
     ):
-        qvalues = self.qf.get_qvalues(
+        qvalues = self.qf.get_expected_value(
             observations[:, :(-1), ...],
             actions
         )
-        values = self.qf.get_qvalues(
+        values = self.qf.get_expected_value(
             observations[:, :(-1), ...],
-            self.policy.get_deterministic_actions(
+            self.policy.get_expected_value(
                 observations[:, :(-1), ...]
             )
         )

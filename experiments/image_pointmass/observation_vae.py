@@ -2,8 +2,7 @@
 
 
 from mineral.algorithms.vaes.observation_vae import ObservationVAE
-from mineral.networks.conv.conv_policy import ConvPolicy
-from mineral.networks.conv.conv_network import ConvNetwork
+from mineral.networks.conv_network import ConvNetwork
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -11,8 +10,8 @@ from mineral.core.envs.image_pointmass_env import ImagePointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
-from mineral.networks.conv_transpose.conv_transpose_network import ConvTransposeNetwork
-from mineral.networks.latent_variable.latent_variable_network import LatentVariableNetwork
+from mineral.networks.conv_transpose_network import ConvTransposeNetwork
+from mineral.networks.latent_variable_network import LatentVariableNetwork
 
 
 if __name__ == "__main__":
@@ -26,7 +25,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = ConvPolicy(
+    policy = ConvNetwork(
         [8, 16, 32],
         [5, 5, 5],
         [2, 2, 2],

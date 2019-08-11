@@ -30,7 +30,7 @@ class DDPG(Actor):
         terminals
     ):
         def loss_function():
-            policy_actions = self.policy.get_stochastic_actions(
+            policy_actions = self.policy.sample(
                 observations[:, :(-1), ...]
             )
             returns = self.critic.get_advantages(

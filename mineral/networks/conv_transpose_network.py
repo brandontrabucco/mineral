@@ -56,14 +56,11 @@ class ConvTransposeNetwork(Network):
             tf.shape(activations)[0], *self.initial_image_shape])
         image_inputs = tf.concat([activations] + [
             x for x in inputs if len(x.shape) >= 4], -1)
-        conv_inputs = tf.reshape(
+        activations = tf.reshape(
             image_inputs,
             tf.concat([[tf.reduce_prod(batch_shape)],
                        tf.shape(image_inputs)[-3:]], 0))
-        activations = self.batch_norm_layers[0](conv_inputs, training=training)
-        activations = self.dropout_layers[0](activations, training=training)
-        activations = self.conv_layers[0](tf.nn.relu(activations))
-        for i in range(1, len(self.conv_layers)):
+        for i in range(len(self.conv_layers)):
             activations = self.batch_norm_layers[i](activations)
             activations = self.dropout_layers[i](activations)
             activations = self.conv_layers[i](tf.nn.relu(activations))

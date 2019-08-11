@@ -77,10 +77,10 @@ class PathBuffer(Buffer):
             path_return = 0.0
             for j in range(self.max_path_length):
                 if random:
-                    action = self.policy.get_stochastic_actions(
+                    action = self.policy.sample(
                         self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
                 else:
-                    action = self.policy.get_deterministic_actions(
+                    action = self.policy.get_expected_value(
                         self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
                 next_observation, reward, done, info = self.env.step(action)
                 if render:

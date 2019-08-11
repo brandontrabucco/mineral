@@ -32,7 +32,7 @@ class SoftActorCritic(DDPG):
         terminals
     ):
         def loss_function():
-            policy_actions = self.policy.get_stochastic_actions(
+            policy_actions = self.policy.sample(
                 observations[:, :(-1), ...]
             )
             policy_log_probs = self.policy.get_log_probs(
