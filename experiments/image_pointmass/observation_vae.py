@@ -67,7 +67,9 @@ if __name__ == "__main__":
         encoder,
         decoder,
         latent_size,
-        beta=1.0
+        beta=1.0,
+        sample_encoder=True,
+        sample_decoder=False
     )
 
     algorithm = ObservationVAE(

@@ -12,17 +12,17 @@ class LatentVariable(Network):
         encoder,
         decoder,
         latent_size,
+        beta=1.0,
         sample_encoder=False,
         sample_decoder=False,
-        beta=1.0
     ):
         tf.keras.Model.__init__(self)
         self.encoder = encoder
         self.decoder = decoder
         self.latent_size = latent_size
+        self.beta = beta
         self.sample_encoder = sample_encoder
         self.sample_decoder = sample_decoder
-        self.beta = beta
         self.grad_length = 0
 
     def call(self, *inputs, **kwargs):
