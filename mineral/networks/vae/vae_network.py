@@ -23,7 +23,8 @@ class VAENetwork(Network):
 
     def call(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         pass
 
@@ -53,42 +54,42 @@ class VAENetwork(Network):
             for w, w_self in zip(weights, self.get_weights())
         ])
 
-    def get_activations(self, *inputs):
+    def get_activations(self, *inputs, **kwargs):
         pass
 
-    def get_parameters(self, *inputs):
-        latent_variable = self.encoder.sample(*inputs)
-        return (self.encoder.get_parameters(*inputs) +
-                self.decoder.get_parameters(latent_variable))
+    def get_parameters(self, *inputs, **kwargs):
+        latent_variable = self.encoder.sample(*inputs, **kwargs)
+        return (self.encoder.get_parameters(*inputs, **kwargs) +
+                self.decoder.get_parameters(latent_variable, **kwargs))
 
-    def sample(self, *inputs):
-        latent_variable = self.encoder.sample(*inputs)
-        return self.decoder.get_expected_value(latent_variable)
+    def sample(self, *inputs, **kwargs):
+        latent_variable = self.encoder.sample(*inputs, **kwargs)
+        return self.decoder.get_expected_value(latent_variable, **kwargs)
 
-    def sample_from_prior(self):
+    def sample_from_prior(self, **kwargs):
         latent_variable = tf.random.normal([1, self.latent_size])
-        return self.decoder.get_expected_value(latent_variable)
+        return self.decoder.get_expected_value(latent_variable, **kwargs)
 
-    def get_expected_value(self, *inputs):
-        latent_variable = self.encoder.get_expected_value(*inputs)
-        return self.decoder.get_expected_value(latent_variable)
+    def get_expected_value(self, *inputs, **kwargs):
+        latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
+        return self.decoder.get_expected_value(latent_variable, **kwargs)
 
-    def get_log_probs(self, *inputs):
+    def get_log_probs(self, *inputs, **kwargs):
         x, *inputs = inputs
-        kl_divergence = self.encoder.get_kl_divergence("prior", *inputs)
-        latent_variable = self.encoder.get_expected_value(*inputs)
-        log_probs = self.decoder.get_log_probs(x, latent_variable)
+        kl_divergence = self.encoder.get_kl_divergence("prior", *inputs, **kwargs)
+        latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
+        log_probs = self.decoder.get_log_probs(x, latent_variable, **kwargs)
         while len(log_probs.shape) > len(kl_divergence.shape):
             log_probs = tf.reduce_mean(log_probs, -1)
         return log_probs - self.beta * kl_divergence
 
-    def get_kl_divergence(self, pi, *inputs):
-        sample = self.sample(*inputs)
-        other_sample = pi.sample(*inputs)
-        log_probs = self.get_log_probs(sample, *inputs)
-        other_log_probs = pi.get_log_probs(other_sample, *inputs)
+    def get_kl_divergence(self, pi, *inputs, **kwargs):
+        sample = self.sample(*inputs, **kwargs)
+        other_sample = pi.sample(*inputs, **kwargs)
+        log_probs = self.get_log_probs(sample, *inputs, **kwargs)
+        other_log_probs = pi.get_log_probs(other_sample, *inputs, **kwargs)
         return log_probs - other_log_probs
 
-    def get_fisher_information(self, *inputs):
-        return (self.encoder.get_fisher_information(*inputs[:len(inputs)//2]) +
-                self.decoder.get_fisher_information(*inputs[len(inputs)//2:]))
+    def get_fisher_information(self, *inputs, **kwargs):
+        return (self.encoder.get_fisher_information(*inputs[:len(inputs)//2], **kwargs) +
+                self.decoder.get_fisher_information(*inputs[len(inputs)//2:], **kwargs))

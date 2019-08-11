@@ -10,6 +10,7 @@ class QFunction(ABC):
     def get_qvalues(
         self,
         observations,
-        actions
+        actions,
+        **kwargs
     ):
         return NotImplemented

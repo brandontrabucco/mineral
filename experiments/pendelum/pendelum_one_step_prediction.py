@@ -7,7 +7,7 @@ from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGauss
 from mineral.networks.dense.dense_forward_model import DenseForwardModel
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.algorithms.dynamics_models.one_step_prediction import OneStepPrediction
+from mineral.algorithms.dynamics_models.one_step import OneStep
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         policy
     )
 
-    algorithm = OneStepPrediction(
+    algorithm = OneStep(
         model,
         monitor=monitor
     )

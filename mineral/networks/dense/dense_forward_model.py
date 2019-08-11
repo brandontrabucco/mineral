@@ -17,13 +17,15 @@ class DenseForwardModel(DenseNetwork, ForwardModel):
     def get_stochastic_observations(
         self,
         observations,
-        actions
+        actions,
+        **kwargs
     ):
-        return self.sample(observations, actions)
+        return self.sample(observations, actions, **kwargs)
 
     def get_deterministic_observations(
         self,
         observations,
-        actions
+        actions,
+        **kwargs
     ):
-        return self.get_expected_value(observations, actions)
+        return self.get_expected_value(observations, actions, **kwargs)

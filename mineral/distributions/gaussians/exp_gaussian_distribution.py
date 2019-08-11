@@ -11,22 +11,25 @@ class ExpGaussianDistribution(GaussianDistribution, ABC):
     def get_log_probs(
         self,
         x,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         x = tf.maximum(x, 0.001)
         correction = -1.0 * tf.reduce_sum(x, axis=-1)
         return correction + GaussianDistribution.get_log_probs(
-            self, tf.math.log(x), *inputs)
+            self, tf.math.log(x), *inputs, **kwargs)
 
     def sample(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        return tf.math.exp(GaussianDistribution.sample(self, *inputs))
+        return tf.math.exp(GaussianDistribution.sample(self, *inputs, **kwargs))
 
     def get_expected_value(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
+        mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return tf.exp(mean + 0.5 * tf.math.exp(log_variance))

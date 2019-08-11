@@ -1,7 +1,8 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from mineral.algorithms.dynamics_models.one_step_prediction import OneStepPrediction
+from mineral.algorithms.dynamics_models.one_step import OneStep
+from mineral.algorithms.vae import VAE
 from mineral.networks.conv.conv_policy import ConvPolicy
 from mineral.networks.conv.conv_network import ConvNetwork
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
@@ -13,11 +14,11 @@ from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 from mineral.networks.conv_transpose.conv_transpose_network import ConvTransposeNetwork
 from mineral.networks.vae.vae_forward_model import VAEForwardModel
-
+from mineral.networks.vae.vae_network import VAENetwork
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./image_pointmass/vae_dynamics")
+    monitor = LocalMonitor("./image_pointmass/vae")
 
     max_path_length = 10
 
@@ -64,17 +65,15 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=1.0)
     )
 
-    model = VAEForwardModel(
+    vae_network = VAENetwork(
         encoder,
         decoder,
         latent_size,
         beta=1.0
     )
 
-    monitor.record("sample_from_prior", model.sample_from_prior())
-
-    algorithm = OneStepPrediction(
-        model,
+    algorithm = VAE(
+        vae_network,
         monitor=monitor
     )
     
@@ -99,5 +98,3 @@ if __name__ == "__main__":
     )
 
     trainer.train()
-
-    monitor.record("sample_from_prior", model.sample_from_prior())

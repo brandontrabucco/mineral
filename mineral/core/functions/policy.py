@@ -9,13 +9,15 @@ class Policy(ABC):
     @abstractmethod
     def get_stochastic_actions(
         self,
-        observations
+        observations,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def get_deterministic_actions(
         self,
-        observations
+        observations,
+        **kwargs
     ):
         return NotImplemented

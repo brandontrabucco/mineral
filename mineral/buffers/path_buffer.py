@@ -98,8 +98,7 @@ class PathBuffer(Buffer):
                 self.head = (self.head + 1) % self.max_size
                 self.size = min(self.size + 1, self.max_size)
             all_returns.append(path_return)
-        if len(all_returns) > 0:
-            return np.mean(all_returns)
+        return np.mean(all_returns) if len(all_returns) > 0 else 0
 
     def sample(
         self,

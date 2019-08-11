@@ -16,12 +16,14 @@ class DensePolicy(DenseNetwork, Policy):
 
     def get_stochastic_actions(
         self,
-        observations
+        observations,
+        **kwargs
     ):
-        return self.sample(observations)
+        return self.sample(observations, **kwargs)
 
     def get_deterministic_actions(
         self,
-        observations
+        observations,
+        **kwargs
     ):
-        return self.get_expected_value(observations)
+        return self.get_expected_value(observations, **kwargs)

@@ -27,7 +27,8 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
     @abstractmethod
     def call(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
@@ -58,23 +59,23 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
             for w, w_self in zip(weights, self.get_weights())
         ])
 
-    def get_activations(self, *inputs):
-        return self(*inputs)
+    def get_activations(self, *inputs, **kwargs):
+        return self(*inputs, **kwargs)
 
-    def get_parameters(self, *inputs):
-        return self.distribution_class.get_parameters(self, *inputs)
+    def get_parameters(self, *inputs, **kwargs):
+        return self.distribution_class.get_parameters(self, *inputs, **kwargs)
 
-    def sample(self, *inputs):
-        return self.distribution_class.sample(self, *inputs)
+    def sample(self, *inputs, **kwargs):
+        return self.distribution_class.sample(self, *inputs, **kwargs)
 
-    def get_expected_value(self, *inputs):
-        return self.distribution_class.get_expected_value(self, *inputs)
+    def get_expected_value(self, *inputs, **kwargs):
+        return self.distribution_class.get_expected_value(self, *inputs, **kwargs)
 
-    def get_log_probs(self, *inputs):
-        return self.distribution_class.get_log_probs(self, *inputs)
+    def get_log_probs(self, *inputs, **kwargs):
+        return self.distribution_class.get_log_probs(self, *inputs, **kwargs)
 
-    def get_kl_divergence(self, *inputs):
-        return self.distribution_class.get_kl_divergence(self, *inputs)
+    def get_kl_divergence(self, *inputs, **kwargs):
+        return self.distribution_class.get_kl_divergence(self, *inputs, **kwargs)
 
-    def get_fisher_information(self, *inputs):
-        return self.distribution_class.get_fisher_information(self, *inputs)
+    def get_fisher_information(self, *inputs, **kwargs):
+        return self.distribution_class.get_fisher_information(self, *inputs, **kwargs)

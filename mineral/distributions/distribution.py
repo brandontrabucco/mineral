@@ -9,7 +9,8 @@ class Distribution(ABC):
 
     def get_probs(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return tf.exp(self.get_log_probs(
             *inputs
@@ -18,48 +19,55 @@ class Distribution(ABC):
     @abstractmethod
     def get_activations(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def get_parameters(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def sample(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def get_expected_value(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def get_log_probs(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def get_kl_divergence(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented
 
     @abstractmethod
     def get_fisher_information(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         return NotImplemented

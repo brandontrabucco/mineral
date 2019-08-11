@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.algorithms.dynamics_models.dynamics_model import DynamicsModel
 
 
-class OneStepPrediction(DynamicsModel):
+class OneStep(DynamicsModel):
 
     def __init__(
         self,
@@ -39,7 +39,8 @@ class OneStepPrediction(DynamicsModel):
             log_probs_model = self.model.get_log_probs(
                 observations[:, 1:, ...],
                 observations[:, :(-1), ...],
-                actions
+                actions,
+                training=True
             )
             loss_model = -1.0 * tf.reduce_mean(
                 log_probs_model * terminals[:, :(-1)]

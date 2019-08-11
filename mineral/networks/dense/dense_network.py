@@ -19,7 +19,8 @@ class DenseNetwork(Network):
 
     def call(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
         activations = self.dense_layers[0](tf.concat(inputs, -1))
         for layer in self.dense_layers[1:]:

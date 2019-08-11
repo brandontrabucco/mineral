@@ -16,6 +16,7 @@ class DenseValueFunction(VAENetwork, ValueFunction):
 
     def get_values(
         self,
-        observations
+        observations,
+        **kwargs
     ):
-        return self.get_expected_value(observations)
+        return self.get_expected_value(observations, **kwargs)

@@ -10,7 +10,8 @@ class ForwardModel(ABC):
     def get_stochastic_observations(
         self,
         observations,
-        actions
+        actions,
+        **kwargs
     ):
         return NotImplemented
 
@@ -18,6 +19,7 @@ class ForwardModel(ABC):
     def get_deterministic_observations(
         self,
         observations,
-        actions
+        actions,
+        **kwargs
     ):
         return NotImplemented

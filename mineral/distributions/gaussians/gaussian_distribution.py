@@ -17,9 +17,10 @@ class GaussianDistribution(Distribution, ABC):
 
     def get_parameters(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        activations = self.get_activations(*inputs)
+        activations = self.get_activations(*inputs, **kwargs)
         if self.std is None:
             mean, log_variance = tf.split(activations, 2, axis=-1)
         else:
@@ -31,36 +32,40 @@ class GaussianDistribution(Distribution, ABC):
     def get_log_probs(
         self,
         x,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
+        mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return -0.5 * tf.reduce_sum(
             tf.math.square(x - mean) / tf.math.exp(
                 log_variance) + log_variance, axis=-1)
 
     def sample(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
+        mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return mean + tf.math.exp(0.5 * log_variance) * tf.random.normal(
             tf.shape(mean), dtype=tf.float32)
 
     def get_expected_value(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
+        mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return mean
 
     def get_kl_divergence(
         self,
         pi,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
+        mean, log_variance = self.get_parameters(*inputs, **kwargs)
         if pi is not None and pi != "prior":
-            other_mean, other_log_variance = pi.get_parameters(*inputs)
+            other_mean, other_log_variance = pi.get_parameters(*inputs, **kwargs)
         else:
             other_mean = tf.zeros(tf.shape(mean))
             other_log_variance = tf.zeros(tf.shape(log_variance))
@@ -71,8 +76,9 @@ class GaussianDistribution(Distribution, ABC):
 
     def get_fisher_information(
         self,
-        *inputs
+        *inputs,
+        **kwargs
     ):
-        mean, log_variance = self.get_parameters(*inputs)
+        mean, log_variance = self.get_parameters(*inputs, **kwargs)
         inv_variance = 1.0 / tf.math.exp(log_variance)
         return [inv_variance, 0.5 * tf.math.square(inv_variance)]

@@ -17,6 +17,7 @@ class DenseQFunction(DenseNetwork, QFunction):
     def get_qvalues(
         self,
         observations,
-        actions
+        actions,
+        **kwargs
     ):
-        return self.get_expected_value(observations, actions)
+        return self.get_expected_value(observations, actions, **kwargs)

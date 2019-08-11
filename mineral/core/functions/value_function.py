@@ -9,6 +9,7 @@ class ValueFunction(ABC):
     @abstractmethod
     def get_values(
         self,
-        observations
+        observations,
+        **kwargs
     ):
         return NotImplemented
