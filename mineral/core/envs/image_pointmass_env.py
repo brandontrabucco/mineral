@@ -24,8 +24,8 @@ class ImagePointmassEnv(PointmassEnv):
                 y - (self.goal[1] + 1.0) * self.image_size / 2)**2)
         position_radius = np.sqrt((x - (self.position[0] + 1.0) * self.image_size / 2)**2 + (
                 y - (self.position[1] + 1.0) * self.image_size / 2)**2)
-        image[:, :, 1] = np.where(goal_radius < self.image_size / 12, 1.0, 0.0)
-        image[:, :, 2] = np.where(position_radius < self.image_size / 12, 1.0, 0.0)
+        image[:, :, 1] = np.ones(goal_radius.shape) / (1.0 + goal_radius)
+        image[:, :, 2] = np.ones(position_radius.shape) / (1.0 + position_radius)
         return image
 
     def reset(
