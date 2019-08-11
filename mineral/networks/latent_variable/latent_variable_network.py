@@ -64,11 +64,11 @@ class LatentVariableNetwork(Network):
 
     def sample(self, *inputs, **kwargs):
         latent_variable = self.encoder.sample(*inputs, **kwargs)
-        return self.decoder.get_expected_value(latent_variable, **kwargs)
+        return self.decoder.sample(latent_variable, **kwargs)
 
     def sample_from_prior(self, **kwargs):
         latent_variable = tf.random.normal([1, self.latent_size])
-        return self.decoder.get_expected_value(latent_variable, **kwargs)
+        return self.decoder.sample(latent_variable, **kwargs)
 
     def get_expected_value(self, *inputs, **kwargs):
         latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
