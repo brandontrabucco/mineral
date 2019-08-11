@@ -2,45 +2,29 @@
 
 
 import tensorflow as tf
-from mineral.algorithms.base import Base
+from mineral.algorithms.vaes.vae import VAE
 
 
-class VAE(Base):
+class ObservationVAE(VAE):
 
     def __init__(
         self,
-        vae_network,
+        *args,
         **kwargs
     ):
-        Base.__init__(
+        VAE.__init__(
             self,
+            *args,
             **kwargs
         )
-        self.vae_network = vae_network
 
-    def get_encoding(
-        self,
-        observations
-    ):
-        encoding = self.vae_network.encoder.get_expected_value(
-            observations
-        )
-        return encoding
-
-    def gradient_update(
+    def update_vae(
         self,
         observations,
         actions,
         rewards,
         terminals
     ):
-        Base.gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
         def loss_function():
             log_probs_vae = self.vae_network.get_log_probs(
                 observations,

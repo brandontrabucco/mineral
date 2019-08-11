@@ -1,8 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
-
-from mineral.algorithms.dynamics_models.one_step import OneStep
-from mineral.algorithms.vae import VAE
+from mineral.algorithms.vaes.observation_vae import ObservationVAE
 from mineral.networks.conv.conv_policy import ConvPolicy
 from mineral.networks.conv.conv_network import ConvNetwork
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
@@ -13,12 +11,11 @@ from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 from mineral.networks.conv_transpose.conv_transpose_network import ConvTransposeNetwork
-from mineral.networks.vae.vae_forward_model import VAEForwardModel
 from mineral.networks.vae.vae_network import VAENetwork
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./image_pointmass/vae")
+    monitor = LocalMonitor("./image_pointmass/observation_vae")
 
     max_path_length = 10
 
@@ -72,7 +69,7 @@ if __name__ == "__main__":
         beta=1.0
     )
 
-    algorithm = VAE(
+    algorithm = ObservationVAE(
         vae_network,
         monitor=monitor
     )
