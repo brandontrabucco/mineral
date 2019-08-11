@@ -8,11 +8,18 @@ from mineral.algorithms.base import Base
 class DynamicsModel(Base, ABC):
 
     @abstractmethod
-    def update_transition(
+    def get_predictions(
+        self,
+        observations,
+        actions
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def update_model(
         self,
         observations,
         actions,
-        rewards,
         terminals
     ):
         return NotImplemented
@@ -31,9 +38,8 @@ class DynamicsModel(Base, ABC):
             rewards,
             terminals
         )
-        self.update_transition(
+        self.update_model(
             observations,
             actions,
-            rewards,
             terminals
         )

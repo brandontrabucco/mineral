@@ -18,11 +18,21 @@ class OneStepPrediction(DynamicsModel):
         )
         self.model = model
 
-    def update_transition(
+    def get_predictions(
+        self,
+        observations,
+        actions
+    ):
+        next_observations = self.model.sample(
+            observations[:, :(-1), ...],
+            actions
+        )
+        return next_observations
+
+    def update_model(
         self,
         observations,
         actions,
-        rewards,
         terminals
     ):
         def loss_function():
@@ -49,4 +59,3 @@ class OneStepPrediction(DynamicsModel):
             observations[:, :(-1), ...],
             actions
         )
-

@@ -13,7 +13,7 @@ from mineral.core.monitors.local_monitor import LocalMonitor
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./image_pointmass_policy_gradient")
+    monitor = LocalMonitor("./image_pointmass/policy_gradient")
 
     max_path_length = 10
 
