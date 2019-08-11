@@ -1,5 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
+
 from mineral.algorithms.vaes.observation_vae import ObservationVAE
 from mineral.networks.conv.conv_policy import ConvPolicy
 from mineral.networks.conv.conv_network import ConvNetwork
@@ -11,7 +12,8 @@ from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 from mineral.networks.conv_transpose.conv_transpose_network import ConvTransposeNetwork
-from mineral.networks.vae.vae_network import VAENetwork
+from mineral.networks.latent_variable.latent_variable_network import LatentVariableNetwork
+
 
 if __name__ == "__main__":
 
@@ -62,7 +64,7 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=1.0)
     )
 
-    vae_network = VAENetwork(
+    vae_network = LatentVariableNetwork(
         encoder,
         decoder,
         latent_size,

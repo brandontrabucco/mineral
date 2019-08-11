@@ -1,18 +1,18 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from mineral.networks.vae.vae_network import VAENetwork
+from mineral.networks.latent_variable.latent_variable_network import LatentVariableNetwork
 from mineral.core.functions.forward_model import ForwardModel
 
 
-class VAEForwardModel(VAENetwork, ForwardModel):
+class LatentVariableForwardModel(LatentVariableNetwork, ForwardModel):
 
     def __init__(
         self,
         *args,
         **kwargs
     ):
-        VAENetwork.__init__(self, *args, **kwargs)
+        LatentVariableNetwork.__init__(self, *args, **kwargs)
 
     def get_stochastic_observations(
         self,

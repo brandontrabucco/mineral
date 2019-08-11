@@ -1,18 +1,18 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from mineral.networks.vae.vae_network import VAENetwork
+from mineral.networks.latent_variable.latent_variable_network import LatentVariableNetwork
 from mineral.core.functions.value_function import ValueFunction
 
 
-class DenseValueFunction(VAENetwork, ValueFunction):
+class LatentVariableValueFunction(LatentVariableNetwork, ValueFunction):
 
     def __init__(
         self,
         *args,
         **kwargs
     ):
-        VAENetwork.__init__(self, *args, **kwargs)
+        LatentVariableNetwork.__init__(self, *args, **kwargs)
 
     def get_values(
         self,
