@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from mineral.networks.dense_network import DenseNetwork
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.pointmass_env import PointmassEnv
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = DenseNetwork(
+    policy = Dense(
         [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,

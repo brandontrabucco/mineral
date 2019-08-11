@@ -2,7 +2,7 @@
 
 
 from mineral.algorithms.vaes.observation_vae import ObservationVAE
-from mineral.networks.conv_network import ConvNetwork
+from mineral.networks.conv import Conv
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -10,8 +10,8 @@ from mineral.core.envs.image_pointmass_env import ImagePointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
-from mineral.networks.conv_transpose_network import ConvTransposeNetwork
-from mineral.networks.latent_variable_network import LatentVariableNetwork
+from mineral.networks.conv_transpose import ConvTranspose
+from mineral.networks.latent_variable import LatentVariable
 
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = ConvNetwork(
+    policy = Conv(
         [8, 16, 32],
         [5, 5, 5],
         [2, 2, 2],
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     latent_size = 32
 
-    encoder = ConvNetwork(
+    encoder = Conv(
         [8, 16, 32],
         [5, 5, 5],
         [2, 2, 2],
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=None)
     )
 
-    decoder = ConvTransposeNetwork(
+    decoder = ConvTranspose(
         [16, 8, 3],
         [5, 5, 5],
         [2, 2, 2],
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=1.0)
     )
 
-    vae_network = LatentVariableNetwork(
+    vae_network = LatentVariable(
         encoder,
         decoder,
         latent_size,

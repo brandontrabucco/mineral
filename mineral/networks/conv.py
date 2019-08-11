@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.networks.network import Network
 
 
-class ConvNetwork(Network):
+class Conv(Network):
 
     def __init__(
         self,

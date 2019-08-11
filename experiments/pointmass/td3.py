@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.algorithms.actors.ddpg import DDPG
 from mineral.algorithms.critics.q_learning import QLearning
 from mineral.algorithms.critics.twin_delayed_critic import TwinDelayedCritic
-from mineral.networks.dense_network import DenseNetwork
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.pointmass_env import PointmassEnv
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = DenseNetwork(
+    policy = Dense(
         [32, 32, 4],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001),
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=None)
     )
 
-    target_policy = DenseNetwork(
+    target_policy = Dense(
         [32, 32, 4],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
@@ -42,26 +42,26 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=None)
     )
 
-    qf1 = DenseNetwork(
+    qf1 = Dense(
         [6, 6, 1],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.0001},
     )
 
-    qf2 = DenseNetwork(
+    qf2 = Dense(
         [6, 6, 1],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.0001},
     )
 
-    target_qf1 = DenseNetwork(
+    target_qf1 = Dense(
         [6, 6, 1],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.0001},
     )
 
-    target_qf2 = DenseNetwork(
+    target_qf2 = Dense(
         [6, 6, 1],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,

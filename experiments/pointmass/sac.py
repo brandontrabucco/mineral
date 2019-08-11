@@ -4,7 +4,7 @@
 import tensorflow as tf
 from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
 from mineral.algorithms.critics.soft_q_learning import SoftQLearning
-from mineral.networks.dense_network import DenseNetwork
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.pointmass_env import PointmassEnv
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = DenseNetwork(
+    policy = Dense(
         [32, 32, 4],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001),
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=None)
     )
 
-    target_policy = DenseNetwork(
+    target_policy = Dense(
         [32, 32, 4],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
@@ -41,13 +41,13 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=None)
     )
 
-    qf = DenseNetwork(
+    qf = Dense(
         [6, 6, 1],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.0001},
     )
 
-    target_qf = DenseNetwork(
+    target_qf = Dense(
         [6, 6, 1],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,

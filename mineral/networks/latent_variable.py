@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.networks.network import Network
 
 
-class LatentVariableNetwork(Network):
+class LatentVariable(Network):
 
     def __init__(
         self,

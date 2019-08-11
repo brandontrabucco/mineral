@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from mineral.networks.conv_network import ConvNetwork
+from mineral.networks.conv import Conv
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.image_pointmass_env import ImagePointmassEnv
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = ConvNetwork(
+    policy = Conv(
         [8, 16, 32],
         [5, 5, 5],
         [2, 2, 2],

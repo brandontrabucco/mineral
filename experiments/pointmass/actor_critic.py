@@ -3,7 +3,7 @@
 
 from mineral.algorithms.actors.actor_critic import ActorCritic
 from mineral.algorithms.critics.gae import GAE
-from mineral.networks.dense_network import DenseNetwork
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.pointmass_env import PointmassEnv
@@ -23,19 +23,19 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = DenseNetwork(
+    policy = Dense(
         [32, 32, 4],
         optimizer_kwargs={"lr": 0.0001},
         distribution_class=TanhGaussianDistribution,
         distribution_kwargs=dict(std=None)
     )
 
-    vf = DenseNetwork(
+    vf = Dense(
         [6, 6, 1],
         optimizer_kwargs={"lr": 0.0001},
     )
 
-    target_vf = DenseNetwork(
+    target_vf = Dense(
         [6, 6, 1],
         optimizer_kwargs={"lr": 0.0001},
     )
