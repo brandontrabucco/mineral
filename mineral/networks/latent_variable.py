@@ -12,12 +12,14 @@ class LatentVariable(Network):
         encoder,
         decoder,
         latent_size,
+        sample_decoder=False,
         beta=1.0
     ):
         tf.keras.Model.__init__(self)
         self.encoder = encoder
         self.decoder = decoder
         self.latent_size = latent_size
+        self.sample_decoder = sample_decoder
         self.beta = beta
         self.grad_length = 0
 
@@ -45,15 +47,6 @@ class LatentVariable(Network):
         self.encoder.apply_gradients(gradients[:self.grad_length])
         self.decoder.apply_gradients(gradients[self.grad_length:])
 
-    def soft_update(
-        self,
-        weights
-    ):
-        self.set_weights([
-            self.tau * w + (1.0 - self.tau) * w_self
-            for w, w_self in zip(weights, self.get_weights())
-        ])
-
     def get_activations(self, *inputs, **kwargs):
         pass
 
@@ -64,11 +57,17 @@ class LatentVariable(Network):
 
     def sample(self, *inputs, **kwargs):
         latent_variable = self.encoder.sample(*inputs, **kwargs)
-        return self.decoder.sample(latent_variable, **kwargs)
+        if self.sample_decoder:
+            return self.decoder.sample(latent_variable, **kwargs)
+        else:
+            return self.decoder.get_expected_value(latent_variable, **kwargs)
 
     def sample_from_prior(self, **kwargs):
         latent_variable = tf.random.normal([1, self.latent_size])
-        return self.decoder.sample(latent_variable, **kwargs)
+        if self.sample_decoder:
+            return self.decoder.sample(latent_variable, **kwargs)
+        else:
+            return self.decoder.get_expected_value(latent_variable, **kwargs)
 
     def get_expected_value(self, *inputs, **kwargs):
         latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
