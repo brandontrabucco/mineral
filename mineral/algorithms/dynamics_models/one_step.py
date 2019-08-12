@@ -7,32 +7,11 @@ from mineral.algorithms.dynamics_models.dynamics_model import DynamicsModel
 
 class OneStep(DynamicsModel):
 
-    def __init__(
-        self,
-        model,
-        **kwargs
-    ):
-        DynamicsModel.__init__(
-            self,
-            **kwargs
-        )
-        self.model = model
-
-    def get_predictions(
-        self,
-        observations,
-        actions
-    ):
-        next_observations = self.model.sample(
-            observations[:, :(-1), ...],
-            actions
-        )
-        return next_observations
-
-    def update_model(
+    def update_algorithm(
         self,
         observations,
         actions,
+        rewards,
         terminals
     ):
         def loss_function():

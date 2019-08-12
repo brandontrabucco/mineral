@@ -12,7 +12,7 @@ class Merged(Base):
     ):
         self.algorithms = algorithms
 
-    def gradient_update(
+    def update_algorithm(
         self,
         observations,
         actions,

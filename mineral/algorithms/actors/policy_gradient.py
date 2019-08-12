@@ -57,20 +57,13 @@ class PolicyGradient(Actor):
             observations[:, :(-1), ...]
         )
 
-    def gradient_update(
+    def update_algorithm(
         self, 
         observations,
         actions,
         rewards,
         terminals
     ):
-        Actor.gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
         returns = discounted_sum(rewards, self.gamma)
         advantages = returns - tf.reduce_mean(returns)
         if self.monitor is not None:

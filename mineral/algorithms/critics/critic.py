@@ -46,20 +46,13 @@ class Critic(Base, ABC):
     ):
         return NotImplemented
 
-    def gradient_update(
+    def update_algorithm(
         self, 
         observations,
         actions,
         rewards,
         terminals
     ):
-        Base.gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
         bellman_target_values = self.bellman_target_values(
             observations,
             actions,

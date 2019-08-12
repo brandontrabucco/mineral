@@ -15,14 +15,12 @@ class LocalTrainer(Trainer):
         max_path_length,
         batch_size,
         num_trains_per_step,
-        buffer,
-        algorithm,
+        *inputs,
         monitor=None
     ):
         Trainer.__init__(
             self, 
-            buffer, 
-            algorithm
+            *inputs
         )
         self.max_size = max_size
         self.num_warm_up_paths = num_warm_up_paths
@@ -36,17 +34,19 @@ class LocalTrainer(Trainer):
     def train(
         self
     ):
-        self.buffer.reset(self.max_size, self.max_path_length)
-        self.buffer.collect(self.num_warm_up_paths, random=True, save_paths=True)
+        for buffer in self.buffers:
+            buffer.reset(self.max_size, self.max_path_length)
+            buffer.collect(self.num_warm_up_paths, random=True, save_paths=True)
 
         for i in range(self.num_steps):
-            expl_r = self.buffer.collect(self.num_paths_to_collect, random=True, save_paths=True)
-            eval_r = self.buffer.collect(self.num_paths_to_collect, random=False, save_paths=False)
+            for b in range(len(self.buffers)):
+                expl_r = self.buffers[b].collect(self.num_paths_to_collect, random=True, save_paths=True)
+                eval_r = self.buffers[b].collect(self.num_paths_to_collect, random=False, save_paths=False)
 
-            for j in range(self.num_trains_per_step):
-                batch = self.buffer.sample(self.batch_size)
-                self.algorithm.gradient_update(*batch)
+                for j in range(self.num_trains_per_step):
+                    batch = self.buffers[b].sample(self.batch_size)
+                    self.algorithms[b].gradient_update(*batch)
 
-            if self.monitor is not None:
-                self.monitor.record("exploration_return", expl_r)
-                self.monitor.record("evaluation_return", eval_r)
+                if self.monitor is not None:
+                    self.monitor.record("exploration_return_{}".format(b), expl_r)
+                    self.monitor.record("evaluation_return_{}".format(b), eval_r)

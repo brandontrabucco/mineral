@@ -65,20 +65,13 @@ class DDPG(Actor):
             observations[:, :(-1), ...]
         )
 
-    def gradient_update(
+    def update_algorithm(
         self, 
         observations,
         actions,
         rewards,
         terminals
     ):
-        Actor.gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
         self.critic.gradient_update(
             observations,
             actions,

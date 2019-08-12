@@ -11,8 +11,8 @@ class PointmassEnv(Env):
     def __init__(
         self, size=2, ord=2
     ):
-        self.observation_space = Box(
-            -1.0 * np.ones([size]), np.ones([size]))
+        self.observation_space = {"proprio_observation": Box(
+            -1.0 * np.ones([size]), np.ones([size]))}
         self.action_space = Box(
             -1.0 * np.ones([size]), np.ones([size]))
         self.position = np.random.normal(0.0, 0.1, [size])
@@ -25,7 +25,7 @@ class PointmassEnv(Env):
         **kwargs
     ):
         self.position = np.random.normal(0.0, 0.1, [self.size])
-        return self.position
+        return {"proprio_observation": self.position}
 
     def step(
         self, 
@@ -34,5 +34,5 @@ class PointmassEnv(Env):
         self.position = np.clip(
             self.position + np.clip(action, -1.0 * np.ones([self.size]), np.ones([self.size])),
             -1.0 * np.ones([self.size]), np.ones([self.size]))
-        return self.position, -1.0 * np.linalg.norm(
+        return {"proprio_observation": self.position}, -1.0 * np.linalg.norm(
             self.position - self.goal, ord=self.ord), False, {}

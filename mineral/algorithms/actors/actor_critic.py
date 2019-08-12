@@ -25,20 +25,13 @@ class ActorCritic(PolicyGradient):
         self.critic = critic
         self.actor_delay = actor_delay
 
-    def gradient_update(
+    def update_algorithm(
         self, 
         observations,
         actions,
         rewards,
         terminals
     ):
-        Actor.gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
         self.critic.gradient_update(
             observations,
             actions,

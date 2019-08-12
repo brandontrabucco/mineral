@@ -26,34 +26,3 @@ class VAE(Base, ABC):
             inputs
         )
         return encoding
-
-    @abstractmethod
-    def update_vae(
-        self,
-        observations,
-        actions,
-        rewards,
-        terminals
-    ):
-        return NotImplemented
-
-    def gradient_update(
-        self,
-        observations,
-        actions,
-        rewards,
-        terminals
-    ):
-        Base.gradient_update(
-            self,
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
-        self.update_vae(
-            observations,
-            actions,
-            rewards,
-            terminals
-        )

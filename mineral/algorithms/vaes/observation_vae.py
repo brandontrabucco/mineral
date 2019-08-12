@@ -18,7 +18,7 @@ class ObservationVAE(VAE):
             **kwargs
         )
 
-    def update_vae(
+    def update_algorithm(
         self,
         observations,
         actions,

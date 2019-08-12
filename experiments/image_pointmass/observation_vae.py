@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     buffer = PathBuffer(
         env,
-        policy
+        policy,
+        selector=(lambda x: x["image_observation"])
     )
 
     latent_size = 32
@@ -77,11 +78,11 @@ if __name__ == "__main__":
         monitor=monitor
     )
     
-    max_size = 32
-    num_warm_up_paths = max_size
+    max_size = 5096
+    num_warm_up_paths = 32
     num_steps = 1000
     num_paths_to_collect = 32
-    batch_size = num_paths_to_collect
+    batch_size = 32
     num_trains_per_step = 64
 
     trainer = LocalTrainer(

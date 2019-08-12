@@ -14,8 +14,8 @@ class ImagePointmassEnv(PointmassEnv):
     ):
         PointmassEnv.__init__(self, **kwargs)
         self.image_size = image_size
-        self.observation_space = Box(
-            np.zeros([image_size, image_size, 3]), np.ones([image_size, image_size, 3]))
+        self.observation_space = {**self.observation_space, "image_observation": Box(
+            np.zeros([image_size, image_size, 3]), np.ones([image_size, image_size, 3]))}
 
     def get_image(self):
         image = np.zeros([self.image_size, self.image_size, 3])
@@ -33,11 +33,13 @@ class ImagePointmassEnv(PointmassEnv):
         **kwargs
     ):
         observation = PointmassEnv.reset(self, **kwargs)
-        return self.get_image()
+        return {"image_observation": self.get_image(),
+                **observation}
 
     def step(
         self, 
         action
     ):
         observation, reward, done, info = PointmassEnv.step(self, action)
-        return self.get_image(), reward, done, info
+        return {"image_observation": self.get_image(),
+                **observation}, reward, done, info
