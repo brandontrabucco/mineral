@@ -31,12 +31,14 @@ if __name__ == "__main__":
 
     buffer = PathBuffer(
         env,
-        policy
+        policy,
+        selector=(lambda x: x["proprio_observation"])
     )
 
     algorithm = PolicyGradient(
         policy,
         gamma=0.99,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor
     )
     

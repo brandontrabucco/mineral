@@ -12,21 +12,18 @@ class ImportanceSampling(ActorCritic):
         policy,
         old_policy,
         critic,
-        gamma=1.0,
-        actor_delay=1,
-        old_policy_delay=1,
-        monitor=None,
+        old_update_every=1,
+        **kwargs
     ):
         ActorCritic.__init__(
             self,
             policy,
             critic,
-            gamma=gamma,
-            actor_delay=actor_delay,
-            monitor=monitor,
+            **kwargs
         )
         self.old_policy = old_policy
-        self.old_policy_delay = old_policy_delay
+        self.old_update_every = old_update_every
+        self.last_old_update_iteration = 0
 
     def update_actor(
         self,
@@ -35,6 +32,9 @@ class ImportanceSampling(ActorCritic):
         returns,
         terminals
     ):
+        if self.iteration - self.last_old_update_iteration >= self.old_update_every:
+            self.last_old_update_iteration = self.iteration
+            self.old_policy.set_weights(self.policy.get_weights())
         def loss_function():
             ratio = tf.exp(
                 self.policy.get_log_probs(
@@ -56,9 +56,4 @@ class ImportanceSampling(ActorCritic):
             return loss_policy
         self.policy.minimize(
             loss_function,
-            observations[:, :(-1), ...]
-        )
-        if self.iteration % self.old_policy_delay == 0:
-            self.old_policy.set_weights(
-                self.policy.get_weights()
-            )
+            observations[:, :(-1), ...])

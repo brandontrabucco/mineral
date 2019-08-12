@@ -9,24 +9,14 @@ class PPO(ImportanceSampling):
 
     def __init__(
         self,
-        policy,
-        old_policy,
-        critic,
-        gamma=1.0,
+        *args,
         epsilon=1.0,
-        actor_delay=1,
-        old_policy_delay=1,
-        monitor=None,
+        **kwargs
     ):
         ImportanceSampling.__init__(
             self,
-            policy,
-            old_policy,
-            critic,
-            gamma=gamma,
-            actor_delay=actor_delay,
-            old_policy_delay=old_policy_delay,
-            monitor=monitor,
+            *args,
+            **kwargs
         )
         self.epsilon = epsilon
 
@@ -37,6 +27,9 @@ class PPO(ImportanceSampling):
         returns,
         terminals
     ):
+        if self.iteration - self.last_old_update_iteration >= self.old_update_every:
+            self.last_old_update_iteration = self.iteration
+            self.old_policy.set_weights(self.policy.get_weights())
         def loss_function():
             ratio = tf.exp(
                 self.policy.get_log_probs(
@@ -63,9 +56,4 @@ class PPO(ImportanceSampling):
             return loss_policy
         self.policy.minimize(
             loss_function,
-            observations[:, :(-1), ...]
-        )
-        if self.iteration % self.old_policy_delay == 0:
-            self.old_policy.set_weights(
-                self.policy.get_weights()
-            )
+            observations[:, :(-1), ...])

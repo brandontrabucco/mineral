@@ -4,6 +4,7 @@
 import tensorflow as tf
 from mineral.algorithms.actors.ddpg import DDPG
 from mineral.algorithms.critics.q_learning import QLearning
+from mineral.algorithms.merged import Merged
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -56,7 +57,8 @@ if __name__ == "__main__":
 
     buffer = PathBuffer(
         env,
-        policy
+        policy,
+        selector=(lambda x: x["proprio_observation"])
     )
 
     num_trains_per_step = 32
@@ -76,12 +78,18 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    algorithm = DDPG(
+    actor = DDPG(
         policy,
         critic,
         target_policy,
-        actor_delay=num_trains_per_step // off_policy_updates,
+        update_every=num_trains_per_step // off_policy_updates,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor
+    )
+
+    algorithm = Merged(
+        critic,
+        actor
     )
     
     max_size = 1024

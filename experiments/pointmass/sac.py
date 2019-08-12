@@ -56,7 +56,8 @@ if __name__ == "__main__":
 
     buffer = PathBuffer(
         env,
-        policy
+        policy,
+        selector=(lambda x: x["proprio_observation"])
     )
 
     num_trains_per_step = 32
@@ -73,6 +74,7 @@ if __name__ == "__main__":
         gamma=gamma,
         clip_radius=clip_radius,
         std=std,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor,
     )
 

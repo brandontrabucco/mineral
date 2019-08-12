@@ -12,12 +12,14 @@ class PolicyGradient(Actor):
         self,
         policy,
         gamma=1.0,
-        monitor=None,
+        **kwargs
     ):
         self.policy = policy
         self.gamma = gamma
-        self.monitor = monitor
-        self.iteration = 0
+        Actor.__init__(
+            self,
+            **kwargs
+        )
 
     def update_actor(
         self,

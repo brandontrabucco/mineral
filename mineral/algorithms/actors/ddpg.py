@@ -2,25 +2,25 @@
 
 
 import tensorflow as tf
-from mineral.algorithms.actors.actor import Actor
+from mineral.algorithms.actors.actor_critic import ActorCritic
 
 
-class DDPG(Actor):
+class DDPG(ActorCritic):
 
     def __init__(
         self,
         policy,
         critic,
         target_policy,
-        actor_delay=1,
-        monitor=None,
+        **kwargs
     ):
-        self.policy = policy
-        self.critic = critic
+        ActorCritic.__init__(
+            self,
+            policy,
+            critic,
+            **kwargs
+        )
         self.target_policy = target_policy
-        self.actor_delay = actor_delay
-        self.monitor = monitor
-        self.iteration = 0
 
     def update_actor(
         self,
@@ -72,19 +72,12 @@ class DDPG(Actor):
         rewards,
         terminals
     ):
-        self.critic.gradient_update(
+        self.update_actor(
             observations,
             actions,
             rewards,
             terminals
         )
-        if self.iteration % self.actor_delay == 0:
-            self.update_actor(
-                observations,
-                actions,
-                rewards,
-                terminals
-            )
-            self.target_policy.soft_update(
-                self.policy.get_weights()
-            )
+        self.target_policy.soft_update(
+            self.policy.get_weights()
+        )

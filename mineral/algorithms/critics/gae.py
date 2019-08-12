@@ -10,18 +10,14 @@ class GAE(ValueLearning):
 
     def __init__(
         self,
-        vf,
-        target_vf,
-        gamma=1.0,
+        *args,
         lamb=1.0,
-        monitor=None,
+        **kwargs
     ):
         ValueLearning.__init__(
             self,
-            vf,
-            target_vf,
-            gamma=gamma,
-            monitor=monitor
+            *args,
+            **kwargs
         )
         self.lamb = lamb
 

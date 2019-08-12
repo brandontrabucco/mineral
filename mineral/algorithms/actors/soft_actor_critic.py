@@ -9,19 +9,13 @@ class SoftActorCritic(DDPG):
 
     def __init__(
         self,
-        policy,
-        critic,
-        target_policy,
-        actor_delay=1,
-        monitor=None,
+        *args,
+        **kwargs
     ):
         DDPG.__init__(
             self,
-            policy,
-            critic,
-            target_policy,
-            actor_delay=actor_delay,
-            monitor=monitor,
+            *args,
+            **kwargs
         )
 
     def update_actor(

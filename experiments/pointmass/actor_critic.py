@@ -3,6 +3,7 @@
 
 from mineral.algorithms.actors.actor_critic import ActorCritic
 from mineral.algorithms.critics.gae import GAE
+from mineral.algorithms.merged import Merged
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -42,7 +43,8 @@ if __name__ == "__main__":
 
     buffer = PathBuffer(
         env,
-        policy
+        policy,
+        selector=(lambda x: x["proprio_observation"])
     )
 
     critic = GAE(
@@ -50,17 +52,24 @@ if __name__ == "__main__":
         target_vf,
         gamma=0.99,
         lamb=0.95,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor,
     )
 
     num_trains_per_step = 32
 
-    algorithm = ActorCritic(
+    actor = ActorCritic(
         policy,
         critic,
         gamma=0.99,
-        actor_delay=num_trains_per_step,
+        update_every=num_trains_per_step,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor
+    )
+
+    algorithm = Merged(
+        critic,
+        actor
     )
 
     max_size = 32

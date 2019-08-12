@@ -12,18 +12,14 @@ class ActorCritic(PolicyGradient):
         self,
         policy,
         critic,
-        gamma=1.0,
-        actor_delay=1,
-        monitor=None,
+        **kwargs
     ):
         PolicyGradient.__init__(
             self,
             policy,
-            gamma=gamma,
-            monitor=monitor,
+            **kwargs
         )
         self.critic = critic
-        self.actor_delay = actor_delay
 
     def update_algorithm(
         self, 
@@ -32,12 +28,6 @@ class ActorCritic(PolicyGradient):
         rewards,
         terminals
     ):
-        self.critic.gradient_update(
-            observations,
-            actions,
-            rewards,
-            terminals
-        )
         returns = self.critic.get_advantages(
             observations,
             actions,
@@ -61,12 +51,11 @@ class ActorCritic(PolicyGradient):
                 "returns_mean",
                 tf.reduce_mean(returns)
             )
-        if self.iteration % self.actor_delay == 0:
-            self.update_actor(
-                observations,
-                actions,
-                returns,
-                terminals
-            )
+        self.update_actor(
+            observations,
+            actions,
+            returns,
+            terminals
+        )
 
 

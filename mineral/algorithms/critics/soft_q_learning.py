@@ -10,26 +10,12 @@ class SoftQLearning(QLearning):
 
     def __init__(
         self,
-        policy,
-        qf,
-        target_qf,
-        gamma=1.0,
-        std=1.0,
-        clip_radius=1.0,
-        bellman_weight=1.0,
-        discount_weight=1.0,
+        *args,
         **kwargs
     ):
         QLearning.__init__(
             self,
-            policy,
-            qf,
-            target_qf,
-            gamma=gamma,
-            std=std,
-            clip_radius=clip_radius,
-            bellman_weight=bellman_weight,
-            discount_weight=discount_weight,
+            *args,
             **kwargs
         )
 

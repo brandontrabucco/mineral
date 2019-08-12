@@ -13,15 +13,13 @@ class SoftValueLearning(ValueLearning):
         policy,
         vf,
         target_vf,
-        gamma=1.0,
-        monitor=None,
+        **kwargs
     ):
         ValueLearning.__init__(
             self,
             vf,
             target_vf,
-            gamma=gamma,
-            monitor=monitor,
+            **kwargs
         )
         self.policy = policy
 

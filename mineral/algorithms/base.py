@@ -8,12 +8,15 @@ class Base(ABC):
 
     def __init__(
         self,
+        update_every=1,
         selector=None,
         monitor=None,
     ):
+        self.update_every = update_every
         self.selector = (lambda x: x) if selector is None else selector
         self.monitor = monitor
         self.iteration = 0
+        self.last_update_iteration = 0
 
     @abstractmethod
     def update_algorithm(
@@ -35,9 +38,10 @@ class Base(ABC):
         if self.monitor is not None:
             self.monitor.set_step(self.iteration)
         self.iteration += 1
-        self.update_algorithm(
-            self.selector(observations),
-            actions,
-            rewards,
-            terminals
-        )
+        if self.iteration - self.last_update_iteration >= self.update_every:
+            self.last_update_iteration = self.iteration
+            self.update_algorithm(
+                self.selector(observations),
+                actions,
+                rewards,
+                terminals)
