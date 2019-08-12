@@ -8,8 +8,13 @@ class Merged(Base):
 
     def __init__(
         self,
-        *algorithms
+        *algorithms,
+        **kwargs
     ):
+        Base.__init__(
+            self,
+            **kwargs
+        )
         self.algorithms = algorithms
 
     def update_algorithm(
