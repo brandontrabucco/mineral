@@ -2,7 +2,7 @@
 
 
 import numpy as np
-import mineral as jp
+import mineral as ml
 from gym.spaces import Box, Dict, Tuple
 from mineral.core.envs.proxy_env import ProxyEnv
 
@@ -19,7 +19,7 @@ class NormalizedEnv(ProxyEnv):
         if (isinstance(observation_space, Dict) or
                 isinstance(observation_space, Tuple)):
             observation_space = observation_space.spaces
-        self.observation_space = jp.nested_apply(
+        self.observation_space = ml.nested_apply(
             create_space,
             observation_space)
         self.action_space = create_space(self.wrapped_env.action_space)
@@ -33,7 +33,7 @@ class NormalizedEnv(ProxyEnv):
         if (isinstance(observation_space, Dict) or
                 isinstance(observation_space, Tuple)):
             observation_space = observation_space.spaces
-        observation = jp.nested_apply(
+        observation = ml.nested_apply(
             normalize,
             observation,
             observation_space)
@@ -50,7 +50,7 @@ class NormalizedEnv(ProxyEnv):
         if (isinstance(observation_space, Dict) or
                 isinstance(observation_space, Tuple)):
             observation_space = observation_space.spaces
-        observation = jp.nested_apply(
+        observation = ml.nested_apply(
             normalize,
             observation,
             observation_space)

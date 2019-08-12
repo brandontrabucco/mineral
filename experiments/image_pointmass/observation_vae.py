@@ -77,11 +77,11 @@ if __name__ == "__main__":
         monitor=monitor
     )
     
-    max_size = 512
+    max_size = 32
     num_warm_up_paths = max_size
-    num_steps = 100
+    num_steps = 1000
     num_paths_to_collect = 32
-    batch_size = 32
+    batch_size = num_paths_to_collect
     num_trains_per_step = 64
 
     trainer = LocalTrainer(
