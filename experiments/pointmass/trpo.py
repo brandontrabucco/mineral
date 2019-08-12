@@ -4,6 +4,7 @@
 import tensorflow as tf
 from mineral.algorithms.actors.importance_sampling import ImportanceSampling
 from mineral.algorithms.critics.gae import GAE
+from mineral.algorithms.merged import Merged
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -77,14 +78,20 @@ if __name__ == "__main__":
         monitor=monitor,
     )
 
-    algorithm = ImportanceSampling(
+    actor = ImportanceSampling(
         policy,
         old_policy,
         critic,
         gamma=0.99,
-        actor_delay=num_trains_per_step // off_policy_updates,
-        old_policy_delay=num_trains_per_step,
+        old_update_every=num_trains_per_step,
+        update_every=num_trains_per_step // off_policy_updates,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor
+    )
+
+    algorithm = Merged(
+        critic,
+        actor
     )
     
     max_size = 32

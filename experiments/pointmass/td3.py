@@ -5,6 +5,7 @@ import tensorflow as tf
 from mineral.algorithms.actors.ddpg import DDPG
 from mineral.algorithms.critics.q_learning import QLearning
 from mineral.algorithms.critics.twin_delayed_critic import TwinDelayedCritic
+from mineral.algorithms.merged import Merged
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -105,12 +106,17 @@ if __name__ == "__main__":
         critic2
     )
 
-    algorithm = DDPG(
+    actor = DDPG(
         policy,
         twin_delayed_critic,
         target_policy,
-        actor_delay=num_trains_per_step // off_policy_updates,
+        update_every=num_trains_per_step // off_policy_updates,
         monitor=monitor
+    )
+
+    algorithm = Merged(
+        twin_delayed_critic,
+        actor
     )
     
     max_size = 1024
