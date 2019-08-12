@@ -4,7 +4,7 @@
 from mineral.algorithms.base import Base
 
 
-class Merged(Base):
+class MultiAlgorithm(Base):
 
     def __init__(
         self,

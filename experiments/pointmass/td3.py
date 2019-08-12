@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.algorithms.actors.ddpg import DDPG
 from mineral.algorithms.critics.q_learning import QLearning
 from mineral.algorithms.critics.twin_delayed_critic import TwinDelayedCritic
-from mineral.algorithms.merged import Merged
+from mineral.algorithms.multi_algorithm import MultiAlgorithm
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         monitor=monitor
     )
 
-    algorithm = Merged(
+    algorithm = MultiAlgorithm(
         twin_delayed_critic,
         actor
     )
