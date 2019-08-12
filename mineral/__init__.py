@@ -51,15 +51,14 @@ def nested_apply(
             for x in zip(*structures)
         }
     elif isinstance(structures[0], dict):
-        keys_list = [structures[0].keys()]
-        values_list = [y.values() for y in structures]
-        merged_list = keys_list + values_list
+        keys_list = structures[0].keys()
+        values_list = [[y[key] for key in keys_list] for y in structures]
         return {
             key: nested_apply(
                 function,
-                *values,
+                *values
             )
-            for key, *values in zip(*merged_list)
+            for key, values in zip(keys_list, zip(*values_list))
         }
 
 

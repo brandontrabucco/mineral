@@ -3,6 +3,7 @@
 
 from mineral.algorithms.vaes.observation_vae import ObservationVAE
 from mineral.networks.conv import Conv
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
 from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -25,10 +26,7 @@ if __name__ == "__main__":
         reward_scale=(1 / max_path_length)
     )
 
-    policy = Conv(
-        [8, 16, 32],
-        [5, 5, 5],
-        [2, 2, 2],
+    policy = Dense(
         [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
@@ -38,7 +36,7 @@ if __name__ == "__main__":
     buffer = PathBuffer(
         env,
         policy,
-        selector=(lambda x: x["image_observation"])
+        selector=(lambda x: x["proprio_observation"])
     )
 
     latent_size = 32
@@ -75,6 +73,7 @@ if __name__ == "__main__":
 
     algorithm = ObservationVAE(
         vae_network,
+        selector=(lambda x: x["image_observation"]),
         monitor=monitor
     )
     
