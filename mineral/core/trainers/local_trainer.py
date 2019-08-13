@@ -8,25 +8,21 @@ class LocalTrainer(Trainer):
 
     def __init__(
         self,
-        max_size,
-        num_warm_up_paths,
-        num_steps,
-        num_paths_to_collect,
-        max_path_length,
-        batch_size,
-        num_trains_per_step,
         *inputs,
+        num_warm_up_paths=32,
+        num_steps=1000,
+        num_paths_to_collect=32,
+        batch_size=32,
+        num_trains_per_step=1,
         monitor=None
     ):
         Trainer.__init__(
             self, 
             *inputs
         )
-        self.max_size = max_size
         self.num_warm_up_paths = num_warm_up_paths
         self.num_steps = num_steps
         self.num_paths_to_collect = num_paths_to_collect
-        self.max_path_length = max_path_length
         self.batch_size = batch_size
         self.num_trains_per_step = num_trains_per_step
         self.monitor = monitor
@@ -35,7 +31,7 @@ class LocalTrainer(Trainer):
         self
     ):
         for buffer in self.buffers:
-            buffer.reset(self.max_size, self.max_path_length)
+            buffer.reset()
             buffer.collect(self.num_warm_up_paths, random=True, save_paths=True)
 
         for i in range(self.num_steps):

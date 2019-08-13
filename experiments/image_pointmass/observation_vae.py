@@ -33,10 +33,15 @@ if __name__ == "__main__":
         distribution_kwargs=dict(std=None)
     )
 
+    max_size = 5096
+
     buffer = PathBuffer(
         env,
         policy,
-        selector=(lambda x: x["proprio_observation"])
+        max_size=max_size,
+        max_path_length=max_path_length,
+        selector=(lambda x: x["proprio_observation"]),
+        monitor=monitor
     )
 
     latent_size = 32
@@ -76,8 +81,7 @@ if __name__ == "__main__":
         selector=(lambda x: x["image_observation"]),
         monitor=monitor
     )
-    
-    max_size = 5096
+
     num_warm_up_paths = 32
     num_steps = 1000
     num_paths_to_collect = 32
@@ -85,15 +89,13 @@ if __name__ == "__main__":
     num_trains_per_step = 64
 
     trainer = LocalTrainer(
-        max_size,
-        num_warm_up_paths,
-        num_steps,
-        num_paths_to_collect,
-        max_path_length,
-        batch_size,
-        num_trains_per_step,
         buffer,
         algorithm,
+        num_warm_up_paths=num_warm_up_paths,
+        num_steps=num_steps,
+        num_paths_to_collect=num_paths_to_collect,
+        batch_size=batch_size,
+        num_trains_per_step=num_trains_per_step,
         monitor=monitor
     )
 

@@ -69,9 +69,15 @@ if __name__ == "__main__":
         optimizer_kwargs={"lr": 0.0001},
     )
 
+    max_size = 1024
+
     buffer = PathBuffer(
         env,
-        policy
+        policy,
+        max_size=max_size,
+        max_path_length=max_path_length,
+        selector=(lambda x: x["proprio_observation"]),
+        monitor=monitor
     )
 
     num_trains_per_step = 32
@@ -88,6 +94,7 @@ if __name__ == "__main__":
         gamma=gamma,
         clip_radius=clip_radius,
         std=std,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor,
     )
 
@@ -98,6 +105,7 @@ if __name__ == "__main__":
         gamma=gamma,
         clip_radius=clip_radius,
         std=std,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor,
     )
 
@@ -111,6 +119,7 @@ if __name__ == "__main__":
         twin_delayed_critic,
         target_policy,
         update_every=num_trains_per_step // off_policy_updates,
+        selector=(lambda x: x["proprio_observation"]),
         monitor=monitor
     )
 
@@ -118,23 +127,20 @@ if __name__ == "__main__":
         twin_delayed_critic,
         actor
     )
-    
-    max_size = 1024
+
     num_warm_up_paths = 1024
     num_steps = 1000
     num_paths_to_collect = 32
     batch_size = 32
 
     trainer = LocalTrainer(
-        max_size,
-        num_warm_up_paths,
-        num_steps,
-        num_paths_to_collect,
-        max_path_length,
-        batch_size,
-        num_trains_per_step,
         buffer,
         algorithm,
+        num_warm_up_paths=num_warm_up_paths,
+        num_steps=num_steps,
+        num_paths_to_collect=num_paths_to_collect,
+        batch_size=batch_size,
+        num_trains_per_step=num_trains_per_step,
         monitor=monitor
     )
 

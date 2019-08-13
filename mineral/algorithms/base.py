@@ -35,8 +35,6 @@ class Base(ABC):
         rewards,
         terminals
     ):
-        if self.monitor is not None:
-            self.monitor.set_step(self.iteration)
         self.iteration += 1
         if self.iteration - self.last_update_iteration >= self.update_every:
             self.last_update_iteration = self.iteration
