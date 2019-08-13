@@ -80,7 +80,8 @@ class SoftQLearning(QLearning):
         bellman_target_values,
         discount_target_values
     ):
-        SoftQLearning.update_critic(
+        QLearning.update_critic(
+            self,
             observations,
             actions,
             rewards,

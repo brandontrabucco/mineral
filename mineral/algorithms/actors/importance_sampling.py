@@ -35,6 +35,7 @@ class ImportanceSampling(ActorCritic):
         if self.iteration - self.last_old_update_iteration >= self.old_update_every:
             self.last_old_update_iteration = self.iteration
             self.old_policy.set_weights(self.policy.get_weights())
+
         def loss_function():
             ratio = tf.exp(
                 self.policy.get_log_probs(

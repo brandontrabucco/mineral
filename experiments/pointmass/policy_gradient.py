@@ -19,15 +19,13 @@ if __name__ == "__main__":
 
     env = NormalizedEnv(
         PointmassEnv(size=2, ord=2),
-        reward_scale=(1 / max_path_length)
-    )
+        reward_scale=(1 / max_path_length))
 
     policy = Dense(
         [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
-        distribution_kwargs=dict(std=None)
-    )
+        distribution_kwargs=dict(std=None))
 
     max_size = 32
 
@@ -37,15 +35,13 @@ if __name__ == "__main__":
         max_size=max_size,
         max_path_length=max_path_length,
         selector=(lambda x: x["proprio_observation"]),
-        monitor=monitor
-    )
+        monitor=monitor)
 
     algorithm = PolicyGradient(
         policy,
         gamma=0.99,
         selector=(lambda x: x["proprio_observation"]),
-        monitor=monitor
-    )
+        monitor=monitor)
 
     num_warm_up_paths = 0
     num_steps = 1000
@@ -61,7 +57,6 @@ if __name__ == "__main__":
         num_paths_to_collect=num_paths_to_collect,
         batch_size=batch_size,
         num_trains_per_step=num_trains_per_step,
-        monitor=monitor
-    )
+        monitor=monitor)
 
     trainer.train()

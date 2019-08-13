@@ -44,7 +44,7 @@ class QLearning(Critic):
                 tf.shape(next_actions),
                 dtype=tf.float32), -self.clip_radius, self.clip_radius)
         noisy_next_actions = next_actions + epsilon
-        next_target_qvalues = self.target_qf.get_qvalues(
+        next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
             noisy_next_actions)
         target_values = rewards + (

@@ -11,10 +11,7 @@ class MultiAlgorithm(Base):
         *algorithms,
         **kwargs
     ):
-        Base.__init__(
-            self,
-            **kwargs
-        )
+        Base.__init__(self, **kwargs)
         self.algorithms = algorithms
 
     def update_algorithm(
@@ -29,5 +26,4 @@ class MultiAlgorithm(Base):
                 observations,
                 actions,
                 rewards,
-                terminals
-            )
+                terminals)

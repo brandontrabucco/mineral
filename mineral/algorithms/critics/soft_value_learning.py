@@ -80,6 +80,7 @@ class SoftValueLearning(ValueLearning):
         discount_target_values
     ):
         ValueLearning.update_critic(
+            self,
             observations,
             actions,
             rewards,

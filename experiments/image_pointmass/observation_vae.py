@@ -23,15 +23,13 @@ if __name__ == "__main__":
 
     env = NormalizedEnv(
         ImagePointmassEnv(image_size=48, size=2, ord=2),
-        reward_scale=(1 / max_path_length)
-    )
+        reward_scale=(1 / max_path_length))
 
     policy = Dense(
         [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussianDistribution,
-        distribution_kwargs=dict(std=None)
-    )
+        distribution_kwargs=dict(std=None))
 
     max_size = 5096
 
@@ -41,8 +39,7 @@ if __name__ == "__main__":
         max_size=max_size,
         max_path_length=max_path_length,
         selector=(lambda x: x["proprio_observation"]),
-        monitor=monitor
-    )
+        monitor=monitor)
 
     latent_size = 32
 
@@ -53,8 +50,7 @@ if __name__ == "__main__":
         [2 * latent_size, 2 * latent_size],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=GaussianDistribution,
-        distribution_kwargs=dict(std=None)
-    )
+        distribution_kwargs=dict(std=None))
 
     decoder = ConvTranspose(
         [16, 8, 3],
@@ -64,8 +60,7 @@ if __name__ == "__main__":
         [6, 6, 32],
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=GaussianDistribution,
-        distribution_kwargs=dict(std=1.0)
-    )
+        distribution_kwargs=dict(std=1.0))
 
     vae_network = LatentVariable(
         encoder,
@@ -73,14 +68,12 @@ if __name__ == "__main__":
         latent_size,
         beta=1.0,
         sample_encoder=True,
-        sample_decoder=False
-    )
+        sample_decoder=False)
 
     algorithm = ObservationVAE(
         vae_network,
         selector=(lambda x: x["image_observation"]),
-        monitor=monitor
-    )
+        monitor=monitor)
 
     num_warm_up_paths = 32
     num_steps = 1000
@@ -96,7 +89,6 @@ if __name__ == "__main__":
         num_paths_to_collect=num_paths_to_collect,
         batch_size=batch_size,
         num_trains_per_step=num_trains_per_step,
-        monitor=monitor
-    )
+        monitor=monitor)
 
     trainer.train()
