@@ -16,8 +16,7 @@ class PPO(ImportanceSampling):
         ImportanceSampling.__init__(
             self,
             *args,
-            **kwargs
-        )
+            **kwargs)
         self.epsilon = epsilon
 
     def update_actor(
@@ -35,25 +34,18 @@ class PPO(ImportanceSampling):
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     actions,
-                    observations[:, :(-1), ...]
-                ) - self.old_policy.get_log_probs(
-                    actions,
-                    observations[:, :(-1), ...]
-                )
-            )
+                    observations[:, :(-1), ...]) - self.old_policy.get_log_probs(
+                        actions,
+                        observations[:, :(-1), ...]))
             loss_policy = -1.0 * tf.reduce_mean(
                 tf.minimum(
                     returns * ratio,
                     returns * tf.clip_by_value(
-                        ratio, 1 - self.epsilon, 1 + self.epsilon
-                    )
-                )
-            )
+                        ratio, 1 - self.epsilon, 1 + self.epsilon)))
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
-                    loss_policy
-                )
+                    loss_policy)
             return loss_policy
         self.policy.minimize(
             loss_function,

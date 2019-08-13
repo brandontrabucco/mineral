@@ -4,6 +4,7 @@
 import tensorflow as tf
 from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
 from mineral.algorithms.critics.soft_q_learning import SoftQLearning
+from mineral.algorithms.entropy_tuning import EntropyTuning
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
@@ -61,10 +62,16 @@ if __name__ == "__main__":
         monitor=monitor)
 
     num_trains_per_step = 64
-    off_policy_updates = 16
+    off_policy_updates = 4
     clip_radius = 0.2
     std = 0.1
     gamma = 0.99
+
+    tuning = EntropyTuning(
+        target_policy,
+        target=-2.0,
+        selector=(lambda x: x["proprio_observation"]),
+        monitor=monitor)
 
     critic = SoftQLearning(
         target_policy,
@@ -73,7 +80,7 @@ if __name__ == "__main__":
         gamma=gamma,
         clip_radius=clip_radius,
         std=std,
-        entropy=-2.0,
+        alpha=tuning.get_tuning_variable(),
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
@@ -81,13 +88,12 @@ if __name__ == "__main__":
         policy,
         critic,
         target_policy,
-        entropy=-2.0,
+        alpha=tuning.get_tuning_variable(),
         update_every=num_trains_per_step // off_policy_updates,
-        update_after=5096,
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
-    algorithm = MultiAlgorithm(actor, critic)
+    algorithm = MultiAlgorithm(actor, critic, tuning)
 
     num_warm_up_paths = 1024
     num_steps = 10000

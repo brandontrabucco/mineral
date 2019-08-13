@@ -13,9 +13,7 @@ class SoftValueLearning(ValueLearning):
         policy,
         vf,
         target_vf,
-        entropy=-1.0,
-        entropy_optimizer_class=tf.keras.optimizers.Adam,
-        entropy_optimizer_kwargs={},
+        alpha=1.0,
         **kwargs
     ):
         ValueLearning.__init__(
@@ -24,10 +22,7 @@ class SoftValueLearning(ValueLearning):
             target_vf,
             **kwargs)
         self.policy = policy
-        self.alpha = tf.Variable(1.0)
-        self.entropy = entropy
-        self.entropy_optimizer = entropy_optimizer_class(
-            **entropy_optimizer_kwargs)
+        self.alpha = alpha
 
     def bellman_target_values(
         self,
@@ -87,15 +82,3 @@ class SoftValueLearning(ValueLearning):
             terminals,
             bellman_target_values,
             discount_target_values)
-
-        def entropy_loss_function():
-            policy_actions = self.policy.sample(
-                observations[:, :(-1), ...])
-            policy_log_probs = self.policy.get_log_probs(
-                policy_actions,
-                observations[:, :(-1), ...])
-            loss_entropy = -self.alpha * (
-                policy_log_probs + self.entropy)
-            return tf.reduce_mean(loss_entropy)
-        self.entropy_optimizer.minimize(
-            entropy_loss_function, self.alpha)

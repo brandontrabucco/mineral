@@ -10,8 +10,8 @@ class DDPG(ActorCritic):
     def __init__(
         self,
         policy,
-        critic,
         target_policy,
+        critic,
         **kwargs
     ):
         ActorCritic.__init__(

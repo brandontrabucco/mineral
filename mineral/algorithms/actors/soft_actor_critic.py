@@ -10,19 +10,14 @@ class SoftActorCritic(DDPG):
     def __init__(
         self,
         *args,
-        entropy=-1.0,
-        entropy_optimizer_class=tf.keras.optimizers.Adam,
-        entropy_optimizer_kwargs={},
+        alpha=1.0,
         **kwargs
     ):
         DDPG.__init__(
             self,
             *args,
             **kwargs)
-        self.alpha = tf.Variable(1.0)
-        self.entropy = entropy
-        self.entropy_optimizer = entropy_optimizer_class(
-            **entropy_optimizer_kwargs)
+        self.alpha = alpha
 
     def update_actor(
         self,
@@ -63,15 +58,3 @@ class SoftActorCritic(DDPG):
             return loss_policy
         self.policy.minimize(
             loss_function, observations)
-
-        def entropy_loss_function():
-            policy_actions = self.policy.sample(
-                observations[:, :(-1), ...])
-            policy_log_probs = self.policy.get_log_probs(
-                policy_actions,
-                observations[:, :(-1), ...])
-            loss_entropy = -self.alpha * (
-                policy_log_probs + self.entropy)
-            return tf.reduce_mean(loss_entropy)
-        self.entropy_optimizer.minimize(
-            entropy_loss_function, self.alpha)

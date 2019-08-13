@@ -17,8 +17,7 @@ class ActorCritic(PolicyGradient):
         PolicyGradient.__init__(
             self,
             policy,
-            **kwargs
-        )
+            **kwargs)
         self.critic = critic
 
     def update_algorithm(
@@ -32,30 +31,22 @@ class ActorCritic(PolicyGradient):
             observations,
             actions,
             rewards,
-            terminals
-        )
+            terminals)
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
-                tf.reduce_mean(rewards)
-            )
+                tf.reduce_mean(rewards))
             self.monitor.record(
                 "returns_max",
-                tf.reduce_max(returns)
-            )
+                tf.reduce_max(returns))
             self.monitor.record(
                 "returns_min",
-                tf.reduce_min(returns)
-            )
+                tf.reduce_min(returns))
             self.monitor.record(
                 "returns_mean",
-                tf.reduce_mean(returns)
-            )
+                tf.reduce_mean(returns))
         self.update_actor(
             observations,
             actions,
             returns,
-            terminals
-        )
-
-
+            terminals)

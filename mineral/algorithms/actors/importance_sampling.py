@@ -19,8 +19,7 @@ class ImportanceSampling(ActorCritic):
             self,
             policy,
             critic,
-            **kwargs
-        )
+            **kwargs)
         self.old_policy = old_policy
         self.old_update_every = old_update_every
         self.last_old_update_iteration = 0
@@ -40,20 +39,15 @@ class ImportanceSampling(ActorCritic):
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     actions,
-                    observations[:, :(-1), ...]
-                ) - self.old_policy.get_log_probs(
-                    actions,
-                    observations[:, :(-1), ...]
-                )
-            )
+                    observations[:, :(-1), ...]) - self.old_policy.get_log_probs(
+                        actions,
+                        observations[:, :(-1), ...]))
             loss_policy = -1.0 * tf.reduce_mean(
-                returns * ratio
-            )
+                returns * ratio)
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
-                    loss_policy
-                )
+                    loss_policy)
             return loss_policy
         self.policy.minimize(
             loss_function,

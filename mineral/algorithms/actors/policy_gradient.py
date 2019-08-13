@@ -18,8 +18,7 @@ class PolicyGradient(Actor):
         self.gamma = gamma
         Actor.__init__(
             self,
-            **kwargs
-        )
+            **kwargs)
 
     def update_actor(
         self,
@@ -31,33 +30,26 @@ class PolicyGradient(Actor):
         def loss_function():
             log_probs = self.policy.get_log_probs(
                 actions,
-                observations[:, :(-1), ...]
-            )
+                observations[:, :(-1), ...])
             loss_policy = -1.0 * tf.reduce_mean(
-                returns * log_probs
-            )
+                returns * log_probs)
             if self.monitor is not None:
                 self.monitor.record(
                     "log_probs_policy_mean",
-                    tf.reduce_mean(log_probs)
-                )
+                    tf.reduce_mean(log_probs))
                 self.monitor.record(
                     "log_probs_policy_max",
-                    tf.reduce_max(log_probs)
-                )
+                    tf.reduce_max(log_probs))
                 self.monitor.record(
                     "log_probs_policy_min",
-                    tf.reduce_min(log_probs)
-                )
+                    tf.reduce_min(log_probs))
                 self.monitor.record(
                     "loss_policy",
-                    loss_policy
-                )
+                    loss_policy)
             return loss_policy
         self.policy.minimize(
             loss_function,
-            observations[:, :(-1), ...]
-        )
+            observations[:, :(-1), ...])
 
     def update_algorithm(
         self, 
@@ -71,28 +63,22 @@ class PolicyGradient(Actor):
         if self.monitor is not None:
             self.monitor.record(
                 "rewards_mean",
-                tf.reduce_mean(rewards)
-            )
+                tf.reduce_mean(rewards))
             self.monitor.record(
                 "returns_max",
-                tf.reduce_max(returns)
-            )
+                tf.reduce_max(returns))
             self.monitor.record(
                 "returns_min",
-                tf.reduce_min(returns)
-            )
+                tf.reduce_min(returns))
             self.monitor.record(
                 "returns_mean",
-                tf.reduce_mean(returns)
-            )
+                tf.reduce_mean(returns))
             self.monitor.record(
                 "cumulative_returns_mean,timestep,discounted_return",
-                returns
-            )
+                returns)
         self.update_actor(
             observations,
             actions,
             advantages,
-            terminals
-        )
+            terminals)
 
