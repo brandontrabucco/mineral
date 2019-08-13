@@ -11,7 +11,7 @@ class SoftQLearning(QLearning):
     def __init__(
         self,
         *args,
-        entropy=1.0,
+        entropy=-1.0,
         entropy_optimizer_class=tf.keras.optimizers.Adam,
         entropy_optimizer_kwargs={},
         **kwargs

@@ -73,6 +73,7 @@ if __name__ == "__main__":
         gamma=gamma,
         clip_radius=clip_radius,
         std=std,
+        entropy=-2.0,
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
@@ -80,6 +81,7 @@ if __name__ == "__main__":
         policy,
         critic,
         target_policy,
+        entropy=-2.0,
         update_every=num_trains_per_step // off_policy_updates,
         update_after=5096,
         selector=(lambda x: x["proprio_observation"]),
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     algorithm = MultiAlgorithm(actor, critic)
 
     num_warm_up_paths = 1024
-    num_steps = 1000
+    num_steps = 10000
     num_paths_to_collect = 32
     batch_size = 32
 
