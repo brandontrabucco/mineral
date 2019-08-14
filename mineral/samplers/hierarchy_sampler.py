@@ -49,7 +49,7 @@ class HierarchySampler(Sampler):
                     hierarchy_samples[level + 1][1]["induced_actions"].append(
                         current_action)
                     hierarchy_samples[level + 1][1]["induced_observations"].append(
-                        observation)
+                        {**observation, "goal": hierarchy_samples[level + 1][2]})
 
     def collect(
         self,
