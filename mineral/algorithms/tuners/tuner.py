@@ -11,7 +11,7 @@ class Tuner(Base, ABC):
     def __init__(
         self,
         target=-1.0,
-        initial_value=1.0,
+        initial_value=0.0,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={},
         **kwargs

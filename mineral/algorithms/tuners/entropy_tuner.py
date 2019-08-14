@@ -28,7 +28,7 @@ class EntropyTuner(Tuner):
             policy_entropy = -self.policy.get_log_probs(
                 policy_actions,
                 observations[:, :(-1), ...])
-            loss_entropy = self.tuning_variable * (
+            entropy_loss = self.tuning_variable * (
                 policy_entropy - self.target)
             if self.monitor is not None:
                 self.monitor.record(
@@ -36,10 +36,10 @@ class EntropyTuner(Tuner):
                     self.tuning_variable)
                 self.monitor.record(
                     "entropy",
-                    tf.reduce_mean(-policy_entropy))
+                    tf.reduce_mean(policy_entropy))
                 self.monitor.record(
-                    "loss_entropy",
-                    tf.reduce_mean(loss_entropy))
-            return tf.reduce_mean(loss_entropy)
+                    "entropy_loss",
+                    tf.reduce_mean(entropy_loss))
+            return tf.reduce_mean(entropy_loss)
         self.optimizer.minimize(
             loss_function, self.tuning_variable)

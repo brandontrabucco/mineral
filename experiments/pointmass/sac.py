@@ -19,14 +19,14 @@ from mineral.samplers.path_sampler import PathSampler
 if __name__ == "__main__":
 
     max_path_length = 10
-    max_size = 1000
-    num_warm_up_samples = max_size
+    max_size = 100000
+    num_warm_up_samples = 100
     num_exploration_samples = 1
-    num_evaluation_samples = 1
-    num_trains_per_step = 64
-    off_policy_updates = 1
-    critic_warm_start_updates = 10
-    batch_size = 32
+    num_evaluation_samples = 100
+    num_trains_per_step = 100
+    update_tuner_every = 100
+    update_actor_every = 100
+    batch_size = 100
     num_steps = 10000
 
     monitor = LocalMonitor("./pointmass/sac")
@@ -53,13 +53,13 @@ if __name__ == "__main__":
     qf = Dense(
         [256, 256, 1],
         optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.0001})
+        optimizer_kwargs={"lr": 0.001})
 
     target_qf = Dense(
         [256, 256, 1],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.0001})
+        optimizer_kwargs={"lr": 0.001})
 
     buffer = PathBuffer(
         max_size=max_size,
@@ -81,21 +81,20 @@ if __name__ == "__main__":
         policy,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001),
-        target=(-2.0),
-        initial_value=(-2.0),
-        update_every=num_trains_per_step // off_policy_updates,
-        update_after=critic_warm_start_updates,
+        target=2.0,
+        initial_value=1.0,
+        update_every=update_tuner_every,
         batch_size=batch_size,
         monitor=monitor)
 
     critic = SoftQLearning(
-        policy,
+        target_policy,
         qf,
         target_qf,
         gamma=0.99,
         clip_radius=0.2,
         std=0.1,
-        alpha=tuner.get_tuning_variable(),
+        alpha=0.0,
         batch_size=batch_size,
         monitor=monitor)
 
@@ -103,13 +102,12 @@ if __name__ == "__main__":
         policy,
         target_policy,
         critic,
-        alpha=tuner.get_tuning_variable(),
-        update_every=num_trains_per_step // off_policy_updates,
-        update_after=critic_warm_start_updates,
+        alpha=0.0,
+        update_every=update_actor_every,
         batch_size=batch_size,
         monitor=monitor)
 
-    algorithm = MultiAlgorithm(actor, critic, tuner)
+    algorithm = MultiAlgorithm(actor, critic)
 
     trainer = LocalTrainer(
         sampler,

@@ -13,13 +13,23 @@ from mineral.core.envs.debug.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
+from mineral.samplers.path_sampler import PathSampler
 
 
 if __name__ == "__main__":
 
-    monitor = LocalMonitor("./pointmass/td3")
-
     max_path_length = 10
+    max_size = 100000
+    num_warm_up_samples = 100
+    num_exploration_samples = 1
+    num_evaluation_samples = 100
+    num_trains_per_step = 100
+    update_tuner_every = 100
+    update_actor_every = 100
+    batch_size = 100
+    num_steps = 10000
+
+    monitor = LocalMonitor("./pointmass/td3")
 
     env = NormalizedEnv(
         PointmassEnv(size=2, ord=2),
@@ -43,61 +53,60 @@ if __name__ == "__main__":
     qf1 = Dense(
         [6, 6, 1],
         optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.0001},)
+        optimizer_kwargs={"lr": 0.0001})
 
     qf2 = Dense(
         [6, 6, 1],
         optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.0001},)
+        optimizer_kwargs={"lr": 0.0001})
 
     target_qf1 = Dense(
         [6, 6, 1],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.0001},)
+        optimizer_kwargs={"lr": 0.0001})
 
     target_qf2 = Dense(
         [6, 6, 1],
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={"lr": 0.0001},)
-
-    max_size = 1024
+        optimizer_kwargs={"lr": 0.0001})
 
     buffer = PathBuffer(
-        env,
-        policy,
         max_size=max_size,
         max_path_length=max_path_length,
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
-    num_trains_per_step = 32
-    off_policy_updates = 4
-
-    clip_radius = 0.2
-    std = 0.1
-    gamma = 0.99
+    sampler = PathSampler(
+        buffer,
+        env,
+        policy,
+        num_warm_up_samples=num_warm_up_samples,
+        num_exploration_samples=num_exploration_samples,
+        num_evaluation_samples=num_evaluation_samples,
+        selector=(lambda x: x["proprio_observation"]),
+        monitor=monitor)
 
     critic1 = QLearning(
         target_policy,
         qf1,
         target_qf1,
-        gamma=gamma,
-        clip_radius=clip_radius,
-        std=std,
-        selector=(lambda x: x["proprio_observation"]),
-        monitor=monitor,)
+        gamma=0.99,
+        clip_radius=0.2,
+        std=0.1,
+        batch_size=batch_size,
+        monitor=monitor)
 
     critic2 = QLearning(
         target_policy,
         qf2,
         target_qf2,
-        gamma=gamma,
-        clip_radius=clip_radius,
-        std=std,
-        selector=(lambda x: x["proprio_observation"]),
-        monitor=monitor,)
+        gamma=0.99,
+        clip_radius=0.2,
+        std=0.1,
+        batch_size=batch_size,
+        monitor=monitor)
 
     twin_delayed_critic = TwinDelayedCritic(
         critic1,
@@ -107,24 +116,17 @@ if __name__ == "__main__":
         policy,
         twin_delayed_critic,
         target_policy,
-        update_every=num_trains_per_step // off_policy_updates,
-        selector=(lambda x: x["proprio_observation"]),
+        update_every=update_actor_every,
+        batch_size=batch_size,
         monitor=monitor)
 
     algorithm = MultiAlgorithm(actor, twin_delayed_critic)
 
-    num_warm_up_paths = 1024
-    num_steps = 1000
-    num_paths_to_collect = 32
-    batch_size = 32
-
     trainer = LocalTrainer(
+        sampler,
         buffer,
         algorithm,
-        num_warm_up_paths=num_warm_up_paths,
         num_steps=num_steps,
-        num_paths_to_collect=num_paths_to_collect,
-        batch_size=batch_size,
         num_trains_per_step=num_trains_per_step,
         monitor=monitor)
 
