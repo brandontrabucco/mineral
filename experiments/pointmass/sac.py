@@ -13,7 +13,7 @@ from mineral.core.envs.debug.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
-from mineral.samplers.path_sampler import PathSampler
+from mineral.samplers.hierarchical_sampler import HierarchicalSampler
 
 
 if __name__ == "__main__":
@@ -70,10 +70,11 @@ if __name__ == "__main__":
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
-    sampler = PathSampler(
-        buffer,
+    sampler = HierarchicalSampler(
         env,
         policy,
+        buffer,
+        time_skips=(1,),
         num_warm_up_samples=num_warm_up_samples,
         num_exploration_samples=num_exploration_samples,
         num_evaluation_samples=num_evaluation_samples,

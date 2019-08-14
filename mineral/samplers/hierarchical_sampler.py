@@ -15,7 +15,7 @@ class HierarchicalSampler(Sampler):
     ):
         Sampler.__init__(self, *args, **kwargs)
         self.num_levels = len(self.policies)
-        self.time_skips = time_skips + (
+        self.time_skips = tuple(time_skips) + tuple(
             1 for _i in range(self.num_levels - len(time_skips)))
 
     def push_through_hierarchy(
@@ -26,7 +26,7 @@ class HierarchicalSampler(Sampler):
         random=False,
     ):
         for level in reversed(range(self.num_levels)):
-            if time_step % np.prod(self.time_skips[:level]) == 0:
+            if time_step % np.prod(self.time_skips[:level + 1]) == 0:
                 policy_inputs = self.selector(level, observation)[np.newaxis, ...]
                 if level < self.num_levels - 1:
                     policy_inputs = np.concatenate([
@@ -37,14 +37,15 @@ class HierarchicalSampler(Sampler):
                 else:
                     current_action = self.policies[level].get_expected_value(
                         policy_inputs)[0, ...].numpy()
-                    hierarchy_samples[level][0] += 1
-                hierarchy_samples[level][1] = {
-                    **observation, "induced_actions": [], "induced_observations": []}
-                if level < self.num_levels - 1:
-                    hierarchy_samples[level][1]["goal"] = hierarchy_samples[level + 1][2]
+                hierarchy_samples[level][0] += 1
+                hierarchy_samples[level][1] = {**observation}
                 hierarchy_samples[level][2] = current_action
                 hierarchy_samples[level][3] = 0.0
+                if level > 0:
+                    hierarchy_samples[level][1]["induced_actions"] = []
+                    hierarchy_samples[level][1]["induced_observations"] = []
                 if level < self.num_levels - 1:
+                    hierarchy_samples[level][1]["goal"] = hierarchy_samples[level + 1][2]
                     hierarchy_samples[level + 1][1]["induced_actions"].append(current_action)
                     hierarchy_samples[level + 1][1]["induced_observations"].append(observation)
 
@@ -62,15 +63,17 @@ class HierarchicalSampler(Sampler):
             observation = self.env.reset()
             path_return = 0.0
             for time_step in range(self.buffers[0].max_path_length):
-                self.push_through_hierarchy(hierarchy_samples, time_step, observation, random=random)
+                self.push_through_hierarchy(
+                    hierarchy_samples, time_step, observation, random=random)
                 next_observation, reward, done, info = self.env.step(hierarchy_samples[0][2])
                 path_return = path_return + reward
                 observation = next_observation
                 for level in range(self.num_levels):
                     hierarchy_samples[level][3] += reward
+                    sample = hierarchy_samples[level][1]
                     if (save_paths and (
-                            len(hierarchy_samples[level][1]["induced_actions"]) == self.time_skips[level] or
-                            level == 0)):
+                            "induced_actions" not in sample or
+                            len(sample["induced_actions"]) == self.time_skips[level])):
                         self.buffers[level].insert_sample(*hierarchy_samples[level])
                 if render:
                     self.env.render(**render_kwargs)
