@@ -8,22 +8,21 @@ class Sampler(ABC):
 
     def __init__(
         self,
-        buffer,
         env,
-        policy,
+        *inputs,
         num_warm_up_samples=1024,
         num_exploration_samples=32,
         num_evaluation_samples=32,
         selector=None,
         monitor=None
     ):
-        self.buffer = buffer
         self.env = env
-        self.policy = policy
+        self.policies = inputs[0::2]
+        self.buffers = inputs[1::2]
         self.num_warm_up_samples = num_warm_up_samples
         self.num_exploration_samples = num_exploration_samples
         self.num_evaluation_samples = num_evaluation_samples
-        self.selector = (lambda x: x) if selector is None else selector
+        self.selector = (lambda i, x: x) if selector is None else selector
         self.monitor = monitor
         self.num_steps_collected = 0
 
@@ -71,7 +70,7 @@ class Sampler(ABC):
     def reset(
         self,
     ):
-        return self.buffer.reset()
+        return [b.reset() for b in self.buffers]
 
     @abstractmethod
     def collect(
