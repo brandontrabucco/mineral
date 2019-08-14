@@ -32,12 +32,15 @@ class SoftValueLearning(ValueLearning):
         terminals
     ):
         next_actions = self.policy.get_expected_value(
-            observations[:, 1:, ...])
+            observations[:, 1:, ...],
+            training=True)
         next_log_probs = self.policy.get_log_probs(
             next_actions,
-            observations[:, 1:, ...])
+            observations[:, 1:, ...],
+            training=True)
         next_target_values = self.target_vf.get_expected_value(
-            observations[:, 1:, ...])
+            observations[:, 1:, ...],
+            training=True)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * (
                 next_target_values[:, :, 0] - self.alpha * next_log_probs))
@@ -56,7 +59,8 @@ class SoftValueLearning(ValueLearning):
     ):
         log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
             actions,
-            observations[:, :(-1), ...])
+            observations[:, :(-1), ...],
+            training=True)
         discount_target_values = discounted_sum((
             rewards - self.alpha * log_probs), self.gamma)
         if self.monitor is not None:

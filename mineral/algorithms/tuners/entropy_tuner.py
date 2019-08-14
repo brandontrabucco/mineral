@@ -24,10 +24,12 @@ class EntropyTuner(Tuner):
     ):
         def loss_function():
             policy_actions = self.policy.sample(
-                observations[:, :(-1), ...])
+                observations[:, :(-1), ...],
+                training=True)
             policy_entropy = -self.policy.get_log_probs(
                 policy_actions,
-                observations[:, :(-1), ...])
+                observations[:, :(-1), ...],
+                training=True)
             entropy_loss = self.tuning_variable * (
                 policy_entropy - self.target)
             if self.monitor is not None:

@@ -42,7 +42,8 @@ class ImportanceSampling(ActorCritic):
                     observations[:, :(-1), ...],
                     training=True) - self.old_policy.get_log_probs(
                         actions,
-                        observations[:, :(-1), ...]))
+                        observations[:, :(-1), ...],
+                        training=True))
             loss_policy = -1.0 * tf.reduce_mean(
                 returns * ratio)
             if self.monitor is not None:

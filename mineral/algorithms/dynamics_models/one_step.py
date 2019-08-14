@@ -19,23 +19,18 @@ class OneStep(DynamicsModel):
                 observations[:, 1:, ...],
                 observations[:, :(-1), ...],
                 actions,
-                training=True
-            )
+                training=True)
             loss_model = -1.0 * tf.reduce_mean(
-                log_probs_model * terminals[:, :(-1)]
-            )
+                log_probs_model * terminals[:, :(-1)])
             if self.monitor is not None:
                 self.monitor.record(
                     "log_probs_model_mean",
-                    tf.reduce_mean(log_probs_model)
-                )
+                    tf.reduce_mean(log_probs_model))
                 self.monitor.record(
                     "loss_model",
-                    loss_model
-                )
+                    loss_model)
             return loss_model
         self.model.minimize(
             loss_function,
             observations[:, :(-1), ...],
-            actions
-        )
+            actions)

@@ -28,16 +28,16 @@ class GAE(ValueLearning):
         rewards,
         terminals
     ):
-        values = self.vf.get_expected_value(observations)[:, :, 0]
+        values = self.vf.get_expected_value(
+            observations,
+            training=True)[:, :, 0]
         advantages = discounted_sum(
-            (terminals[:, :(-1)] * (rewards - values[:, :(-1)]) +
-             terminals[:, 1:] * values[:, 1:] * self.gamma),
-            self.gamma
-        )
+            terminals[:, :(-1)] * (rewards - values[:, :(-1)]) +
+            terminals[:, 1:] * values[:, 1:] * self.gamma,
+            self.gamma)
         if self.monitor is not None:
             self.monitor.record(
                 "advantages_mean",
-                tf.reduce_mean(advantages)
-            )
+                tf.reduce_mean(advantages))
         return advantages
 

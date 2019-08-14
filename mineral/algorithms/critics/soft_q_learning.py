@@ -28,10 +28,12 @@ class SoftQLearning(QLearning):
         terminals
     ):
         next_actions = self.policy.get_expected_value(
-            observations[:, 1:, ...])
+            observations[:, 1:, ...],
+            training=True)
         next_log_probs = self.policy.get_log_probs(
             next_actions,
-            observations[:, 1:, ...])
+            observations[:, 1:, ...],
+            training=True)
         epsilon = tf.clip_by_value(
             self.std * tf.random.normal(
                 tf.shape(next_actions),
@@ -39,7 +41,8 @@ class SoftQLearning(QLearning):
         noisy_next_actions = next_actions + epsilon
         next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
-            noisy_next_actions)
+            noisy_next_actions,
+            training=True)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * (
                 next_target_qvalues[:, :, 0] - self.alpha * next_log_probs))
@@ -58,7 +61,8 @@ class SoftQLearning(QLearning):
     ):
         log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
             actions,
-            observations[:, :(-1), ...])
+            observations[:, :(-1), ...],
+            training=True)
         discount_target_values = discounted_sum((
             rewards - self.alpha * log_probs), self.gamma)
         if self.monitor is not None:

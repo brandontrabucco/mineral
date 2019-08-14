@@ -23,7 +23,7 @@ class PathSampler(Sampler):
         **render_kwargs
     ):
         all_returns = []
-        for i in range(min(num_samples_to_collect, self.buffer.max_size)):
+        for i in range(num_samples_to_collect):
             observation = self.env.reset()
             path_return = 0.0
             for j in range(self.buffer.max_path_length):

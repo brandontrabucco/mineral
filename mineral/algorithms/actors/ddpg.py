@@ -18,8 +18,7 @@ class DDPG(ActorCritic):
             self,
             policy,
             critic,
-            **kwargs
-        )
+            **kwargs)
         self.target_policy = target_policy
 
     def update_actor(
@@ -32,39 +31,31 @@ class DDPG(ActorCritic):
         def loss_function():
             policy_actions = self.policy.sample(
                 observations[:, :(-1), ...],
-                training=True
-            )
+                training=True)
             returns = self.critic.get_advantages(
                 observations,
                 policy_actions,
                 rewards,
-                terminals
-            )
+                terminals)
             loss_policy = -1.0 * (
-                tf.reduce_mean(returns)
-            )
+                tf.reduce_mean(returns))
             if self.monitor is not None:
                 self.monitor.record(
                     "loss_policy",
-                    loss_policy
-                )
+                    loss_policy)
                 self.monitor.record(
                     "returns_max",
-                    tf.reduce_max(returns)
-                )
+                    tf.reduce_max(returns))
                 self.monitor.record(
                     "returns_min",
-                    tf.reduce_min(returns)
-                )
+                    tf.reduce_min(returns))
                 self.monitor.record(
                     "returns_mean",
-                    tf.reduce_mean(returns)
-                )
+                    tf.reduce_mean(returns))
             return loss_policy
         self.policy.minimize(
             loss_function,
-            observations[:, :(-1), ...]
-        )
+            observations[:, :(-1), ...])
 
     def update_algorithm(
         self, 
@@ -77,8 +68,6 @@ class DDPG(ActorCritic):
             observations,
             actions,
             rewards,
-            terminals
-        )
+            terminals)
         self.target_policy.soft_update(
-            self.policy.get_weights()
-        )
+            self.policy.get_weights())

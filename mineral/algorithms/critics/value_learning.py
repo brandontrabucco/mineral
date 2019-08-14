@@ -32,16 +32,14 @@ class ValueLearning(Critic):
         terminals
     ):
         next_target_values = self.target_vf.get_expected_value(
-            observations[:, 1:, ...]
-        )
+            observations[:, 1:, ...],
+            training=True)
         target_values = rewards + (
-            terminals[:, 1:] * self.gamma * next_target_values[:, :, 0]
-        )
+            terminals[:, 1:] * self.gamma * next_target_values[:, :, 0])
         if self.monitor is not None:
             self.monitor.record(
                 "bellman_target_values_mean",
-                tf.reduce_mean(target_values)
-            )
+                tf.reduce_mean(target_values))
         return target_values
 
     def discount_target_values(
@@ -55,8 +53,7 @@ class ValueLearning(Critic):
         if self.monitor is not None:
             self.monitor.record(
                 "discount_target_values_mean",
-                tf.reduce_mean(discount_target_values)
-            )
+                tf.reduce_mean(discount_target_values))
         return discount_target_values
 
     def update_critic(
@@ -71,48 +68,37 @@ class ValueLearning(Critic):
         def loss_function():
             values = terminals[:, :(-1)] * self.vf.get_expected_value(
                 observations[:, :(-1), ...],
-                training=True
-            )[:, :, 0]
+                training=True)[:, :, 0]
             bellman_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     bellman_target_values,
-                    values
-                )
-            )
+                    values))
             discount_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     discount_target_values,
-                    values
-                )
-            )
+                    values))
             if self.monitor is not None:
                 self.monitor.record(
                     "values_mean",
-                    tf.reduce_mean(values)
-                )
+                    tf.reduce_mean(values))
                 self.monitor.record(
                     "bellman_loss_vf",
-                    bellman_loss_vf
-                )
+                    bellman_loss_vf)
                 self.monitor.record(
                     "discount_loss_vf",
-                    discount_loss_vf
-                )
+                    discount_loss_vf)
             return (
                 self.bellman_weight * bellman_loss_vf +
-                self.discount_weight * discount_loss_vf
-            )
+                self.discount_weight * discount_loss_vf)
         self.vf.minimize(
             loss_function,
-            observations[:, :(-1), ...]
-        )
+            observations[:, :(-1), ...])
 
     def soft_update(
         self
     ):
         self.target_vf.soft_update(
-            self.vf.get_weights()
-        )
+            self.vf.get_weights())
 
     def get_advantages(
         self,

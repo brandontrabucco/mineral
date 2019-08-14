@@ -38,7 +38,8 @@ class QLearning(Critic):
         terminals
     ):
         next_actions = self.policy.get_expected_value(
-            observations[:, 1:, ...])
+            observations[:, 1:, ...],
+            training=True)
         epsilon = tf.clip_by_value(
             self.std * tf.random.normal(
                 tf.shape(next_actions),
@@ -46,7 +47,8 @@ class QLearning(Critic):
         noisy_next_actions = next_actions + epsilon
         next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
-            noisy_next_actions)
+            noisy_next_actions,
+            training=True)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * next_target_qvalues[:, :, 0])
         if self.monitor is not None:
@@ -124,10 +126,12 @@ class QLearning(Critic):
     ):
         qvalues = self.qf.get_expected_value(
             observations[:, :(-1), ...],
-            actions)
+            actions,
+            training=True)
         values = self.qf.get_expected_value(
             observations[:, :(-1), ...],
             self.policy.get_expected_value(
-                observations[:, :(-1), ...]))
+                observations[:, :(-1), ...],
+                training=True), training=True)
         return terminals[:, :(-1)] * (
             qvalues[:, :, 0] - values[:, :, 0])
