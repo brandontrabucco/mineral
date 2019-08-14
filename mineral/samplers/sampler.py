@@ -26,6 +26,16 @@ class Sampler(ABC):
         self.monitor = monitor
         self.num_steps_collected = 0
 
+    def reset(
+        self,
+    ):
+        return [b.reset() for b in self.buffers]
+
+    def finish_path(
+        self,
+    ):
+        return [b.finish_path() for b in self.buffers]
+
     def increment(self):
         self.num_steps_collected += 1
         if self.monitor is not None:
@@ -66,11 +76,6 @@ class Sampler(ABC):
             save_paths=False,
             render=render,
             **render_kwargs)
-
-    def reset(
-        self,
-    ):
-        return [b.reset() for b in self.buffers]
 
     @abstractmethod
     def collect(

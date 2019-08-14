@@ -13,7 +13,7 @@ from mineral.core.envs.debug.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
-from mineral.samplers.hierarchical_sampler import HierarchicalSampler
+from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 
 if __name__ == "__main__":
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         tf.config.experimental.set_memory_growth(gpu, True)
 
     max_path_length = 10
-    max_size = 100000
+    max_size = 1000000
     num_warm_up_samples = 100
     num_exploration_samples = 1
     num_evaluation_samples = 100
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
-    sampler = HierarchicalSampler(
+    sampler = HierarchySampler(
         env,
         policy,
         buffer,
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         num_warm_up_samples=num_warm_up_samples,
         num_exploration_samples=num_exploration_samples,
         num_evaluation_samples=num_evaluation_samples,
-        selector=(lambda x: x["proprio_observation"]),
+        selector=(lambda i, x: x["proprio_observation"]),
         monitor=monitor)
 
     tuner = EntropyTuner(

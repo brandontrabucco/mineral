@@ -5,7 +5,7 @@ import numpy as np
 from mineral.samplers.sampler import Sampler
 
 
-class HierarchicalSampler(Sampler):
+class HierarchySampler(Sampler):
 
     def __init__(
         self,
@@ -46,8 +46,10 @@ class HierarchicalSampler(Sampler):
                     hierarchy_samples[level][1]["induced_observations"] = []
                 if level < self.num_levels - 1:
                     hierarchy_samples[level][1]["goal"] = hierarchy_samples[level + 1][2]
-                    hierarchy_samples[level + 1][1]["induced_actions"].append(current_action)
-                    hierarchy_samples[level + 1][1]["induced_observations"].append(observation)
+                    hierarchy_samples[level + 1][1]["induced_actions"].append(
+                        current_action)
+                    hierarchy_samples[level + 1][1]["induced_observations"].append(
+                        observation)
 
     def collect(
         self,
@@ -59,13 +61,15 @@ class HierarchicalSampler(Sampler):
     ):
         all_returns = []
         for i in range(num_samples_to_collect):
-            hierarchy_samples = [[0, {}, None, 0.0] for _level in range(self.num_levels)]
+            hierarchy_samples = [[
+                -1, {}, None, 0.0] for _level in range(self.num_levels)]
             observation = self.env.reset()
             path_return = 0.0
             for time_step in range(self.buffers[0].max_path_length):
                 self.push_through_hierarchy(
                     hierarchy_samples, time_step, observation, random=random)
-                next_observation, reward, done, info = self.env.step(hierarchy_samples[0][2])
+                next_observation, reward, done, info = self.env.step(
+                    hierarchy_samples[0][2])
                 path_return = path_return + reward
                 observation = next_observation
                 for level in range(self.num_levels):
@@ -81,5 +85,7 @@ class HierarchicalSampler(Sampler):
                     self.increment()
                 if done:
                     break
+            self.finish_path()
             all_returns.append(path_return)
-        return np.mean(all_returns) if len(all_returns) > 0 else 0
+        return (np.mean(all_returns)
+                if len(all_returns) > 0 else 0)
