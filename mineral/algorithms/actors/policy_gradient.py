@@ -30,7 +30,8 @@ class PolicyGradient(Actor):
         def loss_function():
             log_probs = self.policy.get_log_probs(
                 actions,
-                observations[:, :(-1), ...])
+                observations[:, :(-1), ...],
+                training=True)
             loss_policy = -1.0 * tf.reduce_mean(
                 returns * log_probs)
             if self.monitor is not None:

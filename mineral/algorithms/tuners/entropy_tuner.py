@@ -2,27 +2,18 @@
 
 
 import tensorflow as tf
-from mineral.algorithms.base import Base
+from mineral.algorithms.tuners.tuner import Tuner
 
 
-class EntropyTuning(Base):
+class EntropyTuner(Tuner):
 
     def __init__(
         self,
         policy,
-        target=-1.0,
-        optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs={},
         **kwargs
     ):
-        Base.__init__(self, **kwargs)
+        Tuner.__init__(self, **kwargs)
         self.policy = policy
-        self.target = target
-        self.optimizer = optimizer_class(**optimizer_kwargs)
-        self.alpha = tf.Variable(1.0)
-
-    def get_tuning_variable(self):
-        return self.alpha
 
     def update_algorithm(
         self,
@@ -37,12 +28,12 @@ class EntropyTuning(Base):
             policy_entropy = -self.policy.get_log_probs(
                 policy_actions,
                 observations[:, :(-1), ...])
-            loss_entropy = self.alpha * (
+            loss_entropy = self.tuning_variable * (
                 policy_entropy - self.target)
             if self.monitor is not None:
                 self.monitor.record(
-                    "alpha",
-                    self.alpha)
+                    "entropy_tuning_variable",
+                    self.tuning_variable)
                 self.monitor.record(
                     "entropy",
                     tf.reduce_mean(-policy_entropy))
@@ -51,4 +42,4 @@ class EntropyTuning(Base):
                     tf.reduce_mean(loss_entropy))
             return tf.reduce_mean(loss_entropy)
         self.optimizer.minimize(
-            loss_function, self.alpha)
+            loss_function, self.tuning_variable)

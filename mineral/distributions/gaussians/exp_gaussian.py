@@ -3,10 +3,10 @@
 
 import tensorflow as tf
 from abc import ABC
-from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
+from mineral.distributions.gaussians.gaussian import Gaussian
 
 
-class ExpGaussianDistribution(GaussianDistribution, ABC):
+class ExpGaussian(Gaussian, ABC):
 
     def get_log_probs(
         self,
@@ -16,7 +16,7 @@ class ExpGaussianDistribution(GaussianDistribution, ABC):
     ):
         x = tf.maximum(x, 0.001)
         correction = -1.0 * tf.reduce_sum(x, axis=-1)
-        return correction + GaussianDistribution.get_log_probs(
+        return correction + Gaussian.get_log_probs(
             self, tf.math.log(x), *inputs, **kwargs)
 
     def sample(
@@ -24,7 +24,7 @@ class ExpGaussianDistribution(GaussianDistribution, ABC):
         *inputs,
         **kwargs
     ):
-        return tf.math.exp(GaussianDistribution.sample(self, *inputs, **kwargs))
+        return tf.math.exp(Gaussian.sample(self, *inputs, **kwargs))
 
     def get_expected_value(
         self,

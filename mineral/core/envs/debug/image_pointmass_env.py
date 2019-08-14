@@ -2,9 +2,8 @@
 
 
 import numpy as np
-from mineral.core.envs.pointmass_env import PointmassEnv
+from mineral.core.envs.debug.pointmass_env import PointmassEnv
 from gym.spaces import Box
-import matplotlib.pyplot as plt
 
 
 class ImagePointmassEnv(PointmassEnv):

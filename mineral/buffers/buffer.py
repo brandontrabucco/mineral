@@ -7,40 +7,45 @@ from abc import ABC, abstractmethod
 class Buffer(ABC):
     
     def __init__(
-        self, 
-        env,
-        policy,
-        max_size=1000,
-        max_path_length=256,
+        self,
+        max_size=1024,
+        max_path_length=10,
         selector=None,
         monitor=None
     ):
-        self.env = env
-        self.policy = policy
-        self.selector = (lambda x: x) if selector is None else selector
-        self.monitor = monitor
         self.max_size = max_size
         self.max_path_length = max_path_length
-        self.num_steps_collected = 0
-
-    def increment(self):
-        self.num_steps_collected += 1
-        if self.monitor is not None:
-            self.monitor.set_step(self.num_steps_collected)
+        self.selector = (lambda x: x) if selector is None else selector
+        self.monitor = monitor
 
     @abstractmethod
-    def reset(
+    def inflate(
+        self,
+        observation,
+        action,
+        reward
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def insert_sample(
+        self,
+        j,
+        observation,
+        action,
+        reward
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def finish_path(
         self,
     ):
         return NotImplemented
 
     @abstractmethod
-    def collect(
+    def reset(
         self,
-        num_paths_to_collect=1,
-        save_paths=True,
-        render=False,
-        **render_kwargs
     ):
         return NotImplemented
 

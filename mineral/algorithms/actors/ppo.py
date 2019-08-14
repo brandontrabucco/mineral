@@ -34,7 +34,8 @@ class PPO(ImportanceSampling):
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     actions,
-                    observations[:, :(-1), ...]) - self.old_policy.get_log_probs(
+                    observations[:, :(-1), ...],
+                    training=True) - self.old_policy.get_log_probs(
                         actions,
                         observations[:, :(-1), ...]))
             loss_policy = -1.0 * tf.reduce_mean(

@@ -3,10 +3,10 @@
 
 import tensorflow as tf
 from abc import ABC
-from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
+from mineral.distributions.gaussians.gaussian import Gaussian
 
 
-class TanhGaussianDistribution(GaussianDistribution, ABC):
+class TanhGaussian(Gaussian, ABC):
 
     def get_log_probs(
         self,
@@ -16,7 +16,7 @@ class TanhGaussianDistribution(GaussianDistribution, ABC):
     ):
         x = tf.clip_by_value(x, -0.999, 0.999)
         correction = -1.0 * tf.reduce_sum(tf.math.log(1.0 - tf.math.square(x)), axis=-1)
-        return correction + GaussianDistribution.get_log_probs(
+        return correction + Gaussian.get_log_probs(
             self, tf.math.atanh(x), *inputs, **kwargs)
 
     def sample(
@@ -24,12 +24,12 @@ class TanhGaussianDistribution(GaussianDistribution, ABC):
         *inputs,
         **kwargs
     ):
-        return tf.math.tanh(GaussianDistribution.sample(self, *inputs, **kwargs))
+        return tf.math.tanh(Gaussian.sample(self, *inputs, **kwargs))
 
     def get_expected_value(
         self,
         *inputs,
         **kwargs
     ):
-        return tf.math.tanh(GaussianDistribution.get_expected_value(
+        return tf.math.tanh(Gaussian.get_expected_value(
             self, *inputs, **kwargs))

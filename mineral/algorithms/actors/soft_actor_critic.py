@@ -28,10 +28,12 @@ class SoftActorCritic(DDPG):
     ):
         def loss_function():
             policy_actions = self.policy.sample(
-                observations[:, :(-1), ...])
+                observations[:, :(-1), ...],
+                training=True)
             policy_log_probs = self.policy.get_log_probs(
                 policy_actions,
-                observations[:, :(-1), ...])
+                observations[:, :(-1), ...],
+                training=True)
             returns = self.critic.get_advantages(
                 observations,
                 policy_actions,

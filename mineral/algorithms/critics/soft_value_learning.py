@@ -58,7 +58,7 @@ class SoftValueLearning(ValueLearning):
             actions,
             observations[:, :(-1), ...])
         discount_target_values = discounted_sum((
-                rewards - self.alpha * log_probs), self.gamma)
+            rewards - self.alpha * log_probs), self.gamma)
         if self.monitor is not None:
             self.monitor.record(
                 "discount_target_values_mean",

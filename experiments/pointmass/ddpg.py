@@ -6,9 +6,9 @@ from mineral.algorithms.actors.ddpg import DDPG
 from mineral.algorithms.critics.q_learning import QLearning
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
 from mineral.networks.dense import Dense
-from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.pointmass_env import PointmassEnv
+from mineral.core.envs.debug.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         [32, 32, 4],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=TanhGaussianDistribution,
+        distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
 
     target_policy = Dense(
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         tau=1e-2,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=TanhGaussianDistribution,
+        distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
 
     qf = Dense(

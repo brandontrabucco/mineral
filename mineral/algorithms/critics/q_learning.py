@@ -81,7 +81,8 @@ class QLearning(Critic):
         def loss_function():
             qvalues = terminals[:, :(-1)] * self.qf.get_expected_value(
                 observations[:, :(-1), ...],
-                actions)[:, :, 0]
+                actions,
+                training=True)[:, :, 0]
             bellman_loss_qf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     bellman_target_values,

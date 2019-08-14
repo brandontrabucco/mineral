@@ -2,9 +2,9 @@
 
 
 from mineral.networks.dense import Dense
-from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.pointmass_env import PointmassEnv
+from mineral.core.envs.debug.pointmass_env import PointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.algorithms.actors.policy_gradient import PolicyGradient
 from mineral.core.trainers.local_trainer import LocalTrainer
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     policy = Dense(
         [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=TanhGaussianDistribution,
+        distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
 
     max_size = 32

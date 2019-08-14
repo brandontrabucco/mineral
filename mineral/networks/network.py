@@ -5,7 +5,7 @@ import tensorflow as tf
 from abc import ABC, abstractmethod
 from mineral.core.has_gradient import HasGradient
 from mineral.distributions.distribution import Distribution
-from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
+from mineral.distributions.gaussians.gaussian import Gaussian
 
 
 class Network(tf.keras.Model, Distribution, HasGradient, ABC):
@@ -15,7 +15,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, ABC):
         tau=1e-3,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={},
-        distribution_class=GaussianDistribution,
+        distribution_class=Gaussian,
         distribution_kwargs={}
     ):
         tf.keras.Model.__init__(self)

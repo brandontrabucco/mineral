@@ -3,7 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
+from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 from mineral.networks.dense.dense_policy import DensePolicy
 
 
@@ -12,7 +12,7 @@ if __name__ == "__main__":
     policy = DensePolicy(
         [4],
         optimizer_kwargs=dict(lr=0.01),
-        distribution_class=TanhGaussianDistribution,
+        distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None)
     )
 

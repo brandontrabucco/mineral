@@ -28,70 +28,38 @@ class PathBuffer(Buffer):
         self.head = 0
         self.tail = np.zeros([self.max_size], dtype=np.int32)
 
-    def create(
+    def inflate(
         self,
         observation,
         action,
         reward
     ):
-        def create_backend(x):
-            return np.zeros([self.max_size, self.max_path_length, *x.shape], dtype=np.float32)
+        def inflate_backend(x):
+            return np.zeros([self.max_size, self.max_path_length,
+                             *x.shape], dtype=np.float32)
+        self.observations = jp.nested_apply(inflate_backend, observation)
+        self.actions = jp.nested_apply(inflate_backend, action)
+        self.rewards = jp.nested_apply(inflate_backend, reward)
 
-        self.observations = jp.nested_apply(create_backend, observation)
-        self.actions = jp.nested_apply(create_backend, action)
-        self.rewards = jp.nested_apply(create_backend, reward)
-
-    def put(
+    def insert_sample(
         self,
         j,
         observation,
         action,
         reward
     ):
-        def put_backend(x, y):
+        def insert_sample_backend(x, y):
             x[self.head, j, ...] = y
+        if self.size == 0:
+            self.inflate(observation, action, reward)
+        jp.nested_apply(insert_sample_backend, self.observations, observation)
+        jp.nested_apply(insert_sample_backend, self.actions, action)
+        jp.nested_apply(insert_sample_backend, self.rewards, reward)
+        self.tail[self.head] = j + 1
 
-        jp.nested_apply(put_backend, self.observations, observation)
-        jp.nested_apply(put_backend, self.actions, action)
-        jp.nested_apply(put_backend, self.rewards, reward)
-
-    def collect(
-        self,
-        num_paths_to_collect=1,
-        random=False,
-        save_paths=True,
-        render=False,
-        **render_kwargs
-    ):
-        all_returns = []
-        for i in range(num_paths_to_collect):
-            observation = self.env.reset()
-            path_return = 0.0
-            for j in range(self.max_path_length):
-                if random:
-                    action = self.policy.sample(
-                        self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
-                else:
-                    action = self.policy.get_expected_value(
-                        self.selector(observation)[np.newaxis, ...])[0, ...].numpy()
-                next_observation, reward, done, info = self.env.step(action)
-                if render:
-                    self.env.render(**render_kwargs)
-                if save_paths:
-                    if self.size == 0:
-                        self.create(observation, action, reward)
-                    self.put(j, observation, action, reward)
-                    self.tail[self.head] = j + 1
-                    self.increment()
-                path_return = path_return + reward
-                if done:
-                    break
-                observation = next_observation
-            if save_paths:
-                self.head = (self.head + 1) % self.max_size
-                self.size = min(self.size + 1, self.max_size)
-            all_returns.append(path_return)
-        return np.mean(all_returns) if len(all_returns) > 0 else 0
+    def finish_path(self):
+        self.head = (self.head + 1) % self.max_size
+        self.size = min(self.size + 1, self.max_size)
 
     def sample(
         self,
@@ -109,7 +77,7 @@ class PathBuffer(Buffer):
         max_lengths = np.arange(self.max_path_length)[np.newaxis, :]
         terminals = ((lengths[:, np.newaxis] - 1) > max_lengths).astype(np.float32)
         rewards = terminals[:, :(-1)] * rewards
-        return (observations,
+        return (self.selector(observations),
                 actions,
                 rewards,
                 terminals)

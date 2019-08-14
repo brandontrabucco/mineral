@@ -7,7 +7,7 @@ from abc import ABC
 from mineral.distributions.distribution import Distribution
 
 
-class GaussianDistribution(Distribution, ABC):
+class Gaussian(Distribution, ABC):
 
     def __init__(
         self,

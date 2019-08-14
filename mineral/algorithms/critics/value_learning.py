@@ -70,7 +70,8 @@ class ValueLearning(Critic):
     ):
         def loss_function():
             values = terminals[:, :(-1)] * self.vf.get_expected_value(
-                observations[:, :(-1), ...]
+                observations[:, :(-1), ...],
+                training=True
             )[:, :, 0]
             bellman_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
@@ -121,11 +122,7 @@ class ValueLearning(Critic):
         terminals
     ):
         values = terminals[:, :(-1)] * self.vf.get_expected_value(
-            observations[:, :(-1), ...]
-        )
+            observations[:, :(-1), ...])
         next_values = terminals[:, 1:] * self.vf.get_expected_value(
-            observations[:, 1:, ...]
-        )
-        return (
-            rewards + next_values - values
-        )
+            observations[:, 1:, ...])
+        return rewards + next_values - values

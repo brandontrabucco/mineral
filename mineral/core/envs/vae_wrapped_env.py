@@ -34,13 +34,14 @@ class VAEWrappedEnv(ProxyEnv):
         **kwargs
     ):
         observation = self.selector(ProxyEnv.reset(self, **kwargs))
-        return self.vae.encoder.get_expected_value(observation[None, ...])[0]
+        encoding = self.vae.encoder.get_expected_value(observation[None, ...])[0]
+        return self.assigner(observation, encoding)
 
     def step(
-        self, 
+        self,
         action
     ):
         observation, reward, done, info = ProxyEnv.step(
             self, action)
-        observation = self.vae.encoder.get_expected_value(observation[None, ...])[0]
-        return observation, reward, done, info
+        encoding = self.vae.encoder.get_expected_value(observation[None, ...])[0]
+        return self.assigner(observation, encoding), reward, done, info

@@ -3,7 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from mineral.distributions.gaussians.exp_gaussian_distribution import ExpGaussianDistribution
+from mineral.distributions.gaussians.exp_gaussian import ExpGaussian
 from mineral.networks.dense.dense_policy import DensePolicy
 
 
@@ -12,7 +12,7 @@ if __name__ == "__main__":
     policy = DensePolicy(
         [4],
         optimizer_kwargs=dict(lr=0.01),
-        distribution_class=ExpGaussianDistribution,
+        distribution_class=ExpGaussian,
         distribution_kwargs=dict(std=None)
     )
 

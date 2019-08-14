@@ -4,15 +4,15 @@
 from mineral.algorithms.vaes.observation_vae import ObservationVAE
 from mineral.networks.conv import Conv
 from mineral.networks.dense import Dense
-from mineral.distributions.gaussians.tanh_gaussian_distribution import TanhGaussianDistribution
-from mineral.distributions.gaussians.gaussian_distribution import GaussianDistribution
+from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
+from mineral.distributions.gaussians.gaussian import Gaussian
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.image_pointmass_env import ImagePointmassEnv
+from mineral.core.envs.debug.image_pointmass_env import ImagePointmassEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 from mineral.networks.conv_transpose import ConvTranspose
-from mineral.networks.latent_variable import LatentVariable
+from mineral.networks.variational import Variational
 
 
 if __name__ == "__main__":
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     policy = Dense(
         [32, 32, 4],
         optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=TanhGaussianDistribution,
+        distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
 
     max_size = 5096
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         [2, 2, 2],
         [2 * latent_size, 2 * latent_size],
         optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=GaussianDistribution,
+        distribution_class=Gaussian,
         distribution_kwargs=dict(std=None))
 
     decoder = ConvTranspose(
@@ -59,10 +59,10 @@ if __name__ == "__main__":
         [2 * latent_size, 6 * 6 * 32],
         [6, 6, 32],
         optimizer_kwargs=dict(lr=0.0001),
-        distribution_class=GaussianDistribution,
+        distribution_class=Gaussian,
         distribution_kwargs=dict(std=1.0))
 
-    vae_network = LatentVariable(
+    vae_network = Variational(
         encoder,
         decoder,
         latent_size,

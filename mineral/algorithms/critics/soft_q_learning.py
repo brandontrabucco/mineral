@@ -42,7 +42,7 @@ class SoftQLearning(QLearning):
             noisy_next_actions)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * (
-                next_target_qvalues[:, :, 0] - next_log_probs))
+                next_target_qvalues[:, :, 0] - self.alpha * next_log_probs))
         if self.monitor is not None:
             self.monitor.record(
                 "bellman_target_values_mean",
@@ -59,7 +59,8 @@ class SoftQLearning(QLearning):
         log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
             actions,
             observations[:, :(-1), ...])
-        discount_target_values = discounted_sum((rewards - log_probs), self.gamma)
+        discount_target_values = discounted_sum((
+            rewards - self.alpha * log_probs), self.gamma)
         if self.monitor is not None:
             self.monitor.record(
                 "discount_target_values_mean",
