@@ -80,7 +80,10 @@ class HierarchicalSampler(Sampler):
                     break
                 observation = next_observation
             for level in range(self.num_levels):
-                if save_paths and intermediate_samples[level][2] is not None:
+                if (save_paths and
+                    intermediate_samples[level][2] is not None and (
+                        len(intermediate_samples[level][1]["induced_actions"]) == self.time_skips[level] or
+                        level == 0)):
                     self.buffer[level].insert_sample(*intermediate_samples[level])
                     self.buffer[level].finish_path()
             all_returns.append(path_return)
