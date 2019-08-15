@@ -175,7 +175,7 @@ def run_experiment(variant):
         lower_policy,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001),
-        target=0.0,
+        target=(-2.0),
         update_every=update_tuner_every,
         batch_size=batch_size,
         selector=both_selector,

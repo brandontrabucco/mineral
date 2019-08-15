@@ -32,25 +32,33 @@ class DDPG(ActorCritic):
             policy_actions = self.policy.sample(
                 observations[:, :(-1), ...],
                 training=True)
-            returns = self.critic.get_advantages(
+            advantages = self.critic.get_advantages(
                 observations,
                 policy_actions,
                 rewards,
                 terminals)
-            policy_loss = -1.0 * (
-                tf.reduce_mean(returns))
+            policy_loss = (-1.0) * tf.reduce_mean(advantages)
             self.record(
                 "policy_loss",
                 policy_loss)
             self.record(
-                "returns_max",
-                tf.reduce_max(returns))
+                "advantages_max",
+                tf.reduce_max(advantages))
             self.record(
-                "returns_min",
-                tf.reduce_min(returns))
+                "advantages_min",
+                tf.reduce_min(advantages))
             self.record(
-                "returns_mean",
-                tf.reduce_mean(returns))
+                "advantages_mean",
+                tf.reduce_mean(advantages))
+            self.record(
+                "rewards_max",
+                tf.reduce_max(rewards))
+            self.record(
+                "rewards_min",
+                tf.reduce_min(rewards))
+            self.record(
+                "rewards_mean",
+                tf.reduce_mean(rewards))
             return policy_loss
         self.policy.minimize(
             loss_function,
