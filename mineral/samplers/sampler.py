@@ -10,18 +10,20 @@ class Sampler(ABC):
         self,
         env,
         *inputs,
-        num_warm_up_samples=1024,
-        num_exploration_samples=32,
-        num_evaluation_samples=32,
+        max_path_length=256,
+        num_warm_up_paths=1024,
+        num_exploration_paths=32,
+        num_evaluation_paths=32,
         selector=None,
         monitor=None
     ):
         self.env = env
         self.policies = inputs[0::2]
         self.buffers = inputs[1::2]
-        self.num_warm_up_samples = num_warm_up_samples
-        self.num_exploration_samples = num_exploration_samples
-        self.num_evaluation_samples = num_evaluation_samples
+        self.max_path_length = max_path_length
+        self.num_warm_up_paths = num_warm_up_paths
+        self.num_exploration_paths = num_exploration_paths
+        self.num_evaluation_paths = num_evaluation_paths
         self.selector = (lambda i, x: x) if selector is None else selector
         self.monitor = monitor
         self.num_steps_collected = 0
@@ -47,7 +49,7 @@ class Sampler(ABC):
         **render_kwargs
     ):
         return self.collect(
-            self.num_warm_up_samples,
+            self.num_warm_up_paths,
             random=True,
             save_paths=True,
             render=render,
@@ -59,7 +61,7 @@ class Sampler(ABC):
         **render_kwargs
     ):
         return self.collect(
-            self.num_exploration_samples,
+            self.num_exploration_paths,
             random=True,
             save_paths=True,
             render=render,
@@ -71,7 +73,7 @@ class Sampler(ABC):
         **render_kwargs
     ):
         return self.collect(
-            self.num_evaluation_samples,
+            self.num_evaluation_paths,
             random=False,
             save_paths=False,
             render=render,

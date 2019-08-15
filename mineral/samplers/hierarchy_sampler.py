@@ -64,7 +64,7 @@ class HierarchySampler(Sampler):
                 -1, {}, None, 0.0] for _level in range(self.num_levels)]
             observation = self.env.reset()
             path_return = 0.0
-            for time_step in range(self.buffers[0].max_path_length):
+            for time_step in range(self.max_path_length):
                 self.push_through_hierarchy(
                     hierarchy_samples, time_step, observation, random=random)
                 next_observation, reward, done, info = self.env.step(

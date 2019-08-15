@@ -27,9 +27,9 @@ def run_experiment(variant):
     experiment_id = variant["experiment_id"]
     max_path_length = variant["max_path_length"]
     max_size = variant["max_size"]
-    num_warm_up_samples = variant["num_warm_up_samples"]
-    num_exploration_samples = variant["num_exploration_samples"]
-    num_evaluation_samples = variant["num_evaluation_samples"]
+    num_warm_up_paths = variant["num_warm_up_paths"]
+    num_exploration_paths = variant["num_exploration_paths"]
+    num_evaluation_paths = variant["num_evaluation_paths"]
     num_trains_per_step = variant["num_trains_per_step"]
     update_tuner_every = variant["update_tuner_every"]
     update_actor_every = variant["update_actor_every"]
@@ -79,9 +79,10 @@ def run_experiment(variant):
         policy,
         buffer,
         time_skips=(1,),
-        num_warm_up_samples=num_warm_up_samples,
-        num_exploration_samples=num_exploration_samples,
-        num_evaluation_samples=num_evaluation_samples,
+        max_path_length=max_path_length,
+        num_warm_up_paths=num_warm_up_paths,
+        num_exploration_paths=num_exploration_paths,
+        num_evaluation_paths=num_evaluation_paths,
         selector=(lambda i, x: x["proprio_observation"]),
         monitor=monitor)
 
@@ -138,9 +139,9 @@ if __name__ == "__main__":
             experiment_id=experiment_id,
             max_path_length=10,
             max_size=1000000,
-            num_warm_up_samples=100,
-            num_exploration_samples=1,
-            num_evaluation_samples=100,
+            num_warm_up_paths=100,
+            num_exploration_paths=1,
+            num_evaluation_paths=100,
             num_trains_per_step=100,
             update_tuner_every=100,
             update_actor_every=100,
