@@ -20,9 +20,15 @@ from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
-from mineral.buffers.relabelers.baselines.hiro_relabeler import HIRORelabeler
 from mineral.samplers.hierarchy_sampler import HierarchySampler
+
+from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
+from mineral.buffers.relabelers.baselines.hac_relabeler import HACRelabeler
+from mineral.buffers.relabelers.baselines.hindsight_relabeler import HindsightRelabeler
+from mineral.buffers.relabelers.baselines.subgoal_testing_relabeler import SubgoalTestingRelabeler
+
+from mineral.buffers.relabelers.new.entropy_relabeler import EntropyRelabeler
+from mineral.buffers.relabelers.new.reachability_relabeler import ReachabilityRelabeler
 
 
 def run_experiment(variant):
@@ -46,7 +52,7 @@ def run_experiment(variant):
     batch_size = variant["batch_size"]
     num_steps = variant["num_steps"]
 
-    monitor = LocalMonitor("./pointmass/hierarchical/hiro/sac/{}".format(experiment_id))
+    monitor = LocalMonitor("./pointmass/hierarchical/idea/sac/{}".format(experiment_id))
 
     env = NormalizedEnv(
         PointmassEnv(size=2, ord=2),
@@ -140,22 +146,43 @@ def run_experiment(variant):
     # REPLAY BUFFERS #
     ##################
 
-    lower_buffer = GoalConditionedRelabeler(
-        PathBuffer(
-            max_size=max_size,
-            max_path_length=max_path_length,
-            monitor=monitor),
-        observation_selector=observation_selector,
-        goal_selector=goal_selector)
+    def relabel_goal(goal, observation):
+        observation["goal"] = goal
 
-    upper_buffer = HIRORelabeler(
-        lower_policy,
-        PathBuffer(
-            max_size=max_size,
-            max_path_length=max_path_length,
-            monitor=monitor),
+    lower_buffer = EntropyRelabeler(
+        upper_policy,
+        GoalConditionedRelabeler(
+            HindsightRelabeler(
+                PathBuffer(
+                    max_size=max_size,
+                    max_path_length=max_path_length,
+                    monitor=monitor),
+                time_skip=5,
+                observation_selector=observation_selector,
+                goal_selector=goal_selector,
+                goal_assigner=relabel_goal,
+                relabel_probability=0.5),
+            observation_selector=observation_selector,
+            goal_selector=goal_selector),
         observation_selector=observation_selector,
-        num_samples=8)
+        alpha=1.0)
+
+    upper_buffer = SubgoalTestingRelabeler(
+        ReachabilityRelabeler(
+            HACRelabeler(
+                PathBuffer(
+                    max_size=max_size,
+                    max_path_length=max_path_length,
+                    monitor=monitor),
+                observation_selector=observation_selector,
+                relabel_probability=0.5),
+            observation_selector=observation_selector,
+            reward_scale=1.0),
+        observation_selector=observation_selector,
+        goal_selector=goal_selector,
+        threshold=0.5,
+        penalty=(-5.0),
+        relabel_probability=0.5)
 
     ############
     # SAMPLERS #
