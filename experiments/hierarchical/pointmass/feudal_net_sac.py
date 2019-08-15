@@ -20,7 +20,7 @@ from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.buffers.reward_relabeling_buffer import RewardRelabelingBuffer
+from mineral.buffers.relabelers.reward_relabeler import RewardRelabeler
 from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 
@@ -42,7 +42,7 @@ def run_experiment(variant):
     batch_size = variant["batch_size"]
     num_steps = variant["num_steps"]
 
-    monitor = LocalMonitor("./pointmass/hierarchical/sac/{}".format(experiment_id))
+    monitor = LocalMonitor("./pointmass/hierarchical/feudal_net/sac/{}".format(experiment_id))
 
     env = NormalizedEnv(
         PointmassEnv(size=2, ord=2),
@@ -136,7 +136,7 @@ def run_experiment(variant):
     # REPLAY BUFFERS #
     ##################
 
-    lower_buffer = RewardRelabelingBuffer(
+    lower_buffer = RewardRelabeler(
         PathBuffer(
             max_size=max_size,
             max_path_length=max_path_length,
