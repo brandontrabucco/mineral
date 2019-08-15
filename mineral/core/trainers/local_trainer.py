@@ -24,19 +24,17 @@ class LocalTrainer(Trainer):
         self
     ):
         for iteration in range(self.num_steps):
-            for index in range(len(self.samplers)):
-                if iteration == 0:
-                    self.samplers[index].reset()
-                    self.samplers[index].warm_up()
+            if iteration == 0:
+                self.sampler.reset()
+                self.sampler.warm_up()
 
-                exploration_return = self.samplers[index].explore()
-                if self.monitor is not None:
-                    self.monitor.record("exploration_return[{}]".format(
-                        index), exploration_return)
-                    evaluation_return = self.samplers[index].evaluate()
-                    self.monitor.record("evaluation_return[{}]".format(
-                        index), evaluation_return)
+            exploration_return = self.sampler.explore()
+            if self.monitor is not None:
+                self.monitor.record("exploration_return", exploration_return)
+                evaluation_return = self.sampler.evaluate()
+                self.monitor.record("evaluation_return", evaluation_return)
 
+            for index in range(len(self.algorithms)):
                 for training_step in range(self.num_trains_per_step):
                     self.algorithms[index].gradient_update(
                         self.buffers[index])

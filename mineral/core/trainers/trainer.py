@@ -8,11 +8,12 @@ class Trainer(ABC):
 
     def __init__(
         self,
+        sampler,
         *args
     ):
-        self.samplers = args[0::3]
-        self.buffers = args[1::3]
-        self.algorithms = args[2::3]
+        self.sampler = sampler
+        self.buffers = args[0::2]
+        self.algorithms = args[1::2]
 
     @abstractmethod
     def train(

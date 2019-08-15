@@ -114,8 +114,7 @@ class QLearning(Critic):
     def soft_update(
         self
     ):
-        self.target_qf.soft_update(
-            self.qf.get_weights())
+        self.target_qf.soft_update(self.qf.get_weights())
 
     def get_advantages(
         self,

@@ -11,14 +11,13 @@ class GAE(ValueLearning):
     def __init__(
         self,
         *args,
-        lamb=1.0,
+        lamb=0.95,
         **kwargs
     ):
         ValueLearning.__init__(
             self,
             *args,
-            **kwargs
-        )
+            **kwargs)
         self.lamb = lamb
 
     def get_advantages(
@@ -37,7 +36,5 @@ class GAE(ValueLearning):
             self.gamma)
         if self.monitor is not None:
             self.monitor.record(
-                "advantages_mean",
-                tf.reduce_mean(advantages))
+                "advantages_mean", tf.reduce_mean(advantages))
         return advantages
-

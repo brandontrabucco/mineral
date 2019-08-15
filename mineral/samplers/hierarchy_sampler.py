@@ -26,11 +26,11 @@ class HierarchySampler(Sampler):
         random=False,
     ):
         for level in reversed(range(self.num_levels)):
+            observation_for_this_level = {**observation}
             if time_step % np.prod(self.time_skips[:level + 1]) == 0:
-                policy_inputs = self.selector(level, observation)[np.newaxis, ...]
                 if level < self.num_levels - 1:
-                    policy_inputs = np.concatenate([
-                        policy_inputs, hierarchy_samples[level + 1][2]], 0)
+                    observation_for_this_level["goal"] = hierarchy_samples[level + 1][2]
+                policy_inputs = self.selector(level, observation)[np.newaxis, ...]
                 if random:
                     current_action = self.policies[level].sample(
                         policy_inputs)[0, ...].numpy()
@@ -38,18 +38,17 @@ class HierarchySampler(Sampler):
                     current_action = self.policies[level].get_expected_value(
                         policy_inputs)[0, ...].numpy()
                 hierarchy_samples[level][0] += 1
-                hierarchy_samples[level][1] = {**observation}
+                hierarchy_samples[level][1] = observation_for_this_level
                 hierarchy_samples[level][2] = current_action
                 hierarchy_samples[level][3] = 0.0
                 if level > 0:
                     hierarchy_samples[level][1]["induced_actions"] = []
                     hierarchy_samples[level][1]["induced_observations"] = []
                 if level < self.num_levels - 1:
-                    hierarchy_samples[level][1]["goal"] = hierarchy_samples[level + 1][2]
                     hierarchy_samples[level + 1][1]["induced_actions"].append(
                         current_action)
                     hierarchy_samples[level + 1][1]["induced_observations"].append(
-                        {**observation, "goal": hierarchy_samples[level + 1][2]})
+                        observation_for_this_level)
 
     def collect(
         self,
@@ -87,5 +86,4 @@ class HierarchySampler(Sampler):
                     break
             self.finish_path()
             all_returns.append(path_return)
-        return (np.mean(all_returns)
-                if len(all_returns) > 0 else 0)
+        return np.mean(all_returns) if len(all_returns) > 0 else 0

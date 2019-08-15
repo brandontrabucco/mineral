@@ -147,4 +147,5 @@ if __name__ == "__main__":
             batch_size=100,
             num_steps=10000)
 
-        threading.Thread(target=run_experiment, args=(variant,)).start()
+        threading.Thread(target=run_experiment,
+                         args=(variant,)).start()

@@ -97,8 +97,7 @@ class ValueLearning(Critic):
     def soft_update(
         self
     ):
-        self.target_vf.soft_update(
-            self.vf.get_weights())
+        self.target_vf.soft_update(self.vf.get_weights())
 
     def get_advantages(
         self,
