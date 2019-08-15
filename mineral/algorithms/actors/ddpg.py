@@ -37,22 +37,21 @@ class DDPG(ActorCritic):
                 policy_actions,
                 rewards,
                 terminals)
-            loss_policy = -1.0 * (
+            policy_loss = -1.0 * (
                 tf.reduce_mean(returns))
-            if self.monitor is not None:
-                self.monitor.record(
-                    "loss_policy",
-                    loss_policy)
-                self.monitor.record(
-                    "returns_max",
-                    tf.reduce_max(returns))
-                self.monitor.record(
-                    "returns_min",
-                    tf.reduce_min(returns))
-                self.monitor.record(
-                    "returns_mean",
-                    tf.reduce_mean(returns))
-            return loss_policy
+            self.record(
+                "policy_loss",
+                policy_loss)
+            self.record(
+                "returns_max",
+                tf.reduce_max(returns))
+            self.record(
+                "returns_min",
+                tf.reduce_min(returns))
+            self.record(
+                "returns_mean",
+                tf.reduce_mean(returns))
+            return policy_loss
         self.policy.minimize(
             loss_function,
             observations[:, :(-1), ...])

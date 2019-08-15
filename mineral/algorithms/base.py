@@ -13,14 +13,24 @@ class Base(ABC):
         batch_size=32,
         selector=None,
         monitor=None,
+        logging_prefix=""
     ):
         self.update_every = update_every
         self.update_after = update_after
         self.batch_size = batch_size
         self.selector = (lambda x: x) if selector is None else selector
         self.monitor = monitor
+        self.logging_prefix = logging_prefix
         self.iteration = 0
         self.last_update_iteration = 0
+
+    def record(
+        self,
+        key,
+        value
+    ):
+        if self.monitor is not None:
+            return self.monitor.record(self.logging_prefix + key, value)
 
     @abstractmethod
     def update_algorithm(

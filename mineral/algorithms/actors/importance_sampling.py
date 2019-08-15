@@ -44,13 +44,12 @@ class ImportanceSampling(ActorCritic):
                         actions,
                         observations[:, :(-1), ...],
                         training=True))
-            loss_policy = -1.0 * tf.reduce_mean(
+            policy_loss = -1.0 * tf.reduce_mean(
                 returns * ratio)
-            if self.monitor is not None:
-                self.monitor.record(
-                    "loss_policy",
-                    loss_policy)
-            return loss_policy
+            self.record(
+                "policy_loss",
+                policy_loss)
+            return policy_loss
         self.policy.minimize(
             loss_function,
             observations[:, :(-1), ...])

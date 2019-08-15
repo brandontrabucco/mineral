@@ -32,22 +32,21 @@ class PolicyGradient(Actor):
                 actions,
                 observations[:, :(-1), ...],
                 training=True)
-            loss_policy = -1.0 * tf.reduce_mean(
+            policy_loss = -1.0 * tf.reduce_mean(
                 returns * log_probs)
-            if self.monitor is not None:
-                self.monitor.record(
-                    "log_probs_policy_mean",
-                    tf.reduce_mean(log_probs))
-                self.monitor.record(
-                    "log_probs_policy_max",
-                    tf.reduce_max(log_probs))
-                self.monitor.record(
-                    "log_probs_policy_min",
-                    tf.reduce_min(log_probs))
-                self.monitor.record(
-                    "loss_policy",
-                    loss_policy)
-            return loss_policy
+            self.record(
+                "log_probs_policy_mean",
+                tf.reduce_mean(log_probs))
+            self.record(
+                "log_probs_policy_max",
+                tf.reduce_max(log_probs))
+            self.record(
+                "log_probs_policy_min",
+                tf.reduce_min(log_probs))
+            self.record(
+                "policy_loss",
+                policy_loss)
+            return policy_loss
         self.policy.minimize(
             loss_function,
             observations[:, :(-1), ...])
@@ -61,22 +60,18 @@ class PolicyGradient(Actor):
     ):
         returns = discounted_sum(rewards, self.gamma)
         advantages = returns - tf.reduce_mean(returns)
-        if self.monitor is not None:
-            self.monitor.record(
-                "rewards_mean",
-                tf.reduce_mean(rewards))
-            self.monitor.record(
-                "returns_max",
-                tf.reduce_max(returns))
-            self.monitor.record(
-                "returns_min",
-                tf.reduce_min(returns))
-            self.monitor.record(
-                "returns_mean",
-                tf.reduce_mean(returns))
-            self.monitor.record(
-                "cumulative_returns_mean,timestep,discounted_return",
-                returns)
+        self.record(
+            "rewards_mean",
+            tf.reduce_mean(rewards))
+        self.record(
+            "returns_max",
+            tf.reduce_max(returns))
+        self.record(
+            "returns_min",
+            tf.reduce_min(returns))
+        self.record(
+            "returns_mean",
+            tf.reduce_mean(returns))
         self.update_actor(
             observations,
             actions,

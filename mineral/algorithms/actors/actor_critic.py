@@ -32,19 +32,18 @@ class ActorCritic(PolicyGradient):
             actions,
             rewards,
             terminals)
-        if self.monitor is not None:
-            self.monitor.record(
-                "rewards_mean",
-                tf.reduce_mean(rewards))
-            self.monitor.record(
-                "returns_max",
-                tf.reduce_max(returns))
-            self.monitor.record(
-                "returns_min",
-                tf.reduce_min(returns))
-            self.monitor.record(
-                "returns_mean",
-                tf.reduce_mean(returns))
+        self.record(
+            "rewards_mean",
+            tf.reduce_mean(rewards))
+        self.record(
+            "returns_max",
+            tf.reduce_max(returns))
+        self.record(
+            "returns_min",
+            tf.reduce_min(returns))
+        self.record(
+            "returns_mean",
+            tf.reduce_mean(returns))
         self.update_actor(
             observations,
             actions,

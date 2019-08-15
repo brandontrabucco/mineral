@@ -30,7 +30,7 @@ class HierarchySampler(Sampler):
             if time_step % np.prod(self.time_skips[:level + 1]) == 0:
                 if level < self.num_levels - 1:
                     observation_for_this_level["goal"] = hierarchy_samples[level + 1][2]
-                policy_inputs = self.selector(level, observation)[np.newaxis, ...]
+                policy_inputs = self.selector(level, observation_for_this_level)[np.newaxis, ...]
                 if random:
                     current_action = self.policies[level].sample(
                         policy_inputs)[0, ...].numpy()

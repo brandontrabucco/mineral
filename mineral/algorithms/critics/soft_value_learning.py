@@ -44,10 +44,9 @@ class SoftValueLearning(ValueLearning):
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * (
                 next_target_values[:, :, 0] - self.alpha * next_log_probs))
-        if self.monitor is not None:
-            self.monitor.record(
-                "bellman_target_values_mean",
-                tf.reduce_mean(target_values))
+        self.record(
+            "bellman_target_values_mean",
+            tf.reduce_mean(target_values))
         return target_values
 
     def discount_target_values(
@@ -63,10 +62,9 @@ class SoftValueLearning(ValueLearning):
             training=True)
         discount_target_values = discounted_sum((
             rewards - self.alpha * log_probs), self.gamma)
-        if self.monitor is not None:
-            self.monitor.record(
-                "discount_target_values_mean",
-                tf.reduce_mean(discount_target_values))
+        self.record(
+            "discount_target_values_mean",
+            tf.reduce_mean(discount_target_values))
         return discount_target_values
 
     def update_critic(

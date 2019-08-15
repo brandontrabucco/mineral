@@ -34,7 +34,6 @@ class GAE(ValueLearning):
             terminals[:, :(-1)] * (rewards - values[:, :(-1)]) +
             terminals[:, 1:] * values[:, 1:] * self.gamma,
             self.gamma)
-        if self.monitor is not None:
-            self.monitor.record(
-                "advantages_mean", tf.reduce_mean(advantages))
+        self.record(
+            "advantages_mean", tf.reduce_mean(advantages))
         return advantages

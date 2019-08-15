@@ -36,10 +36,9 @@ class ValueLearning(Critic):
             training=True)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * next_target_values[:, :, 0])
-        if self.monitor is not None:
-            self.monitor.record(
-                "bellman_target_values_mean",
-                tf.reduce_mean(target_values))
+        self.record(
+            "bellman_target_values_mean",
+            tf.reduce_mean(target_values))
         return target_values
 
     def discount_target_values(
@@ -50,10 +49,9 @@ class ValueLearning(Critic):
         terminals
     ):
         discount_target_values = discounted_sum(rewards, self.gamma)
-        if self.monitor is not None:
-            self.monitor.record(
-                "discount_target_values_mean",
-                tf.reduce_mean(discount_target_values))
+        self.record(
+            "discount_target_values_mean",
+            tf.reduce_mean(discount_target_values))
         return discount_target_values
 
     def update_critic(
@@ -77,16 +75,15 @@ class ValueLearning(Critic):
                 tf.losses.mean_squared_error(
                     discount_target_values,
                     values))
-            if self.monitor is not None:
-                self.monitor.record(
-                    "values_mean",
-                    tf.reduce_mean(values))
-                self.monitor.record(
-                    "bellman_loss_vf",
-                    bellman_loss_vf)
-                self.monitor.record(
-                    "discount_loss_vf",
-                    discount_loss_vf)
+            self.record(
+                "values_mean",
+                tf.reduce_mean(values))
+            self.record(
+                "bellman_loss_vf",
+                bellman_loss_vf)
+            self.record(
+                "discount_loss_vf",
+                discount_loss_vf)
             return (
                 self.bellman_weight * bellman_loss_vf +
                 self.discount_weight * discount_loss_vf)

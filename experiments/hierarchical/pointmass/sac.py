@@ -15,12 +15,12 @@ from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
 from mineral.algorithms.critics.soft_q_learning import SoftQLearning
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
-from mineral.algorithms.goal_reaching import GoalReaching
 
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.buffers.path_buffer import PathBuffer
+from mineral.buffers.reward_relabeling_buffer import RewardRelabelingBuffer
 from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 
@@ -42,7 +42,7 @@ def run_experiment(variant):
     batch_size = variant["batch_size"]
     num_steps = variant["num_steps"]
 
-    monitor = LocalMonitor("./pointmass/sac/{}".format(experiment_id))
+    monitor = LocalMonitor("./pointmass/hierarchical/sac/{}".format(experiment_id))
 
     env = NormalizedEnv(
         PointmassEnv(size=2, ord=2),
@@ -127,20 +127,22 @@ def run_experiment(variant):
         lambda x: x["goal"])
 
     both_selector = (
-        lambda x: np.concatenate([observation_selector(x), goal_selector(x)], 0))
+        lambda x: np.concatenate([observation_selector(x), goal_selector(x)], -1))
 
     hierarchy_selector = (
-        lambda i, x: observation_selector(x) if i == 1 else
-        both_selector(x))
+        lambda i, x: observation_selector(x) if i == 1 else both_selector(x))
 
     ##################
     # REPLAY BUFFERS #
     ##################
 
-    lower_buffer = PathBuffer(
-        max_size=max_size,
-        max_path_length=max_path_length,
-        monitor=monitor)
+    lower_buffer = RewardRelabelingBuffer(
+        PathBuffer(
+            max_size=max_size,
+            max_path_length=max_path_length,
+            monitor=monitor),
+        observation_selector=observation_selector,
+        goal_selector=goal_selector)
 
     upper_buffer = PathBuffer(
         max_size=max_size,
@@ -157,7 +159,7 @@ def run_experiment(variant):
         lower_buffer,
         upper_policy,
         upper_buffer,
-        time_skips=(1, 2),
+        time_skips=(1, 5),
         num_warm_up_samples=num_warm_up_samples,
         num_exploration_samples=num_exploration_samples,
         num_evaluation_samples=num_evaluation_samples,
@@ -176,7 +178,8 @@ def run_experiment(variant):
         update_every=update_tuner_every,
         batch_size=batch_size,
         selector=both_selector,
-        monitor=monitor)
+        monitor=monitor,
+        logging_prefix="lower_")
 
     lower_critic = SoftQLearning(
         lower_target_policy,
@@ -188,7 +191,8 @@ def run_experiment(variant):
         alpha=lower_tuner.get_tuning_variable(),
         batch_size=batch_size,
         selector=both_selector,
-        monitor=monitor)
+        monitor=monitor,
+        logging_prefix="lower_")
 
     lower_actor = SoftActorCritic(
         lower_policy,
@@ -198,12 +202,10 @@ def run_experiment(variant):
         update_every=update_actor_every,
         batch_size=batch_size,
         selector=both_selector,
-        monitor=monitor)
+        monitor=monitor,
+        logging_prefix="lower_")
 
-    lower_algorithm = GoalReaching(
-        MultiAlgorithm(lower_actor, lower_critic, lower_tuner),
-        observation_selector=observation_selector,
-        goal_selector=goal_selector)
+    lower_algorithm = MultiAlgorithm(lower_actor, lower_critic, lower_tuner)
 
     #############################
     # UPPER TRAINING ALGORITHMS #
@@ -217,7 +219,8 @@ def run_experiment(variant):
         update_every=update_tuner_every,
         batch_size=batch_size,
         selector=observation_selector,
-        monitor=monitor)
+        monitor=monitor,
+        logging_prefix="upper_")
 
     upper_critic = SoftQLearning(
         upper_target_policy,
@@ -229,7 +232,8 @@ def run_experiment(variant):
         alpha=upper_tuner.get_tuning_variable(),
         batch_size=batch_size,
         selector=observation_selector,
-        monitor=monitor)
+        monitor=monitor,
+        logging_prefix="upper_")
 
     upper_actor = SoftActorCritic(
         upper_policy,
@@ -239,7 +243,8 @@ def run_experiment(variant):
         update_every=update_actor_every,
         batch_size=batch_size,
         selector=observation_selector,
-        monitor=monitor)
+        monitor=monitor,
+        logging_prefix="upper_")
 
     upper_algorithm = MultiAlgorithm(upper_actor, upper_critic, upper_tuner)
 
@@ -269,7 +274,9 @@ if __name__ == "__main__":
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.config.experimental.set_memory_growth(gpu, True)
 
-    for experiment_id in [0, 1, 2, 3, 4]:
+    num_seeds = 1
+
+    for experiment_id in range(num_seeds):
 
         variant = dict(
             experiment_id=experiment_id,

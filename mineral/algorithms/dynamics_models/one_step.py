@@ -15,21 +15,20 @@ class OneStep(DynamicsModel):
         terminals
     ):
         def loss_function():
-            log_probs_model = self.model.get_log_probs(
+            model_log_probs = self.model.get_log_probs(
                 observations[:, 1:, ...],
                 observations[:, :(-1), ...],
                 actions,
                 training=True)
-            loss_model = -1.0 * tf.reduce_mean(
-                log_probs_model * terminals[:, :(-1)])
-            if self.monitor is not None:
-                self.monitor.record(
-                    "log_probs_model_mean",
-                    tf.reduce_mean(log_probs_model))
-                self.monitor.record(
-                    "loss_model",
-                    loss_model)
-            return loss_model
+            model_loss = -1.0 * tf.reduce_mean(
+                model_log_probs * terminals[:, :(-1)])
+            self.record(
+                "model_log_probs_mean",
+                tf.reduce_mean(model_log_probs))
+            self.record(
+                "model_loss",
+                model_loss)
+            return model_loss
         self.model.minimize(
             loss_function,
             observations[:, :(-1), ...],

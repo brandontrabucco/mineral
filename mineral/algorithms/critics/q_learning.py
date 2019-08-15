@@ -51,10 +51,9 @@ class QLearning(Critic):
             training=True)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * next_target_qvalues[:, :, 0])
-        if self.monitor is not None:
-            self.monitor.record(
-                "bellman_target_values_mean",
-                tf.reduce_mean(target_values))
+        self.record(
+            "bellman_target_values_mean",
+            tf.reduce_mean(target_values))
         return target_values
 
     def discount_target_values(
@@ -65,10 +64,9 @@ class QLearning(Critic):
         terminals
     ):
         discount_target_values = discounted_sum(rewards, self.gamma)
-        if self.monitor is not None:
-            self.monitor.record(
-                "discount_target_values_mean",
-                tf.reduce_mean(discount_target_values))
+        self.record(
+            "discount_target_values_mean",
+            tf.reduce_mean(discount_target_values))
         return discount_target_values
 
     def update_critic(
@@ -93,16 +91,15 @@ class QLearning(Critic):
                 tf.losses.mean_squared_error(
                     discount_target_values,
                     qvalues))
-            if self.monitor is not None:
-                self.monitor.record(
-                    "qvalues_mean",
-                    tf.reduce_mean(qvalues))
-                self.monitor.record(
-                    "bellman_loss_qf",
-                    bellman_loss_qf)
-                self.monitor.record(
-                    "discount_loss_qf",
-                    discount_loss_qf)
+            self.record(
+                "qvalues_mean",
+                tf.reduce_mean(qvalues))
+            self.record(
+                "bellman_loss_qf",
+                bellman_loss_qf)
+            self.record(
+                "discount_loss_qf",
+                discount_loss_qf)
             return (
                 self.bellman_weight * bellman_loss_qf +
                 self.discount_weight * discount_loss_qf)
