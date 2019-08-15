@@ -5,21 +5,19 @@ import tensorflow as tf
 from mineral.buffers.relabelers.relabeler import Relabeler
 
 
-class GoalConditionedRelabeler(Relabeler):
+class ReachabilityRelabeler(Relabeler):
     
     def __init__(
         self,
+        policy,
         *args,
         observation_selector=(lambda x: x["proprio_observation"]),
-        goal_selector=(lambda x: x["goal"]),
-        order=2,
         reward_scale=1.0,
         **kwargs
     ):
         Relabeler.__init__(self, *args, **kwargs)
+        self.policy = policy
         self.observation_selector = observation_selector
-        self.goal_selector = goal_selector
-        self.order = order
         self.reward_scale = reward_scale
 
     def relabel(
@@ -29,11 +27,16 @@ class GoalConditionedRelabeler(Relabeler):
         rewards,
         terminals
     ):
-        error = self.observation_selector(
-            observations) - self.goal_selector(observations)
-        goal_conditioned_rewards = -self.reward_scale * tf.linalg.norm(
-            tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
-            ord=self.order, axis=(-1))[:, 1:]
+        induced_observations = [
+            self.observation_selector(x)
+            for x in observations["induced_observations"]]
+
+        cumulative_distances = 0.0
+        for lower_observation in induced_observations:
+            error = lower_observation[:, 1:, ...] - actions
+            cumulative_distances += -self.reward_scale * tf.linalg.norm(
+                tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
+                ord=self.order, axis=(-1))
 
         relabel_condition = self.relabel_probability >= tf.random.uniform(
             tf.shape(rewards),
@@ -41,7 +44,7 @@ class GoalConditionedRelabeler(Relabeler):
             dtype=tf.float32)
 
         rewards = tf.where(
-            relabel_condition, goal_conditioned_rewards, rewards)
+            relabel_condition, cumulative_distances, rewards)
         return (
             observations,
             actions,

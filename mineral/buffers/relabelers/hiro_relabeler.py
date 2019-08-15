@@ -66,7 +66,7 @@ class HIRORelabeler(Relabeler):
                 tf.expand_dims(indices, 2),
                 batch_dims=2), 2)
         relabel_condition = tf.broadcast_to(
-            self.relabel_probability > tf.random.uniform(
+            self.relabel_probability >= tf.random.uniform(
                 tf.shape(actions)[:2],
                 maxval=1.0,
                 dtype=tf.float32),

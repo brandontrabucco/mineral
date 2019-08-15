@@ -5,22 +5,20 @@ import tensorflow as tf
 from mineral.buffers.relabelers.relabeler import Relabeler
 
 
-class GoalConditionedRelabeler(Relabeler):
+class EntropyRelabeler(Relabeler):
     
     def __init__(
         self,
+        policy,
         *args,
         observation_selector=(lambda x: x["proprio_observation"]),
-        goal_selector=(lambda x: x["goal"]),
-        order=2,
-        reward_scale=1.0,
+        alpha=1.0,
         **kwargs
     ):
         Relabeler.__init__(self, *args, **kwargs)
+        self.policy = policy
         self.observation_selector = observation_selector
-        self.goal_selector = goal_selector
-        self.order = order
-        self.reward_scale = reward_scale
+        self.alpha = alpha
 
     def relabel(
         self,
@@ -29,19 +27,20 @@ class GoalConditionedRelabeler(Relabeler):
         rewards,
         terminals
     ):
-        error = self.observation_selector(
-            observations) - self.goal_selector(observations)
-        goal_conditioned_rewards = -self.reward_scale * tf.linalg.norm(
-            tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
-            ord=self.order, axis=(-1))[:, 1:]
-
+        selected_observations = self.observation_selector(
+            observations)[:, 1:, ...]
+        sampled_actions = self.policy.sample(selected_observations)
+        entropy = -self.policy.get_log_probs(
+            sampled_actions,
+            selected_observations)
         relabel_condition = self.relabel_probability >= tf.random.uniform(
             tf.shape(rewards),
             maxval=1.0,
             dtype=tf.float32)
-
         rewards = tf.where(
-            relabel_condition, goal_conditioned_rewards, rewards)
+            relabel_condition,
+            rewards + self.alpha * entropy,
+            rewards)
         return (
             observations,
             actions,

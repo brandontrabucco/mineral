@@ -43,7 +43,7 @@ class SubgoalTestingRelabeler(Relabeler):
             rewards,
             rewards + self.penalty)
 
-        relabel_condition = self.relabel_probability > tf.random.uniform(
+        relabel_condition = self.relabel_probability >= tf.random.uniform(
             tf.shape(rewards),
             maxval=1.0,
             dtype=tf.float32)
