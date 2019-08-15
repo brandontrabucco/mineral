@@ -274,7 +274,7 @@ if __name__ == "__main__":
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.config.experimental.set_memory_growth(gpu, True)
 
-    num_seeds = 1
+    num_seeds = 5
 
     for experiment_id in range(num_seeds):
 
