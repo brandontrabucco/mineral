@@ -162,13 +162,11 @@ def run_experiment(variant):
 
     upper_buffer = SubgoalTestingRelabeler(
         HACRelabeler(
-            lower_policy,
             PathBuffer(
                 max_size=max_size,
                 max_path_length=max_path_length,
                 monitor=monitor),
             observation_selector=observation_selector,
-            num_samples=8,
             relabel_probability=0.5),
         observation_selector=observation_selector,
         goal_selector=goal_selector,
