@@ -262,6 +262,10 @@ def run_experiment(variant):
 
 if __name__ == "__main__":
 
+    ###############
+    # ENTRY POINT #
+    ###############
+
     for gpu in tf.config.experimental.list_physical_devices('GPU'):
         tf.config.experimental.set_memory_growth(gpu, True)
 
@@ -279,6 +283,10 @@ if __name__ == "__main__":
             update_actor_every=100,
             batch_size=100,
             num_steps=10000)
+
+        #####################
+        # LAUNCH MANY SEEDS #
+        #####################
 
         threading.Thread(target=run_experiment,
                          args=(variant,)).start()
