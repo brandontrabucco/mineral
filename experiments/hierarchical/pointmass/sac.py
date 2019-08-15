@@ -26,6 +26,10 @@ from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 def run_experiment(variant):
 
+    #########
+    # SETUP #
+    #########
+
     experiment_id = variant["experiment_id"]
     max_path_length = variant["max_path_length"]
     max_size = variant["max_size"]
@@ -44,6 +48,10 @@ def run_experiment(variant):
         PointmassEnv(size=2, ord=2),
         reward_scale=(1 / max_path_length))
 
+    ##################
+    # LOWER POLICIES #
+    ##################
+
     lower_policy = Dense(
         [256, 256, 4],
         optimizer_class=tf.keras.optimizers.Adam,
@@ -59,6 +67,10 @@ def run_experiment(variant):
         distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
 
+    #########################
+    # LOWER VALUE FUNCTIONS #
+    #########################
+
     lower_qf = Dense(
         [256, 256, 1],
         optimizer_class=tf.keras.optimizers.Adam,
@@ -69,6 +81,10 @@ def run_experiment(variant):
         tau=1e-1,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.0001})
+
+    ##################
+    # UPPER POLICIES #
+    ##################
 
     upper_policy = Dense(
         [256, 256, 4],
@@ -85,6 +101,10 @@ def run_experiment(variant):
         distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
 
+    #########################
+    # UPPER VALUE FUNCTIONS #
+    #########################
+
     upper_qf = Dense(
         [256, 256, 1],
         optimizer_class=tf.keras.optimizers.Adam,
@@ -95,6 +115,10 @@ def run_experiment(variant):
         tau=1e-1,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={"lr": 0.0001})
+
+    ####################################
+    # OBSERVATION DICTIONARY SELECTORS #
+    ####################################
 
     observation_selector = (
         lambda x: x["proprio_observation"])
@@ -109,17 +133,23 @@ def run_experiment(variant):
         lambda i, x: observation_selector(x) if i == 1 else
         both_selector(x))
 
+    ##################
+    # REPLAY BUFFERS #
+    ##################
+
     lower_buffer = PathBuffer(
         max_size=max_size,
         max_path_length=max_path_length,
-        selector=both_selector,
         monitor=monitor)
 
     upper_buffer = PathBuffer(
         max_size=max_size,
         max_path_length=max_path_length,
-        selector=observation_selector,
         monitor=monitor)
+
+    ############
+    # SAMPLERS #
+    ############
 
     sampler = HierarchySampler(
         env,
@@ -134,6 +164,10 @@ def run_experiment(variant):
         selector=hierarchy_selector,
         monitor=monitor)
 
+    #############################
+    # LOWER TRAINING ALGORITHMS #
+    #############################
+
     lower_tuner = EntropyTuner(
         lower_policy,
         optimizer_class=tf.keras.optimizers.Adam,
@@ -141,6 +175,7 @@ def run_experiment(variant):
         target=(-2.0),
         update_every=update_tuner_every,
         batch_size=batch_size,
+        selector=both_selector,
         monitor=monitor)
 
     lower_critic = SoftQLearning(
@@ -152,6 +187,7 @@ def run_experiment(variant):
         std=0.1,
         alpha=lower_tuner.get_tuning_variable(),
         batch_size=batch_size,
+        selector=both_selector,
         monitor=monitor)
 
     lower_actor = SoftActorCritic(
@@ -161,12 +197,17 @@ def run_experiment(variant):
         alpha=lower_tuner.get_tuning_variable(),
         update_every=update_actor_every,
         batch_size=batch_size,
+        selector=both_selector,
         monitor=monitor)
 
     lower_algorithm = GoalReaching(
         MultiAlgorithm(lower_actor, lower_critic, lower_tuner),
         observation_selector=observation_selector,
         goal_selector=goal_selector)
+
+    #############################
+    # UPPER TRAINING ALGORITHMS #
+    #############################
 
     upper_tuner = EntropyTuner(
         upper_policy,
@@ -175,6 +216,7 @@ def run_experiment(variant):
         target=(-2.0),
         update_every=update_tuner_every,
         batch_size=batch_size,
+        selector=observation_selector,
         monitor=monitor)
 
     upper_critic = SoftQLearning(
@@ -186,6 +228,7 @@ def run_experiment(variant):
         std=0.1,
         alpha=upper_tuner.get_tuning_variable(),
         batch_size=batch_size,
+        selector=observation_selector,
         monitor=monitor)
 
     upper_actor = SoftActorCritic(
@@ -195,9 +238,14 @@ def run_experiment(variant):
         alpha=upper_tuner.get_tuning_variable(),
         update_every=update_actor_every,
         batch_size=batch_size,
+        selector=observation_selector,
         monitor=monitor)
 
     upper_algorithm = MultiAlgorithm(upper_actor, upper_critic, upper_tuner)
+
+    ##################
+    # START TRAINING #
+    ##################
 
     trainer = LocalTrainer(
         sampler,
