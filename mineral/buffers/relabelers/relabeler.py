@@ -9,9 +9,11 @@ class Relabeler(Buffer, ABC):
     
     def __init__(
         self,
-        buffer
+        buffer,
+        relabel_probability=1.0
     ):
         self.buffer = buffer
+        self.relabel_probability = relabel_probability
 
     def __getattr__(
         self,
