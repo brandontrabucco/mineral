@@ -21,7 +21,7 @@ from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
-from mineral.buffers.relabelers.hiro_relabeler import HIRORelabeler
+from mineral.buffers.relabelers.baselines.hiro_relabeler import HIRORelabeler
 from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 
