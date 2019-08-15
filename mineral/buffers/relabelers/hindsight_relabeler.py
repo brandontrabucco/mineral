@@ -39,11 +39,13 @@ class HindsightRelabeler(Relabeler):
             tf.expand_dims(tf.range(tf.shape(selected_observations)[1]), 0),
             [tf.shape(selected_observations)[0], 1])
                 // self.time_skip) * self.time_skip
+
         achieved_goals = tf.gather(
             selected_observations,
             indices,
             batch_dims=2)
         original_goals = self.goal_selector(observations)
+
         relabel_condition = tf.broadcast_to(
             self.relabel_probability > tf.random.uniform(
                 tf.shape(selected_observations)[:2],
@@ -54,6 +56,7 @@ class HindsightRelabeler(Relabeler):
             relabel_condition,
             achieved_goals,
             original_goals)
+
         relabeled_observations = self.goal_assigner(
             relabeled_goals, selected_observations)
         return (

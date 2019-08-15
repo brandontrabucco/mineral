@@ -33,18 +33,21 @@ class SubgoalTestingRelabeler(Relabeler):
     ):
         error = self.observation_selector(
             observations) - self.goal_selector(observations)
-        goal_distances = self.reward_scale * tf.linalg.norm(
+        goal_distances = tf.linalg.norm(
             tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
             ord=self.order, axis=(-1))[:, 1:]
+
         test_passed_condition = goal_distances < self.threshold
         tested_rewards = tf.where(
             test_passed_condition,
             rewards,
             rewards + self.penalty)
+
         relabel_condition = self.relabel_probability > tf.random.uniform(
             tf.shape(rewards),
             maxval=1.0,
             dtype=tf.float32)
+
         rewards = tf.where(
             relabel_condition, tested_rewards, rewards)
         return (

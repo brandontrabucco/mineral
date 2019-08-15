@@ -31,6 +31,7 @@ class HIRORelabeler(Relabeler):
         induced_observations = [
             self.observation_selector(x)
             for x in observations["induced_observations"]]
+
         achieved_goal = induced_observations[-1][:, :(-1), ...]
         candidates = achieved_goal + tf.random.normal(
             (self.num_samples,) + achieved_goal.shape)
@@ -58,18 +59,19 @@ class HIRORelabeler(Relabeler):
 
         indices = tf.argmax(
             log_probabilities, axis=0, output_type=tf.int32)
+
         relabeled_actions = tf.squeeze(
             tf.gather(
                 tf.transpose(candidates, [1, 2, 0, 3]),
                 tf.expand_dims(indices, 2),
                 batch_dims=2), 2)
-
         relabel_condition = tf.broadcast_to(
             self.relabel_probability > tf.random.uniform(
                 tf.shape(actions)[:2],
                 maxval=1.0,
                 dtype=tf.float32),
             tf.shape(actions))
+
         actions = tf.where(
             relabel_condition, relabeled_actions, actions)
         return (
