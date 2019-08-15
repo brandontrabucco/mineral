@@ -79,10 +79,10 @@ class ValueLearning(Critic):
                 "values_mean",
                 tf.reduce_mean(values))
             self.record(
-                "bellman_loss_vf",
+                "bellman_loss",
                 bellman_loss_vf)
             self.record(
-                "discount_loss_vf",
+                "discount_loss",
                 discount_loss_vf)
             return (
                 self.bellman_weight * bellman_loss_vf +

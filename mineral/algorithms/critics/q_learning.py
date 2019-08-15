@@ -95,10 +95,10 @@ class QLearning(Critic):
                 "qvalues_mean",
                 tf.reduce_mean(qvalues))
             self.record(
-                "bellman_loss_qf",
+                "bellman_loss",
                 bellman_loss_qf)
             self.record(
-                "discount_loss_qf",
+                "discount_loss",
                 discount_loss_qf)
             return (
                 self.bellman_weight * bellman_loss_qf +
