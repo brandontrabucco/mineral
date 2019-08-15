@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-import threading
+import multiprocessing
 import tensorflow as tf
 
 from mineral.core.trainers.local_trainer import LocalTrainer
@@ -23,6 +23,9 @@ from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 
 def run_experiment(variant):
+
+    for gpu in tf.config.experimental.list_physical_devices('GPU'):
+        tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
     max_path_length = variant["max_path_length"]
@@ -130,9 +133,6 @@ def run_experiment(variant):
 
 if __name__ == "__main__":
 
-    for gpu in tf.config.experimental.list_physical_devices('GPU'):
-        tf.config.experimental.set_memory_growth(gpu, True)
-
     for experiment_id in [0, 1, 2, 3, 4]:
 
         variant = dict(
@@ -148,5 +148,5 @@ if __name__ == "__main__":
             batch_size=100,
             num_steps=10000)
 
-        threading.Thread(target=run_experiment,
-                         args=(variant,)).start()
+        multiprocessing.Process(
+            target=run_experiment, args=(variant,)).start()

@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-import threading
+import multiprocessing
 import tensorflow as tf
 import numpy as np
 
@@ -30,6 +30,9 @@ def run_experiment(variant):
     #########
     # SETUP #
     #########
+
+    for gpu in tf.config.experimental.list_physical_devices('GPU'):
+        tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
     max_path_length = variant["max_path_length"]
@@ -277,9 +280,6 @@ if __name__ == "__main__":
     # ENTRY POINT #
     ###############
 
-    for gpu in tf.config.experimental.list_physical_devices('GPU'):
-        tf.config.experimental.set_memory_growth(gpu, True)
-
     num_seeds = 5
 
     for experiment_id in range(num_seeds):
@@ -301,5 +301,5 @@ if __name__ == "__main__":
         # LAUNCH MANY SEEDS #
         #####################
 
-        threading.Thread(target=run_experiment,
-                         args=(variant,)).start()
+        multiprocessing.Process(
+            target=run_experiment, args=(variant,)).start()
