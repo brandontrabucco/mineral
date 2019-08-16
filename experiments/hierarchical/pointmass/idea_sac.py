@@ -155,6 +155,7 @@ def run_experiment(variant):
 
     def relabel_goal(goal, observation):
         observation["goal"] = goal
+        return observation
 
     lower_buffer = EntropyRelabeler(
         upper_policy,

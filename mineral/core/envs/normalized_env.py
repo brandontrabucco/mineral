@@ -3,7 +3,7 @@
 
 import numpy as np
 import mineral as ml
-from gym.spaces import Box, Dict, Tuple
+from gym.spaces import Box
 from mineral.core.envs.proxy_env import ProxyEnv
 
 
@@ -15,28 +15,25 @@ class NormalizedEnv(ProxyEnv):
         **kwargs
     ):
         ProxyEnv.__init__(self, wrapped_env, **kwargs)
-        observation_space = self.wrapped_env.observation_space
-        if (isinstance(observation_space, Dict) or
-                isinstance(observation_space, Tuple)):
-            observation_space = observation_space.spaces
+        self.original_observation_space = self.observation_space.spaces
+        self.original_action_space = self.action_space
         self.observation_space = ml.nested_apply(
             create_space,
-            observation_space)
-        self.action_space = create_space(self.wrapped_env.action_space)
+            self.original_observation_space)
+        self.action_space = create_space(self.original_action_space)
 
     def reset(
         self,
         **kwargs
     ):
         observation = ProxyEnv.reset(self, **kwargs)
-        observation_space = self.wrapped_env.observation_space
-        if (isinstance(observation_space, Dict) or
-                isinstance(observation_space, Tuple)):
-            observation_space = observation_space.spaces
         observation = ml.nested_apply(
             normalize,
             observation,
-            observation_space)
+            self.original_observation_space)
+        observation = ml.nested_apply(
+            lambda x: x.astype(np.float32),
+            observation)
         return observation
 
     def step(
@@ -45,15 +42,14 @@ class NormalizedEnv(ProxyEnv):
     ):
         observation, reward, done, info = ProxyEnv.step(
             self,
-            denormalize(action, self.wrapped_env.action_space))
-        observation_space = self.wrapped_env.observation_space
-        if (isinstance(observation_space, Dict) or
-                isinstance(observation_space, Tuple)):
-            observation_space = observation_space.spaces
+            denormalize(action, self.original_action_space))
         observation = ml.nested_apply(
             normalize,
             observation,
-            observation_space)
+            self.original_observation_space)
+        observation = ml.nested_apply(
+            lambda x: x.astype(np.float32),
+            observation)
         return observation, reward, done, info
 
 
@@ -65,16 +61,18 @@ def create_space(space):
 def denormalize(data, space):
     lower_bound = space.low
     upper_bound = space.high
+    if np.any(np.isinf(lower_bound)) or np.any(np.isinf(upper_bound)):
+        return data
     return np.clip(
-        lower_bound + (data + 1.0) * 0.5 * (upper_bound - lower_bound),
-        lower_bound,
-        upper_bound)
+        lower_bound + (data + 1.0) * 0.5 * (
+            upper_bound - lower_bound), lower_bound, upper_bound)
 
 
-def normalize(scaled_data, space):
+def normalize(data, space):
     lower_bound = space.low
     upper_bound = space.high
+    if np.any(np.isinf(lower_bound)) or np.any(np.isinf(upper_bound)):
+        return data
     return np.clip(
-        (scaled_data - lower_bound) * 2.0 / (upper_bound - lower_bound) - 1.0,
-        -1.0,
-        1.0)
+        (data - lower_bound) * 2.0 / (
+            upper_bound - lower_bound) - 1.0, -1.0, 1.0)

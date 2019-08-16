@@ -4,6 +4,7 @@
 import numpy as np
 import mineral as jp
 from gym import Env
+from gym.spaces import Box, Dict
 
 
 class ProxyEnv(Env):
@@ -16,7 +17,10 @@ class ProxyEnv(Env):
     ):
         self.wrapped_env = wrapped_env
         self.observation_space = self.wrapped_env.observation_space
-        self.action_space = self.wrapped_env.action_space.shape
+        if isinstance(self.observation_space, Box):
+            self.observation_space = Dict({
+                "proprio_observation": self.observation_space})
+        self.action_space = self.wrapped_env.action_space
         self.reward_scale = reward_scale
         self.reward_shift = reward_shift
 
@@ -24,9 +28,12 @@ class ProxyEnv(Env):
         self, 
         **kwargs
     ):
-        return jp.nested_apply(
+        observation = jp.nested_apply(
             (lambda x: np.array(x, dtype=np.float32)),
             self.wrapped_env.reset(**kwargs))
+        if not isinstance(observation, dict):
+            observation = {"proprio_observation": observation}
+        return observation
 
     def step(
         self, 
@@ -34,6 +41,11 @@ class ProxyEnv(Env):
     ):
         observation, reward, done, info = self.wrapped_env.step(
             action)
+        if not isinstance(observation, dict):
+            observation = {"proprio_observation": observation}
+        observation = jp.nested_apply(
+            lambda x: np.array(x, dtype=np.float32),
+            observation)
         observation = jp.nested_apply(
             lambda x: np.array(x, dtype=np.float32),
             observation)

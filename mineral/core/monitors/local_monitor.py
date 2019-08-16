@@ -19,7 +19,12 @@ def create_and_listen(
     tf.summary.experimental.set_step(0)
     tb = program.TensorBoard()
     tb.configure(argv=[None, '--logdir', logging_dir])
-    tb.launch()
+
+    try:
+        url = tb.launch()
+        print("TensorBoard launched at: {}".format(url))
+    except program.TensorBoardServerException:
+        print("TensorBoard failed to launch")
 
     while True:
         if not step_queue.empty():
