@@ -5,6 +5,7 @@ import multiprocessing
 import tensorflow as tf
 import numpy as np
 
+from mineral.core.saver import Saver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
@@ -34,18 +35,24 @@ def run_experiment(variant):
         tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
+    logging_dir = "./pointmass/hierarchical/feudal_net/sac/{}".format(
+        experiment_id)
+
     max_path_length = variant["max_path_length"]
     max_size = variant["max_size"]
+
     num_warm_up_paths = variant["num_warm_up_paths"]
     num_exploration_paths = variant["num_exploration_paths"]
     num_evaluation_paths = variant["num_evaluation_paths"]
     num_trains_per_step = variant["num_trains_per_step"]
+
     update_tuner_every = variant["update_tuner_every"]
     update_actor_every = variant["update_actor_every"]
+
     batch_size = variant["batch_size"]
     num_steps = variant["num_steps"]
 
-    monitor = LocalMonitor("./pointmass/hierarchical/feudal_net/sac/{}".format(experiment_id))
+    monitor = LocalMonitor(logging_dir)
 
     env = NormalizedEnv(
         PointmassEnv(size=2, ord=2),
@@ -256,6 +263,17 @@ def run_experiment(variant):
     # START TRAINING #
     ##################
 
+    saver = Saver(
+        logging_dir,
+        lower_policy=lower_policy,
+        lower_target_policy=lower_target_policy,
+        lower_qf=lower_qf,
+        lower_target_qf=lower_target_qf,
+        upper_policy=upper_policy,
+        upper_target_policy=upper_target_policy,
+        upper_qf=upper_qf,
+        upper_target_qf=upper_target_qf)
+
     trainer = LocalTrainer(
         sampler,
         lower_buffer,
@@ -264,6 +282,7 @@ def run_experiment(variant):
         upper_algorithm,
         num_steps=num_steps,
         num_trains_per_step=num_trains_per_step,
+        save_function=saver,
         monitor=monitor)
 
     trainer.train()
@@ -275,7 +294,7 @@ if __name__ == "__main__":
     # ENTRY POINT #
     ###############
 
-    num_seeds = 5
+    num_seeds = 10
 
     for experiment_id in range(num_seeds):
 
