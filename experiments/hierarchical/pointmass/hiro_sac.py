@@ -280,7 +280,7 @@ if __name__ == "__main__":
     # ENTRY POINT #
     ###############
 
-    num_seeds = 1
+    num_seeds = 10
 
     for experiment_id in range(num_seeds):
 
