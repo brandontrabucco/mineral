@@ -156,15 +156,15 @@ if __name__ == "__main__":
 
         variant = dict(
             experiment_id=experiment_id,
-            max_path_length=300,
+            max_path_length=200,
             max_size=10000,
-            num_warm_up_paths=100,
+            num_warm_up_paths=20,
             num_exploration_paths=1,
-            num_evaluation_paths=100,
+            num_evaluation_paths=20,
             num_trains_per_step=100,
             update_tuner_every=100,
             update_actor_every=100,
-            batch_size=100,
+            batch_size=20,
             num_steps=10000)
 
         multiprocessing.Process(

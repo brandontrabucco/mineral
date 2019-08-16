@@ -42,11 +42,11 @@ class Sampler(ABC):
 
     def increment(self):
         self.num_steps_collected += 1
+        elapsed = time.time() - self.begin_time
         if self.monitor is not None:
             self.monitor.set_step(self.num_steps_collected)
-            self.monitor.record("num_steps_collected", self.num_steps_collected)
-            self.monitor.record("steps_per_second", self.num_steps_collected / (
-                    time.time() - self.begin_time))
+            self.monitor.record("steps_time", elapsed)
+            self.monitor.record("steps_per_second", self.num_steps_collected / elapsed)
 
     def warm_up(
         self,
