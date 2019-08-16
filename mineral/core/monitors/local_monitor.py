@@ -23,35 +23,37 @@ def create_and_listen(
     tb.launch()
 
     while True:
-        time.sleep(0.05)
+        time.sleep(0.005)
         if not step_queue.empty():
             step = step_queue.get()
             tf.summary.experimental.set_step(step)
+            continue
+
         if not record_queue.empty():
             key, value = record_queue.get()
+
             with writer.as_default():
                 if len(tf.shape(value)) == 0:
                     tf.summary.scalar(key, value)
+
                 elif len(tf.shape(value)) == 1:
                     splits = key.split(",")
                     tf.summary.image(splits[0], plot_to_tensor(
                         tf.expand_dims(tf.range(tf.shape(value)[1]), 0),
-                        tf.expand_dims(value, 0),
-                        splits[0],
-                        splits[1],
-                        splits[2]))
+                        tf.expand_dims(value, 0), splits[0], splits[1], splits[2]))
+
                 elif len(tf.shape(value)) == 2:
                     splits = key.split(",")
                     tf.summary.image(splits[0], plot_to_tensor(
                         tf.tile(tf.expand_dims(tf.range(tf.shape(value)[1]), 0), [tf.shape(value)[0], 1]),
-                        value,
-                        splits[0],
-                        splits[1],
-                        splits[2]))
+                        value, splits[0], splits[1], splits[2]))
+
                 elif len(tf.shape(value)) == 3:
                     tf.summary.image(key, tf.expand_dims(value, 0) * 0.5 + 0.5)
+
                 elif len(tf.shape(value)) == 4:
                     tf.summary.image(key, value * 0.5 + 0.5)
+
                 else:
                     tf.summary.scalar(key, value)
 
@@ -66,9 +68,7 @@ class LocalMonitor(Monitor):
         self.record_queue = queue.Queue()
         self.thread = threading.Thread(
             target=create_and_listen, args=(
-                logging_dir,
-                self.step_queue,
-                self.record_queue))
+                logging_dir, self.step_queue, self.record_queue))
         self.thread.start()
 
     def set_step(
