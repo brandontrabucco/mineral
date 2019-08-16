@@ -14,9 +14,9 @@ class PathBuffer(Buffer):
         **kwargs
     ):
         Buffer.__init__(self, *args, **kwargs)
-        self.size = None
-        self.head = None
-        self.tail = None
+        self.size = 0
+        self.head = 0
+        self.tail = np.zeros([self.max_size], dtype=np.int32)
         self.observations = None
         self.actions = None
         self.rewards = None
@@ -75,7 +75,7 @@ class PathBuffer(Buffer):
         lengths = jp.nested_apply(
             lambda x: x[indices, ...], self.tail)
         max_lengths = np.arange(self.max_path_length)[np.newaxis, :]
-        terminals = ((lengths[:, np.newaxis] - 1) > max_lengths).astype(np.float32)
+        terminals = (lengths[:, np.newaxis] - 1 >= max_lengths).astype(np.float32)
         rewards = terminals[:, :(-1)] * rewards
         return (self.selector(observations),
                 actions,

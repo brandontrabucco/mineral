@@ -83,5 +83,6 @@ class HierarchySampler(Sampler):
                     self.increment()
                 if done:
                     break
-            self.finish_path()
+            if save_paths:
+                self.finish_path()
         return np.mean(all_rewards) if len(all_rewards) > 0 else 0.0

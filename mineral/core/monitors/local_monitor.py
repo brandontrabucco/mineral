@@ -3,7 +3,6 @@
 
 import queue
 import threading
-import time
 import tensorflow as tf
 from tensorboard import program
 from mineral.core.monitors.monitor import Monitor
@@ -23,11 +22,12 @@ def create_and_listen(
     tb.launch()
 
     while True:
-        time.sleep(0.005)
         if not step_queue.empty():
             step = step_queue.get()
+            while not step_queue.empty():
+                step = step_queue.get()
+
             tf.summary.experimental.set_step(step)
-            continue
 
         if not record_queue.empty():
             key, value = record_queue.get()
