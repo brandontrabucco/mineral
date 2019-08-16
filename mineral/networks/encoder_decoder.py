@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.networks.network import Network
 
 
-class Variational(Network):
+class EncoderDecoder(Network):
 
     def __init__(
         self,
