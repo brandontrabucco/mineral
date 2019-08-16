@@ -29,15 +29,12 @@ class TwinDelayedCritic(Critic):
                 observations,
                 actions,
                 rewards,
-                terminals
-            ),
+                terminals),
             self.critic2.bellman_target_values(
                 observations,
                 actions,
                 rewards,
-                terminals
-            )
-        )
+                terminals))
 
     def discount_target_values(
         self,
@@ -50,8 +47,7 @@ class TwinDelayedCritic(Critic):
             observations,
             actions,
             rewards,
-            terminals
-        )
+            terminals)
 
     def update_critic(
         self,
@@ -68,16 +64,14 @@ class TwinDelayedCritic(Critic):
             rewards,
             terminals,
             bellman_target_values,
-            discount_target_values
-        )
+            discount_target_values)
         self.critic2.update_critic(
             observations,
             actions,
             rewards,
             terminals,
             bellman_target_values,
-            discount_target_values
-        )
+            discount_target_values)
 
     def soft_update(
         self
@@ -96,5 +90,4 @@ class TwinDelayedCritic(Critic):
             observations,
             actions,
             rewards,
-            terminals
-        )
+            terminals)
