@@ -58,18 +58,17 @@ class HierarchySampler(Sampler):
         render=False,
         **render_kwargs
     ):
-        all_returns = []
+        all_rewards = []
         for i in range(num_samples_to_collect):
             hierarchy_samples = [[
                 -1, {}, None, 0.0] for _level in range(self.num_levels)]
             observation = self.env.reset()
-            path_return = 0.0
             for time_step in range(self.max_path_length):
                 self.push_through_hierarchy(
                     hierarchy_samples, time_step, observation, random=random)
                 next_observation, reward, done, info = self.env.step(
                     hierarchy_samples[0][2])
-                path_return = path_return + reward
+                all_rewards.append(reward)
                 observation = next_observation
                 for level in range(self.num_levels):
                     hierarchy_samples[level][3] += reward
@@ -85,5 +84,4 @@ class HierarchySampler(Sampler):
                 if done:
                     break
             self.finish_path()
-            all_returns.append(path_return)
-        return np.mean(all_returns) if len(all_returns) > 0 else 0
+        return np.mean(all_rewards) if len(all_rewards) > 0 else 0.0

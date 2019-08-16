@@ -31,8 +31,8 @@ class LocalTrainer(Trainer):
 
             exploration_return = self.sampler.explore()
             if self.monitor is not None:
-                self.monitor.record("exploration_return", exploration_return)
-                self.monitor.record("evaluation_return", self.sampler.evaluate())
+                self.monitor.record("expl_average_reward", exploration_return)
+                self.monitor.record("eval_average_reward", self.sampler.evaluate())
 
             def inner_train(algorithm, buffer, num_trains):
                 for training_step in range(num_trains):
