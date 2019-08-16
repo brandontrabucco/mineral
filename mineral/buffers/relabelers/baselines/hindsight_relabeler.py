@@ -5,8 +5,9 @@ import tensorflow as tf
 from mineral.buffers.relabelers.relabeler import Relabeler
 
 
-def default_goal_assigner(x, y):
-    y["goal"] = x
+def default_goal_assigner(goal, observation):
+    observation["goal"] = goal
+    return observation
 
 
 class HindsightRelabeler(Relabeler):
@@ -43,7 +44,7 @@ class HindsightRelabeler(Relabeler):
         achieved_goals = tf.gather(
             selected_observations,
             indices,
-            batch_dims=2)
+            batch_dims=1)
         original_goals = self.goal_selector(observations)
 
         relabel_condition = self.get_relabeled_mask(achieved_goals)
@@ -53,7 +54,7 @@ class HindsightRelabeler(Relabeler):
             original_goals)
 
         relabeled_observations = self.goal_assigner(
-            relabeled_goals, selected_observations)
+            relabeled_goals, observations)
         return (
             relabeled_observations,
             actions,

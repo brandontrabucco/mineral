@@ -146,12 +146,13 @@ def run_experiment(variant):
     hierarchy_selector = (
         lambda i, x: observation_selector(x) if i == 1 else both_selector(x))
 
+    def relabel_goal(goal, observation):
+        observation["goal"] = goal
+        return observation
+
     ##################
     # REPLAY BUFFERS #
     ##################
-
-    def relabel_goal(goal, observation):
-        observation["goal"] = goal
 
     lower_buffer = GoalConditionedRelabeler(
         HindsightRelabeler(
@@ -176,7 +177,6 @@ def run_experiment(variant):
             observation_selector=observation_selector,
             relabel_probability=0.5),
         observation_selector=observation_selector,
-        goal_selector=goal_selector,
         threshold=0.5,
         penalty=(-5.0),
         relabel_probability=0.5)
