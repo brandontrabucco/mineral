@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import tensorflow as tf
 from mineral.buffers.buffer import Buffer
 from abc import ABC, abstractmethod
 
@@ -54,6 +55,20 @@ class Relabeler(Buffer, ABC):
         batch_size
     ):
         return self.relabel(*self.buffer.sample(batch_size))
+
+    def get_relabeled_mask(
+        self,
+        data
+    ):
+        relabel_condition = tf.math.less_equal(
+            tf.random.uniform(
+                tf.shape(data)[:2],
+                maxval=1.0,
+                dtype=tf.float32), self.relabel_probability)
+        while len(relabel_condition.shape) < len(data.shape):
+            relabel_condition = tf.expand_dims(relabel_condition, -1)
+        return tf.broadcast_to(
+            relabel_condition, tf.shape(data))
 
     @abstractmethod
     def relabel(

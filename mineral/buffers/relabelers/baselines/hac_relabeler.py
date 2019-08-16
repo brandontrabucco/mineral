@@ -28,12 +28,7 @@ class HACRelabeler(Relabeler):
             for x in observations["induced_observations"]]
 
         relabeled_actions = induced_observations[-1][:, :(-1), ...]
-        relabel_condition = tf.broadcast_to(
-            self.relabel_probability >= tf.random.uniform(
-                tf.shape(actions)[:2],
-                maxval=1.0,
-                dtype=tf.float32),
-            tf.shape(actions))
+        relabel_condition = self.get_relabeled_mask(actions)
 
         actions = tf.where(
             relabel_condition, relabeled_actions, actions)

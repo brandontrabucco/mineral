@@ -59,21 +59,16 @@ class HIRORelabeler(Relabeler):
 
         indices = tf.argmax(
             log_probabilities, axis=0, output_type=tf.int32)
-
+        # TODO: Brandon
+        #       make this work for any shape actions
         relabeled_actions = tf.squeeze(
             tf.gather(
                 tf.transpose(candidates, [1, 2, 0, 3]),
                 tf.expand_dims(indices, 2),
                 batch_dims=2), 2)
-        relabel_condition = tf.broadcast_to(
-            self.relabel_probability >= tf.random.uniform(
-                tf.shape(actions)[:2],
-                maxval=1.0,
-                dtype=tf.float32),
-            tf.shape(actions))
 
         actions = tf.where(
-            relabel_condition, relabeled_actions, actions)
+            self.get_relabeled_mask(actions), relabeled_actions, actions)
         return (
             observations,
             actions,

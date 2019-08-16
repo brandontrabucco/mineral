@@ -37,7 +37,7 @@ class SubgoalTestingRelabeler(Relabeler):
         for lower_observation in induced_observations:
             error = lower_observation[:, 1:, ...] - actions
             cumulative_distances += tf.linalg.norm(
-                tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
+                tf.reshape(error, [tf.shape(error)[0], tf.shape(error)[1], -1]),
                 ord=self.order, axis=(-1))
 
         test_passed_condition = cumulative_distances < self.threshold
@@ -46,13 +46,8 @@ class SubgoalTestingRelabeler(Relabeler):
             rewards,
             rewards + self.penalty)
 
-        relabel_condition = self.relabel_probability >= tf.random.uniform(
-            tf.shape(rewards),
-            maxval=1.0,
-            dtype=tf.float32)
-
         rewards = tf.where(
-            relabel_condition, tested_rewards, rewards)
+            self.get_relabeled_mask(rewards), tested_rewards, rewards)
         return (
             observations,
             actions,

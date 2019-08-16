@@ -32,16 +32,11 @@ class GoalConditionedRelabeler(Relabeler):
         error = self.observation_selector(
             observations) - self.goal_selector(observations)
         goal_conditioned_rewards = -self.reward_scale * tf.linalg.norm(
-            tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
+            tf.reshape(error, [tf.shape(error)[0], tf.shape(error)[1], -1]),
             ord=self.order, axis=(-1))[:, 1:]
 
-        relabel_condition = self.relabel_probability >= tf.random.uniform(
-            tf.shape(rewards),
-            maxval=1.0,
-            dtype=tf.float32)
-
         rewards = tf.where(
-            relabel_condition, goal_conditioned_rewards, rewards)
+            self.get_relabeled_mask(rewards), goal_conditioned_rewards, rewards)
         return (
             observations,
             actions,

@@ -46,12 +46,7 @@ class HindsightRelabeler(Relabeler):
             batch_dims=2)
         original_goals = self.goal_selector(observations)
 
-        relabel_condition = tf.broadcast_to(
-            self.relabel_probability >= tf.random.uniform(
-                tf.shape(selected_observations)[:2],
-                maxval=1.0,
-                dtype=tf.float32),
-            tf.shape(achieved_goals))
+        relabel_condition = self.get_relabeled_mask(achieved_goals)
         relabeled_goals = tf.where(
             relabel_condition,
             achieved_goals,
