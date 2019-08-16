@@ -18,12 +18,18 @@ from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
 
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.contrib.ant_maze_env import AntMazeEnv
+from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
-from mineral.buffers.relabelers.baselines.hiro_relabeler import HIRORelabeler
 from mineral.samplers.hierarchy_sampler import HierarchySampler
+
+from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
+from mineral.buffers.relabelers.baselines.hac_relabeler import HACRelabeler
+from mineral.buffers.relabelers.baselines.hindsight_relabeler import HindsightRelabeler
+from mineral.buffers.relabelers.baselines.subgoal_testing_relabeler import SubgoalTestingRelabeler
+
+from mineral.buffers.relabelers.new.entropy_relabeler import EntropyRelabeler
+from mineral.buffers.relabelers.new.reachability_relabeler import ReachabilityRelabeler
 
 
 def run_experiment(variant):
@@ -36,7 +42,7 @@ def run_experiment(variant):
         tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
-    logging_dir = "./ant_maze/hiro/sac/{}".format(
+    logging_dir = "./pointmass/idea/sac/{}".format(
         experiment_id)
 
     max_path_length = variant["max_path_length"]
@@ -56,7 +62,7 @@ def run_experiment(variant):
     monitor = LocalMonitor(logging_dir)
 
     env = NormalizedEnv(
-        AntMazeEnv(**variant["env_kwargs"]),
+        PointmassEnv(size=2, ord=2),
         reward_scale=(1 / max_path_length))
 
     ##################
@@ -147,22 +153,44 @@ def run_experiment(variant):
     # REPLAY BUFFERS #
     ##################
 
-    lower_buffer = GoalConditionedRelabeler(
-        PathBuffer(
-            max_size=max_size,
-            max_path_length=max_path_length,
-            monitor=monitor),
-        observation_selector=observation_selector,
-        goal_selector=goal_selector)
+    def relabel_goal(goal, observation):
+        observation["goal"] = goal
+        return observation
 
-    upper_buffer = HIRORelabeler(
-        lower_policy,
-        PathBuffer(
-            max_size=max_size,
-            max_path_length=max_path_length,
-            monitor=monitor),
+    lower_buffer = EntropyRelabeler(
+        upper_policy,
+        GoalConditionedRelabeler(
+            HindsightRelabeler(
+                PathBuffer(
+                    max_size=max_size,
+                    max_path_length=max_path_length,
+                    monitor=monitor),
+                time_skip=5,
+                observation_selector=observation_selector,
+                goal_selector=goal_selector,
+                goal_assigner=relabel_goal,
+                relabel_probability=0.5),
+            observation_selector=observation_selector,
+            goal_selector=goal_selector),
         observation_selector=observation_selector,
-        num_samples=8)
+        alpha=1.0)
+
+    upper_buffer = SubgoalTestingRelabeler(
+        ReachabilityRelabeler(
+            HACRelabeler(
+                PathBuffer(
+                    max_size=max_size,
+                    max_path_length=max_path_length,
+                    monitor=monitor),
+                observation_selector=observation_selector,
+                relabel_probability=0.5),
+            observation_selector=observation_selector,
+            reward_scale=1.0),
+        observation_selector=observation_selector,
+        goal_selector=goal_selector,
+        threshold=0.5,
+        penalty=(-5.0),
+        relabel_probability=0.5)
 
     ############
     # SAMPLERS #
@@ -304,7 +332,6 @@ if __name__ == "__main__":
     for experiment_id in range(num_seeds):
 
         variant = dict(
-            env_kwargs=dict(),
             experiment_id=experiment_id,
             max_path_length=10,
             max_size=1000000,

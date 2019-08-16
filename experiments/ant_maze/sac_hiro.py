@@ -18,10 +18,11 @@ from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
 
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.debug.pointmass_env import PointmassEnv
+from mineral.core.envs.contrib.ant_maze_env import AntMazeEnv
 
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
+from mineral.buffers.relabelers.baselines.hiro_relabeler import HIRORelabeler
 from mineral.samplers.hierarchy_sampler import HierarchySampler
 
 
@@ -35,7 +36,7 @@ def run_experiment(variant):
         tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
-    logging_dir = "./pointmass/hierarchical/feudal_net/sac/{}".format(
+    logging_dir = "./ant_maze/hiro/sac/{}".format(
         experiment_id)
 
     max_path_length = variant["max_path_length"]
@@ -55,7 +56,7 @@ def run_experiment(variant):
     monitor = LocalMonitor(logging_dir)
 
     env = NormalizedEnv(
-        PointmassEnv(size=2, ord=2),
+        AntMazeEnv(**variant["env_kwargs"]),
         reward_scale=(1 / max_path_length))
 
     ##################
@@ -154,10 +155,14 @@ def run_experiment(variant):
         observation_selector=observation_selector,
         goal_selector=goal_selector)
 
-    upper_buffer = PathBuffer(
-        max_size=max_size,
-        max_path_length=max_path_length,
-        monitor=monitor)
+    upper_buffer = HIRORelabeler(
+        lower_policy,
+        PathBuffer(
+            max_size=max_size,
+            max_path_length=max_path_length,
+            monitor=monitor),
+        observation_selector=observation_selector,
+        num_samples=8)
 
     ############
     # SAMPLERS #
@@ -294,11 +299,12 @@ if __name__ == "__main__":
     # ENTRY POINT #
     ###############
 
-    num_seeds = 10
+    num_seeds = 5
 
     for experiment_id in range(num_seeds):
 
         variant = dict(
+            env_kwargs=dict(maze_id="Maze"),
             experiment_id=experiment_id,
             max_path_length=10,
             max_size=1000000,

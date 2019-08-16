@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import time
 from abc import ABC, abstractmethod
 
 
@@ -27,6 +28,7 @@ class Sampler(ABC):
         self.selector = (lambda i, x: x) if selector is None else selector
         self.monitor = monitor
         self.num_steps_collected = 0
+        self.begin_time = time.time()
 
     def reset(
         self,
@@ -42,6 +44,9 @@ class Sampler(ABC):
         self.num_steps_collected += 1
         if self.monitor is not None:
             self.monitor.set_step(self.num_steps_collected)
+            self.monitor.record("num_steps_collected", self.num_steps_collected)
+            self.monitor.record("steps_per_second", self.num_steps_collected / (
+                    time.time() - self.begin_time))
 
     def warm_up(
         self,

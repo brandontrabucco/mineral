@@ -86,8 +86,14 @@ class TwinDelayedCritic(Critic):
         rewards,
         terminals
     ):
-        return self.critic1.get_advantages(
-            observations,
-            actions,
-            rewards,
-            terminals)
+        return tf.minimum(
+            self.critic1.get_advantages(
+                observations,
+                actions,
+                rewards,
+                terminals),
+            self.critic2.get_advantages(
+                observations,
+                actions,
+                rewards,
+                terminals))

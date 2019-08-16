@@ -39,7 +39,7 @@ def run_experiment(variant):
         tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
-    logging_dir = "./pointmass/hierarchical/hac/sac/{}".format(
+    logging_dir = "./pointmass/hac/sac/{}".format(
         experiment_id)
 
     max_path_length = variant["max_path_length"]
