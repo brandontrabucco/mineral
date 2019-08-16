@@ -150,14 +150,14 @@ def run_experiment(variant):
 
 if __name__ == "__main__":
 
-    num_seeds = 10
+    num_seeds = 5
 
     for experiment_id in range(num_seeds):
 
         variant = dict(
             experiment_id=experiment_id,
-            max_path_length=10,
-            max_size=1000000,
+            max_path_length=300,
+            max_size=10000,
             num_warm_up_paths=100,
             num_exploration_paths=1,
             num_evaluation_paths=100,

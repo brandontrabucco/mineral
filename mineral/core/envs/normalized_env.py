@@ -40,13 +40,12 @@ class NormalizedEnv(ProxyEnv):
         self, 
         action
     ):
+        denormalized_action = denormalize(
+            action, self.original_action_space)
         observation, reward, done, info = ProxyEnv.step(
-            self,
-            denormalize(action, self.original_action_space))
+            self, denormalized_action)
         observation = ml.nested_apply(
-            normalize,
-            observation,
-            self.original_observation_space)
+            normalize, observation, self.original_observation_space)
         observation = ml.nested_apply(
             lambda x: x.astype(np.float32),
             observation)
