@@ -34,7 +34,7 @@ class LocalTrainer(Trainer):
 
             expl_reward = self.sampler.explore()
             eval_reward = self.sampler.evaluate()
-            if eval_reward > best_reward:
+            if iteration > 0 and eval_reward > best_reward:
                 best_reward = eval_reward
                 self.save_function(iteration)
 
