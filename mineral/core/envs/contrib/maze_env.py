@@ -109,11 +109,11 @@ class MazeEnv(gym.Env):
                             worldbody, "geom",
                             name="elevated_%d_%d" % (i, j),
                             pos="%f %f %f" % (j * size_scaling - torso_x,
-                                                                i * size_scaling - torso_y,
-                                                                height / 2 * size_scaling),
+                                                i * size_scaling - torso_y,
+                                                height / 2 * size_scaling),
                             size="%f %f %f" % (0.5 * size_scaling,
-                                                                 0.5 * size_scaling,
-                                                                 height / 2 * size_scaling),
+                                                 0.5 * size_scaling,
+                                                 height / 2 * size_scaling),
                             type="box",
                             material="",
                             contype="1",
@@ -126,12 +126,12 @@ class MazeEnv(gym.Env):
                             worldbody, "geom",
                             name="block_%d_%d" % (i, j),
                             pos="%f %f %f" % (j * size_scaling - torso_x,
-                                                                i * size_scaling - torso_y,
-                                                                height_offset +
-                                                                height / 2 * size_scaling),
+                                                i * size_scaling - torso_y,
+                                                height_offset +
+                                                height / 2 * size_scaling),
                             size="%f %f %f" % (0.5 * size_scaling,
-                                                                 0.5 * size_scaling,
-                                                                 height / 2 * size_scaling),
+                                                 0.5 * size_scaling,
+                                                 height / 2 * size_scaling),
                             type="box",
                             material="",
                             contype="1",
@@ -153,17 +153,17 @@ class MazeEnv(gym.Env):
                             worldbody, "body",
                             name=name,
                             pos="%f %f %f" % (j * size_scaling - torso_x + x_offset,
-                                                                i * size_scaling - torso_y + y_offset,
-                                                                height_offset +
-                                                                height / 2 * size_scaling * height_shrink),
+                                                i * size_scaling - torso_y + y_offset,
+                                                height_offset +
+                                                height / 2 * size_scaling * height_shrink),
                     )
                     ET.SubElement(
                             movable_body, "geom",
                             name="block_%d_%d" % (i, j),
                             pos="0 0 0",
                             size="%f %f %f" % (0.5 * size_scaling * shrink,
-                                                                 0.5 * size_scaling * shrink,
-                                                                 height / 2 * size_scaling * height_shrink),
+                                                 0.5 * size_scaling * shrink,
+                                                 height / 2 * size_scaling * height_shrink),
                             type="box",
                             material="",
                             mass="0.001" if falling else "0.0002",
@@ -307,12 +307,12 @@ class MazeEnv(gym.Env):
             for j in range(len(structure[0])):
                 if structure[i][j] == 1:    # Wall.
                     update_view(j * size_scaling - self._init_torso_x,
-                                            i * size_scaling - self._init_torso_y,
-                                            0)
+                                i * size_scaling - self._init_torso_y,
+                                0)
                 if structure[i][j] == -1:    # Chasm.
                     update_view(j * size_scaling - self._init_torso_x,
-                                            i * size_scaling - self._init_torso_y,
-                                            1)
+                                i * size_scaling - self._init_torso_y,
+                                1)
 
         # Draw movable blocks.
         for block_name, block_type in self.movable_blocks:
@@ -387,19 +387,19 @@ class MazeEnv(gym.Env):
                         segment=seg["segment"])
                 if p is not None:
                     ray_segments.append(dict(
-                            segment=seg["segment"],
-                            type=seg["type"],
-                            ray_ori=ray_ori,
-                            distance=maze_env_utils.point_distance(p, (robot_x, robot_y)),
+                        segment=seg["segment"],
+                        type=seg["type"],
+                        ray_ori=ray_ori,
+                        distance=maze_env_utils.point_distance(p, (robot_x, robot_y)),
                     ))
             if len(ray_segments) > 0:
                 # Find out which segment is intersected first.
                 first_seg = sorted(ray_segments, key=lambda x: x["distance"])[0]
                 seg_type = first_seg["type"]
                 idx = (0 if seg_type == 1 else    # Wall.
-                             1 if seg_type == -1 else    # Drop-off.
-                             2 if maze_env_utils.can_move(seg_type) else    # Block.
-                             None)
+                         1 if seg_type == -1 else    # Drop-off.
+                         2 if maze_env_utils.can_move(seg_type) else    # Block.
+                         None)
                 if first_seg["distance"] <= self._sensor_range:
                     sensor_readings[ray_idx][idx] = (self._sensor_range - first_seg["distance"]) / self._sensor_range
 
@@ -417,12 +417,12 @@ class MazeEnv(gym.Env):
             for block_name, block_type in self.movable_blocks:
                 additional_obs.append(self.wrapped_env.get_body_com(block_name))
             wrapped_obs = np.concatenate([wrapped_obs[:3]] + additional_obs +
-                                                                     [wrapped_obs[3:]])
+                                             [wrapped_obs[3:]])
 
         range_sensor_obs = self.get_range_sensor_obs()
         return np.concatenate([wrapped_obs,
-                                                     range_sensor_obs.flat] +
-                                                     view + [[self.t * 0.001]])
+                                 range_sensor_obs.flat] +
+                                 view + [[self.t * 0.001]])
 
     def reset(self):
         self.t = 0
