@@ -31,16 +31,19 @@ class PathSampler(Sampler):
                     observation_for_this_level["goal"] = hierarchy_samples[level + 1][2]
                 policy_inputs = self.selector(
                     level, observation_for_this_level)[np.newaxis, ...]
+
                 if random:
                     current_action = self.policies[level].sample(
                         policy_inputs)[0, ...].numpy()
                 else:
                     current_action = self.policies[level].get_expected_value(
                         policy_inputs)[0, ...].numpy()
+
                 hierarchy_samples[level][0] += 1
                 hierarchy_samples[level][1] = observation_for_this_level
                 hierarchy_samples[level][2] = current_action
                 hierarchy_samples[level][3] = 0.0
+
                 if level > 0:
                     hierarchy_samples[level][1]["induced_actions"] = []
                     hierarchy_samples[level][1]["induced_observations"] = []
@@ -65,6 +68,7 @@ class PathSampler(Sampler):
             observation = self.env.reset()
             heads = [self.buffers[level].request_head()
                      for level in range(self.num_levels)]
+
             for time_step in range(self.max_path_length):
                 self.push_through_hierarchy(
                     hierarchy_samples, time_step, observation, random=random)
@@ -72,6 +76,7 @@ class PathSampler(Sampler):
                     hierarchy_samples[0][2])
                 all_rewards.append(reward)
                 observation = next_observation
+
                 for level in range(self.num_levels):
                     hierarchy_samples[level][3] += reward
                     sample = hierarchy_samples[level][1]
@@ -79,6 +84,7 @@ class PathSampler(Sampler):
                             len(sample["induced_actions"]) == self.time_skips[level])):
                         self.buffers[level].insert_sample(
                             level, heads[level], *hierarchy_samples[level])
+
                 if render:
                     self.env.render(**render_kwargs)
                 if save_paths:
