@@ -70,10 +70,7 @@ class Sampler(ABC):
     @abstractmethod
     def collect(
         self,
-        num_samples_to_collect,
-        random=False,
-        save_paths=False,
-        render=False,
-        **render_kwargs
+        *args,
+        **kwargs
     ):
         return NotImplemented

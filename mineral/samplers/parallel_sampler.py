@@ -47,16 +47,6 @@ class ParallelSampler(Sampler):
 
     def collect(
         self,
-        num_samples_to_collect,
-        random=False,
-        save_paths=False,
-        render=False,
-        **render_kwargs
-    ):
-        pass
-
-    def parallel_collect(
-        self,
         thread_function
     ):
         reward_list = []
@@ -76,7 +66,7 @@ class ParallelSampler(Sampler):
     ):
         def thread_function(inner_sampler, output_list):
             output_list.append(inner_sampler.warp_up(render=render, **render_kwargs))
-        return self.parallel_collect(thread_function)
+        return self.collect(thread_function)
 
     def explore(
         self,
@@ -85,7 +75,7 @@ class ParallelSampler(Sampler):
     ):
         def thread_function(inner_sampler, output_list):
             output_list.append(inner_sampler.explore(render=render, **render_kwargs))
-        return self.parallel_collect(thread_function)
+        return self.collect(thread_function)
 
     def evaluate(
         self,
@@ -94,4 +84,4 @@ class ParallelSampler(Sampler):
     ):
         def thread_function(inner_sampler, output_list):
             output_list.append(inner_sampler.evaluate(render=render, **render_kwargs))
-        return self.parallel_collect(thread_function)
+        return self.collect(thread_function)
