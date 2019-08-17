@@ -10,8 +10,6 @@ class Sampler(ABC):
 
     def __init__(
         self,
-        env,
-        *inputs,
         max_path_length=256,
         num_warm_up_paths=1024,
         num_exploration_paths=32,
@@ -19,16 +17,12 @@ class Sampler(ABC):
         selector=None,
         monitor=None
     ):
-        self.env = copy.deepcopy(env)
-        self.policies = inputs[0::2]
-        self.buffers = inputs[1::2]
         self.max_path_length = max_path_length
         self.num_warm_up_paths = num_warm_up_paths
         self.num_exploration_paths = num_exploration_paths
         self.num_evaluation_paths = num_evaluation_paths
         self.selector = (lambda i, x: x) if selector is None else selector
         self.monitor = monitor
-        self.num_levels = len(self.policies)
         self.num_steps_collected = 0
         self.begin_time = time.time()
 

@@ -2,7 +2,7 @@
 
 
 import numpy as np
-from gym.spaces import Box
+from gym.spaces import Box, Dict
 from gym import Env
 
 
@@ -11,8 +11,9 @@ class PointmassEnv(Env):
     def __init__(
         self, size=2, ord=2
     ):
-        self.observation_space = {"proprio_observation": Box(
-            -1.0 * np.ones([size]), np.ones([size]))}
+        self.observation_space = Dict({
+            "proprio_observation": Box(
+                -1.0 * np.ones([size]), np.ones([size]))})
         self.action_space = Box(
             -1.0 * np.ones([size]), np.ones([size]))
         self.position = np.zeros([size])

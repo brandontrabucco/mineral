@@ -3,7 +3,7 @@
 
 import numpy as np
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
-from gym.spaces import Box
+from gym.spaces import Box, Dict
 
 
 class ImagePointmassEnv(PointmassEnv):
@@ -13,8 +13,10 @@ class ImagePointmassEnv(PointmassEnv):
     ):
         PointmassEnv.__init__(self, **kwargs)
         self.image_size = image_size
-        self.observation_space = {**self.observation_space, "image_observation": Box(
-            np.zeros([image_size, image_size, 3]), np.ones([image_size, image_size, 3]))}
+        self.observation_space = Dict({
+            **self.observation_space, "image_observation": Box(
+                np.zeros([image_size, image_size, 3]),
+                np.ones([image_size, image_size, 3]))})
 
     def reset(
         self,

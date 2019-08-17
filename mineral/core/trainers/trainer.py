@@ -9,11 +9,12 @@ class Trainer(ABC):
     def __init__(
         self,
         sampler,
-        *args
+        buffers,
+        algorithms
     ):
         self.sampler = sampler
-        self.buffers = args[0::2]
-        self.algorithms = args[1::2]
+        self.buffers = buffers if isinstance(buffers, list) else [buffers]
+        self.algorithms = algorithms if isinstance(algorithms, list) else [algorithms]
 
     @abstractmethod
     def train(

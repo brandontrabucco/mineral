@@ -29,7 +29,6 @@ class LocalTrainer(Trainer):
         best_reward = float("-inf")
         for iteration in range(self.num_steps):
             if iteration == 0:
-                self.sampler.reset()
                 self.sampler.warm_up()
 
             expl_reward = self.sampler.explore()
@@ -38,6 +37,7 @@ class LocalTrainer(Trainer):
                 best_reward = eval_reward
                 self.save_function(iteration)
 
+            print("CHECKING {}".format(self.monitor is not None))
             if self.monitor is not None:
                 self.monitor.record("expl_average_reward", expl_reward)
                 self.monitor.record("eval_average_reward", eval_reward)

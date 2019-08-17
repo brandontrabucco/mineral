@@ -51,7 +51,9 @@ class PathBuffer(Buffer):
     ):
         def insert_sample_backend(x, y):
             x[head, tail, ...] = y
-        if self.size == 0:
+        if (self.observations is None or
+                self.actions is None or
+                self.rewards is None):
             self.inflate(observation, action, reward)
         ml.nested_apply(insert_sample_backend, self.observations, observation)
         ml.nested_apply(insert_sample_backend, self.actions, action)
