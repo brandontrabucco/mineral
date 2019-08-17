@@ -30,7 +30,8 @@ class Buffer(ABC):
     @abstractmethod
     def insert_sample(
         self,
-        j,
+        head,
+        tail,
         observation,
         action,
         reward
@@ -38,7 +39,7 @@ class Buffer(ABC):
         return NotImplemented
 
     @abstractmethod
-    def finish_path(
+    def request_head(
         self,
     ):
         return NotImplemented

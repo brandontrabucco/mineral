@@ -21,7 +21,7 @@ from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.samplers.hierarchy_sampler import HierarchySampler
+from mineral.samplers.path_sampler import PathSampler
 
 from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
 from mineral.buffers.relabelers.baselines.hac_relabeler import HACRelabeler
@@ -196,7 +196,7 @@ def run_experiment(variant):
     # SAMPLERS #
     ############
 
-    sampler = HierarchySampler(
+    sampler = PathSampler(
         env,
         lower_policy,
         lower_buffer,

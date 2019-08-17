@@ -20,7 +20,7 @@ from mineral.algorithms.multi_algorithm import MultiAlgorithm
 from mineral.core.envs.normalized_env import NormalizedEnv
 
 from mineral.buffers.path_buffer import PathBuffer
-from mineral.samplers.hierarchy_sampler import HierarchySampler
+from mineral.samplers.path_sampler import PathSampler
 
 
 def run_experiment(variant):
@@ -86,7 +86,7 @@ def run_experiment(variant):
         selector=(lambda x: x["proprio_observation"]),
         monitor=monitor)
 
-    sampler = HierarchySampler(
+    sampler = PathSampler(
         env,
         policy,
         buffer,

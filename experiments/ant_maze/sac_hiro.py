@@ -23,7 +23,7 @@ from mineral.core.envs.contrib.ant_maze_env import AntMazeEnv
 from mineral.buffers.path_buffer import PathBuffer
 from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
 from mineral.buffers.relabelers.baselines.hiro_relabeler import HIRORelabeler
-from mineral.samplers.hierarchy_sampler import HierarchySampler
+from mineral.samplers.path_sampler import PathSampler
 
 
 def run_experiment(variant):
@@ -168,7 +168,7 @@ def run_experiment(variant):
     # SAMPLERS #
     ############
 
-    sampler = HierarchySampler(
+    sampler = PathSampler(
         env,
         lower_policy,
         lower_buffer,

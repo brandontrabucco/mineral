@@ -5,7 +5,7 @@ import numpy as np
 from mineral.samplers.sampler import Sampler
 
 
-class HierarchySampler(Sampler):
+class PathSampler(Sampler):
 
     def __init__(
         self,
@@ -14,7 +14,6 @@ class HierarchySampler(Sampler):
         **kwargs
     ):
         Sampler.__init__(self, *args, **kwargs)
-        self.num_levels = len(self.policies)
         self.time_skips = tuple(time_skips) + tuple(
             1 for _i in range(self.num_levels - len(time_skips)))
 
@@ -30,7 +29,8 @@ class HierarchySampler(Sampler):
             if time_step % np.prod(self.time_skips[:level + 1]) == 0:
                 if level < self.num_levels - 1:
                     observation_for_this_level["goal"] = hierarchy_samples[level + 1][2]
-                policy_inputs = self.selector(level, observation_for_this_level)[np.newaxis, ...]
+                policy_inputs = self.selector(
+                    level, observation_for_this_level)[np.newaxis, ...]
                 if random:
                     current_action = self.policies[level].sample(
                         policy_inputs)[0, ...].numpy()
@@ -63,6 +63,8 @@ class HierarchySampler(Sampler):
             hierarchy_samples = [[
                 -1, {}, None, 0.0] for _level in range(self.num_levels)]
             observation = self.env.reset()
+            heads = [self.buffers[level].request_head()
+                     for level in range(self.num_levels)]
             for time_step in range(self.max_path_length):
                 self.push_through_hierarchy(
                     hierarchy_samples, time_step, observation, random=random)
@@ -73,16 +75,15 @@ class HierarchySampler(Sampler):
                 for level in range(self.num_levels):
                     hierarchy_samples[level][3] += reward
                     sample = hierarchy_samples[level][1]
-                    if (save_paths and (
-                            "induced_actions" not in sample or
+                    if (save_paths and ("induced_actions" not in sample or
                             len(sample["induced_actions"]) == self.time_skips[level])):
-                        self.buffers[level].insert_sample(*hierarchy_samples[level])
+                        self.buffers[level].insert_sample(
+                            level, heads[level], *hierarchy_samples[level])
                 if render:
                     self.env.render(**render_kwargs)
                 if save_paths:
                     self.increment()
                 if done:
                     break
-            if save_paths:
-                self.finish_path()
-        return np.mean(all_rewards) if len(all_rewards) > 0 else 0.0
+        return (np.mean(all_rewards)
+                if len(all_rewards) > 0 else 0.0)
