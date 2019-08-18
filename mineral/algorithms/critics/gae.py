@@ -80,7 +80,7 @@ class GAE(Critic):
             actions,
             rewards,
             terminals)
-        advantages = discounted_sum(advantages, self.gamma)
+        advantages = discounted_sum(advantages, self.gamma * self.lamb)
         self.record("generalized_advantages_mean",
                     tf.reduce_mean(advantages))
         return advantages
