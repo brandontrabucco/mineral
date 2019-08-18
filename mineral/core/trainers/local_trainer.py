@@ -12,7 +12,7 @@ class LocalTrainer(Trainer):
         *args,
         num_steps=10000,
         num_trains_per_step=1,
-        save_function=(lambda i: None),
+        saver=None,
         monitor=None,
     ):
         Trainer.__init__(
@@ -20,7 +20,7 @@ class LocalTrainer(Trainer):
             *args)
         self.num_steps = num_steps
         self.num_trains_per_step = num_trains_per_step
-        self.save_function = save_function
+        self.saver = saver
         self.monitor = monitor
 
     def train(
@@ -35,7 +35,8 @@ class LocalTrainer(Trainer):
             eval_reward = self.sampler.evaluate()
             if iteration > 0 and eval_reward > best_reward:
                 best_reward = eval_reward
-                self.save_function(iteration)
+                if self.saver is not None:
+                    self.saver.save(iteration)
 
             print("CHECKING {}".format(self.monitor is not None))
             if self.monitor is not None:

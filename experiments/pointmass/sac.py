@@ -4,7 +4,7 @@
 import multiprocessing
 import tensorflow as tf
 
-from mineral.core.savers.saver import Saver
+from mineral.core.savers.local_saver import LocalSaver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
@@ -49,7 +49,8 @@ def run_experiment(variant):
     monitor = LocalMonitor(logging_dir)
 
     env = NormalizedEnv(
-            PointmassEnv, reward_scale=(1 / max_path_length), size=2, ord=2)
+        PointmassEnv,
+        reward_scale=(1 / max_path_length), size=2, ord=2)
 
     policy = Dense(
         [256, 256, 4],
@@ -58,14 +59,13 @@ def run_experiment(variant):
         optimizer_kwargs=dict(lr=0.0001),
         distribution_class=TanhGaussian,
         distribution_kwargs=dict(std=None))
+    target_policy = policy.clone()
 
     qf = Dense(
         [256, 256, 1],
         tau=1e-1,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=0.0001))
-
-    target_policy = policy.clone()
     target_qf = qf.clone()
 
     buffer = PathBuffer(
@@ -75,9 +75,7 @@ def run_experiment(variant):
         monitor=monitor)
 
     sampler = ParallelSampler(
-        env,
-        policy,
-        buffer,
+        env, policy, buffer,
         time_skips=(1,),
         max_path_length=max_path_length,
         num_warm_up_paths=num_warm_up_paths,
@@ -117,7 +115,7 @@ def run_experiment(variant):
 
     algorithm = MultiAlgorithm(actor, critic, tuner)
 
-    saver = Saver(
+    saver = LocalSaver(
         logging_dir,
         policy=policy,
         target_policy=target_policy,
@@ -130,7 +128,7 @@ def run_experiment(variant):
         algorithm,
         num_steps=num_steps,
         num_trains_per_step=num_trains_per_step,
-        save_function=saver,
+        saver=saver,
         monitor=monitor)
 
     trainer.train()
