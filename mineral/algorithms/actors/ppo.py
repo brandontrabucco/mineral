@@ -10,19 +10,17 @@ class PPO(ImportanceSampling):
     def __init__(
         self,
         *args,
-        epsilon=0.1,
-        alpha=0.0,
+        epsilon=0.2,
         **kwargs
     ):
         ImportanceSampling.__init__(self, *args, **kwargs)
         self.epsilon = epsilon
-        self.alpha = alpha
 
     def update_actor(
         self,
         observations,
         actions,
-        returns,
+        rewards,
         terminals
     ):
         if (self.iteration >= self.old_update_after and
@@ -31,34 +29,30 @@ class PPO(ImportanceSampling):
             self.old_policy.set_weights(self.policy.get_weights())
 
         def loss_function():
+            advantages = self.critic.get_advantages(
+                observations,
+                actions,
+                rewards,
+                terminals)
             ratio = tf.exp(
                 self.policy.get_log_probs(
                     actions, observations[:, :(-1), ...]) - self.old_policy.get_log_probs(
-                        actions, observations[:, :(-1), ...]))
-            sampled_actions = self.policy.sample(
-                observations[:, :(-1), ...])
-            sampled_log_probs = self.policy.get_log_probs(
-                sampled_actions,
-                observations[:, :(-1), ...])
-            policy_loss = tf.reduce_mean(
-                self.alpha * sampled_log_probs - tf.minimum(
-                    returns * ratio,
-                    returns * tf.clip_by_value(
+                    actions, observations[:, :(-1), ...]))
+            policy_loss = -1.0 * tf.reduce_mean(
+                tf.minimum(
+                    advantages * ratio,
+                    advantages * tf.clip_by_value(
                         ratio, 1.0 - self.epsilon, 1.0 + self.epsilon)))
             self.record(
+                "rewards_mean", tf.reduce_mean(rewards))
+            self.record(
+                "policy_ratio_mean", tf.reduce_mean(ratio))
+            self.record(
+                "policy_ratio_max", tf.reduce_max(ratio))
+            self.record(
+                "policy_ratio_min", tf.reduce_min(ratio))
+            self.record(
                 "policy_loss", policy_loss)
-            self.record(
-                "policy_log_probs_mean",
-                tf.reduce_mean(sampled_log_probs))
-            self.record(
-                "advantages_max",
-                tf.reduce_max(returns))
-            self.record(
-                "advantages_min",
-                tf.reduce_min(returns))
-            self.record(
-                "advantages_mean",
-                tf.reduce_mean(returns))
             return policy_loss
         self.policy.minimize(
             loss_function,

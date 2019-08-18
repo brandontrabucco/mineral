@@ -17,7 +17,7 @@ def run_experiment(experiment_id):
     ppo_variant["gamma"] = 0.99
     ppo_variant["lamb"] = 0.95
     ppo_variant["epsilon"] = 0.1
-    ppo_variant["bellman_weight"] = 1.0
+    ppo_variant["bellman_weight"] = 0.0
     ppo_variant["discount_weight"] = 1.0
     ppo_variant["max_size"] = 32
     ppo_variant["max_path_length"] = 10

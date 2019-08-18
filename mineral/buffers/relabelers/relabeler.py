@@ -44,6 +44,13 @@ class Relabeler(Buffer, ABC):
     ):
         self.buffer.finish_path(*args, **kwargs)
 
+    def request_head(
+        self,
+        *args,
+        **kwargs
+    ):
+        self.buffer.request_head(*args, **kwargs)
+
     def reset(
         self,
         *args,

@@ -9,7 +9,7 @@ from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
 from mineral.networks.dense import Dense
-from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
+from mineral.distributions.gaussians.gaussian import Gaussian
 
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.critics.soft_value_network import SoftValueNetwork
@@ -31,7 +31,7 @@ ppo_variant = dict(
     batch_size=32,
     gamma=0.99,
     lamb=0.95,
-    epsilon=0.1,
+    epsilon=0.2,
     bellman_weight=0.0,
     discount_weight=1.0,
     max_size=32,
@@ -59,12 +59,12 @@ def ppo(
     action_dim = np.prod(env.action_space.shape)
 
     policy = Dense(
-        [variant["hidden_size"], variant["hidden_size"], 2 * action_dim],
+        [variant["hidden_size"], variant["hidden_size"], action_dim],
         tau=variant["tau"],
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=variant["learning_rate"]),
-        distribution_class=TanhGaussian,
-        distribution_kwargs=dict(std=None))
+        distribution_class=Gaussian,
+        distribution_kwargs=dict(std=0.5))
 
     vf = Dense(
         [variant["hidden_size"], variant["hidden_size"], 1],

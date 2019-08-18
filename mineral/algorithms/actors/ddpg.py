@@ -61,16 +61,3 @@ class DDPG(ActorCritic):
         self.policy.minimize(
             loss_function,
             observations[:, :(-1), ...])
-
-    def update_algorithm(
-        self, 
-        observations,
-        actions,
-        rewards,
-        terminals
-    ):
-        self.update_actor(
-            observations,
-            actions,
-            rewards,
-            terminals)

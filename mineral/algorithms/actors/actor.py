@@ -16,3 +16,16 @@ class Actor(Base, ABC):
         terminals
     ):
         return NotImplemented
+
+    def update_algorithm(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        self.update_actor(
+            observations,
+            actions,
+            rewards,
+            terminals)
