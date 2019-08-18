@@ -8,7 +8,8 @@ class Optimizer(HasGradient):
 
     def __init__(
         self,
-        mlp
+        mlp,
+        **kwargs
     ):
         self.mlp = mlp
 

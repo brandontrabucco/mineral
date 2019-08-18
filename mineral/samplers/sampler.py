@@ -15,7 +15,8 @@ class Sampler(ABC):
         num_exploration_paths=32,
         num_evaluation_paths=32,
         selector=None,
-        monitor=None
+        monitor=None,
+        **kwargs
     ):
         self.max_path_length = max_path_length
         self.num_warm_up_paths = num_warm_up_paths

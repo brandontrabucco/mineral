@@ -4,7 +4,7 @@
 import multiprocessing
 import tensorflow as tf
 
-from mineral.core.saver import Saver
+from mineral.core.savers.saver import Saver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
@@ -48,31 +48,25 @@ def run_experiment(variant):
 
     monitor = LocalMonitor(logging_dir)
 
-    def make_env():
-        return NormalizedEnv(
-            PointmassEnv(size=2, ord=2),
-            reward_scale=(1 / max_path_length))
+    env = NormalizedEnv(
+            PointmassEnv, reward_scale=(1 / max_path_length), size=2, ord=2)
 
-    def make_policy():
-        return Dense(
-            [256, 256, 4],
-            tau=1e-1,
-            optimizer_class=tf.keras.optimizers.Adam,
-            optimizer_kwargs=dict(lr=0.0001),
-            distribution_class=TanhGaussian,
-            distribution_kwargs=dict(std=None))
+    policy = Dense(
+        [256, 256, 4],
+        tau=1e-1,
+        optimizer_class=tf.keras.optimizers.Adam,
+        optimizer_kwargs=dict(lr=0.0001),
+        distribution_class=TanhGaussian,
+        distribution_kwargs=dict(std=None))
 
-    def make_qf():
-        return Dense(
-            [256, 256, 1],
-            tau=1e-1,
-            optimizer_class=tf.keras.optimizers.Adam,
-            optimizer_kwargs=dict(lr=0.0001))
+    qf = Dense(
+        [256, 256, 1],
+        tau=1e-1,
+        optimizer_class=tf.keras.optimizers.Adam,
+        optimizer_kwargs=dict(lr=0.0001))
 
-    policy = make_policy()
-    target_policy = make_policy()
-    qf = make_qf()
-    target_qf = make_qf()
+    target_policy = policy.clone()
+    target_qf = qf.clone()
 
     buffer = PathBuffer(
         max_size=max_size,
@@ -81,11 +75,9 @@ def run_experiment(variant):
         monitor=monitor)
 
     sampler = ParallelSampler(
-        make_policy,
-        make_env,
+        env,
         policy,
         buffer,
-        num_threads=16,
         time_skips=(1,),
         max_path_length=max_path_length,
         num_warm_up_paths=num_warm_up_paths,

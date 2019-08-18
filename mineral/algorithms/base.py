@@ -13,7 +13,8 @@ class Base(ABC):
         batch_size=32,
         selector=None,
         monitor=None,
-        logging_prefix=""
+        logging_prefix="",
+        **kwargs
     ):
         self.update_every = update_every
         self.update_after = update_after

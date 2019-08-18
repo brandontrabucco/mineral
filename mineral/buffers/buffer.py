@@ -11,7 +11,8 @@ class Buffer(ABC):
         max_size=1024,
         max_path_length=10,
         selector=None,
-        monitor=None
+        monitor=None,
+        **kwargs
     ):
         self.max_size = max_size
         self.max_path_length = max_path_length

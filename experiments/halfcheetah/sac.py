@@ -5,7 +5,7 @@ import gym
 import multiprocessing
 import tensorflow as tf
 
-from mineral.core.saver import Saver
+from mineral.core.savers.saver import Saver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 

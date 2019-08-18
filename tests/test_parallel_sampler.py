@@ -1,20 +1,11 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
-
-import multiprocessing
 import tensorflow as tf
 
-from mineral.core.saver import Saver
-from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
-
-from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
-from mineral.algorithms.critics.soft_q_learning import SoftQLearning
-from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
-from mineral.algorithms.multi_algorithm import MultiAlgorithm
 
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv

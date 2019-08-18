@@ -10,7 +10,8 @@ class Trainer(ABC):
         self,
         sampler,
         buffers,
-        algorithms
+        algorithms,
+        **kwargs
     ):
         self.sampler = sampler
         self.buffers = buffers if isinstance(buffers, list) else [buffers]

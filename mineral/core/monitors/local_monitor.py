@@ -11,7 +11,6 @@ from mineral.core.monitors import plot_to_tensor
 
 def create_and_listen(
     logging_dir,
-    step_queue,
     record_queue
 ):
     tf.io.gfile.makedirs(logging_dir)
@@ -27,15 +26,9 @@ def create_and_listen(
         print("TensorBoard failed to launch")
 
     while True:
-        if not step_queue.empty():
-            step = step_queue.get()
-            while not step_queue.empty():
-                step = step_queue.get()
-
-            tf.summary.experimental.set_step(step)
-
         if not record_queue.empty():
-            key, value = record_queue.get()
+            step, key, value = record_queue.get()
+            tf.summary.experimental.set_step(step)
 
             with writer.as_default():
                 if len(tf.shape(value)) == 0:
@@ -69,22 +62,22 @@ class LocalMonitor(Monitor):
         self,
         logging_dir
     ):
-        self.step_queue = queue.Queue()
         self.record_queue = queue.Queue()
         self.thread = threading.Thread(
             target=create_and_listen, args=(
-                logging_dir, self.step_queue, self.record_queue))
+                logging_dir, self.record_queue))
         self.thread.start()
+        self.step = 0
 
     def set_step(
         self,
         step
     ):
-        self.step_queue.put(step)
+        self.step = step
 
     def record(
         self,
         key,
         value,
     ):
-        self.record_queue.put((key, value))
+        self.record_queue.put((self.step, key, value))

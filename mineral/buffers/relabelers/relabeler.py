@@ -11,7 +11,8 @@ class Relabeler(Buffer, ABC):
     def __init__(
         self,
         buffer,
-        relabel_probability=1.0
+        relabel_probability=1.0,
+        **kwargs
     ):
         self.buffer = buffer
         self.relabel_probability = relabel_probability

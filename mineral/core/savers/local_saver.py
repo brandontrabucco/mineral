@@ -3,9 +3,10 @@
 
 import tensorflow as tf
 import os
+from mineral.core.savers.saver import Saver
 
 
-class Saver(object):
+class LocalSaver(Saver):
 
     def __init__(
         self,
@@ -16,7 +17,7 @@ class Saver(object):
         self.logging_dir = logging_dir
         self.models = models
 
-    def __call__(
+    def save(
         self,
         iteration
     ):
