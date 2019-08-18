@@ -24,9 +24,9 @@ from mineral.buffers.path_buffer import PathBuffer
 from mineral.samplers.path_sampler import PathSampler
 
 from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
-from mineral.buffers.relabelers.baselines.hac_relabeler import HACRelabeler
-from mineral.buffers.relabelers.baselines.hindsight_relabeler import HindsightRelabeler
-from mineral.buffers.relabelers.baselines.subgoal_testing_relabeler import SubgoalTestingRelabeler
+from mineral.buffers.relabelers.contrib.hac_relabeler import HACRelabeler
+from mineral.buffers.relabelers.contrib.hindsight_relabeler import HindsightRelabeler
+from mineral.buffers.relabelers.contrib.subgoal_testing_relabeler import SubgoalTestingRelabeler
 
 from mineral.buffers.relabelers.new.entropy_relabeler import EntropyRelabeler
 from mineral.buffers.relabelers.new.reachability_relabeler import ReachabilityRelabeler

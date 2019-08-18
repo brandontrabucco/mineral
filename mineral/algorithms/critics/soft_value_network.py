@@ -21,7 +21,8 @@ class SoftValueNetwork(ValueNetwork):
             vf,
             target_vf,
             **kwargs)
-        self.policy = policy
+        self.master_policy = policy
+        self.worker_policy = policy.clone()
         self.alpha = alpha
 
     def bellman_target_values(
@@ -31,12 +32,12 @@ class SoftValueNetwork(ValueNetwork):
         rewards,
         terminals
     ):
-        sampled_actions = self.policy.get_expected_value(
+        sampled_actions = self.worker_policy.get_expected_value(
             observations[:, :(-1), ...])
-        sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+        sampled_log_probs = terminals[:, :(-1)] * self.worker_policy.get_log_probs(
             sampled_actions,
             observations[:, :(-1), ...])
-        next_target_values = self.target_vf.get_expected_value(
+        next_target_values = self.worker_target_vf.get_expected_value(
             observations[:, 1:, ...])
         target_values = rewards - self.alpha * sampled_log_probs * terminals[:, :(-1)] + (
             terminals[:, 1:] * self.gamma * (
@@ -53,9 +54,9 @@ class SoftValueNetwork(ValueNetwork):
         rewards,
         terminals
     ):
-        sampled_actions = self.policy.sample(
+        sampled_actions = self.worker_policy.sample(
             observations[:, :(-1), ...])
-        sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+        sampled_log_probs = terminals[:, :(-1)] * self.worker_policy.get_log_probs(
             sampled_actions,
             observations[:, :(-1), ...])
         discount_target_values = discounted_sum((
@@ -74,6 +75,7 @@ class SoftValueNetwork(ValueNetwork):
         bellman_target_values,
         discount_target_values
     ):
+        self.master_policy.copy_to(self.worker_policy)
         ValueNetwork.update_critic(
             self,
             observations,
@@ -82,3 +84,4 @@ class SoftValueNetwork(ValueNetwork):
             terminals,
             bellman_target_values,
             discount_target_values)
+        self.worker_policy.copy_to(self.master_policy)

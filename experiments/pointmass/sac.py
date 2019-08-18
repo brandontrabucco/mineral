@@ -2,7 +2,7 @@
 
 
 import multiprocessing
-from mineral.precooked.sac import sac, sac_variant
+from mineral.baselines.sac import sac, sac_variant
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 

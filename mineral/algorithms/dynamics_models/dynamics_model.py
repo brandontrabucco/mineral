@@ -1,7 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-from abc import ABC
+from abc import ABC,abstractmethod
 from mineral.algorithms.base import Base
 
 
@@ -16,15 +16,40 @@ class DynamicsModel(Base, ABC):
             self,
             **kwargs
         )
-        self.model = model
+        self.master_model = model
+        self.worker_model = model.clone()
 
     def get_predictions(
         self,
         observations,
         actions
     ):
-        next_observations = self.model.sample(
+        next_observations = self.master_model.sample(
             observations[:, :(-1), ...],
-            actions
-        )
+            actions)
         return next_observations
+
+    @abstractmethod
+    def update_model(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        return NotImplemented
+
+    def update_algorithm(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        self.master_model.copy_to(self.worker_model)
+        self.update_model(
+            observations,
+            actions,
+            rewards,
+            terminals)
+        self.worker_model.copy_to(self.master_model)

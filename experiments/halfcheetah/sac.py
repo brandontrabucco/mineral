@@ -2,7 +2,7 @@
 
 
 import multiprocessing
-from mineral.precooked.sac import sac, sac_variant
+from mineral.baselines.sac import sac, sac_variant
 from gym.envs.mujoco.half_cheetah import HalfCheetahEnv
 
 

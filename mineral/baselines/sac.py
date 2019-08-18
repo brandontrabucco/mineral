@@ -139,8 +139,8 @@ def sac(
 
     trainer = LocalTrainer(
         sampler,
-        [buffer, buffer],
-        [actor, critic],
+        [buffer, buffer, buffer],
+        [actor, critic, tuner],
         num_steps=variant["num_steps"],
         num_trains_per_step=variant["num_trains_per_step"],
         saver=saver,

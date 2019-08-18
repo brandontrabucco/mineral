@@ -20,7 +20,8 @@ class ImportanceSampling(ActorCritic):
             policy,
             critic,
             **kwargs)
-        self.old_policy = old_policy
+        self.master_old_policy = old_policy
+        self.worker_old_policy = old_policy.clone()
         self.old_update_every = old_update_every
         self.last_old_update_iteration = 0
 
@@ -33,14 +34,14 @@ class ImportanceSampling(ActorCritic):
     ):
         if self.iteration - self.last_old_update_iteration >= self.old_update_every:
             self.last_old_update_iteration = self.iteration
-            self.old_policy.set_weights(self.policy.get_weights())
+            self.worker_old_policy.set_weights(self.worker_policy.get_weights())
 
         def loss_function():
             ratio = tf.exp(
-                self.policy.get_log_probs(
+                self.worker_policy.get_log_probs(
                     actions,
                     observations[:, :(-1), ...],
-                    training=True) - self.old_policy.get_log_probs(
+                    training=True) - self.worker_old_policy.get_log_probs(
                         actions,
                         observations[:, :(-1), ...],
                         training=True))
@@ -50,6 +51,22 @@ class ImportanceSampling(ActorCritic):
                 "policy_loss",
                 policy_loss)
             return policy_loss
-        self.policy.minimize(
+        self.worker_policy.minimize(
             loss_function,
             observations[:, :(-1), ...])
+
+    def update_algorithm(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        self.master_old_policy.copy_to(self.worker_old_policy)
+        ActorCritic.update_algorithm(
+            self,
+            observations,
+            actions,
+            rewards,
+            terminals)
+        self.worker_old_policy.copy_to(self.master_old_policy)

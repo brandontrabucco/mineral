@@ -13,7 +13,8 @@ class EntropyTuner(Tuner):
         **kwargs
     ):
         Tuner.__init__(self, **kwargs)
-        self.policy = policy
+        self.master_policy = policy
+        self.worker_policy = policy.clone()
 
     def update_algorithm(
         self,
@@ -22,11 +23,13 @@ class EntropyTuner(Tuner):
         rewards,
         terminals
     ):
+        self.master_policy.copy_to(self.worker_policy)
+
         def loss_function():
-            policy_actions = self.policy.sample(
+            policy_actions = self.worker_policy.sample(
                 observations[:, :(-1), ...],
                 training=True)
-            policy_entropy = -self.policy.get_log_probs(
+            policy_entropy = -self.worker_policy.get_log_probs(
                 policy_actions,
                 observations[:, :(-1), ...],
                 training=True)
@@ -44,3 +47,4 @@ class EntropyTuner(Tuner):
             return tf.reduce_mean(entropy_loss)
         self.optimizer.minimize(
             loss_function, self.tuning_variable)
+        self.worker_policy.copy_to(self.master_policy)

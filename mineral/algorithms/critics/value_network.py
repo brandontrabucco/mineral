@@ -18,8 +18,10 @@ class ValueNetwork(Critic):
         **kwargs
     ):
         Critic.__init__(self, **kwargs)
-        self.vf = vf
-        self.target_vf = target_vf
+        self.master_vf = vf
+        self.worker_vf = vf.clone()
+        self.master_target_vf = target_vf
+        self.worker_target_vf = target_vf.clone()
         self.gamma = gamma
         self.bellman_weight = bellman_weight
         self.discount_weight = discount_weight
@@ -31,7 +33,7 @@ class ValueNetwork(Critic):
         rewards,
         terminals
     ):
-        next_target_values = self.target_vf.get_expected_value(
+        next_target_values = self.worker_target_vf.get_expected_value(
             observations[:, 1:, ...])
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * next_target_values[:, :, 0])
@@ -62,8 +64,11 @@ class ValueNetwork(Critic):
         bellman_target_values,
         discount_target_values
     ):
+        self.master_vf.copy_to(self.worker_vf)
+        self.master_target_vf.copy_to(self.worker_target_vf)
+
         def loss_function():
-            values = terminals[:, :(-1)] * self.vf.get_expected_value(
+            values = terminals[:, :(-1)] * self.worker_vf.get_expected_value(
                 observations[:, :(-1), ...])[:, :, 0]
             bellman_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
@@ -85,14 +90,16 @@ class ValueNetwork(Critic):
             return (
                 self.bellman_weight * bellman_loss_vf +
                 self.discount_weight * discount_loss_vf)
-        self.vf.minimize(
+        self.worker_vf.minimize(
             loss_function,
             observations[:, :(-1), ...])
+        self.worker_vf.copy_to(self.master_vf)
+        self.worker_target_vf.copy_to(self.master_target_vf)
 
     def soft_update(
         self
     ):
-        self.target_vf.soft_update(self.vf.get_weights())
+        self.worker_target_vf.soft_update(self.worker_vf.get_weights())
 
     def get_advantages(
         self,
@@ -101,8 +108,8 @@ class ValueNetwork(Critic):
         rewards,
         terminals
     ):
-        values = terminals[:, :(-1)] * self.vf.get_expected_value(
+        values = terminals[:, :(-1)] * self.master_vf.get_expected_value(
             observations[:, :(-1), ...])
-        next_values = terminals[:, 1:] * self.vf.get_expected_value(
+        next_values = terminals[:, 1:] * self.master_vf.get_expected_value(
             observations[:, 1:, ...])
         return rewards + next_values - values

@@ -7,7 +7,7 @@ from mineral.algorithms.dynamics_models.dynamics_model import DynamicsModel
 
 class OneStep(DynamicsModel):
 
-    def update_algorithm(
+    def update_model(
         self,
         observations,
         actions,

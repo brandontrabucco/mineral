@@ -27,7 +27,7 @@ class DDPG(ActorCritic):
         terminals
     ):
         def loss_function():
-            policy_actions = self.policy.sample(
+            policy_actions = self.worker_policy.sample(
                 observations[:, :(-1), ...],
                 training=True)
             advantages = self.critic.get_advantages(
@@ -58,7 +58,7 @@ class DDPG(ActorCritic):
                 "rewards_mean",
                 tf.reduce_mean(rewards))
             return policy_loss
-        self.policy.minimize(
+        self.worker_policy.minimize(
             loss_function,
             observations[:, :(-1), ...])
 
@@ -69,8 +69,10 @@ class DDPG(ActorCritic):
         rewards,
         terminals
     ):
+        self.master_policy.copy_to(self.worker_policy)
         self.update_actor(
             observations,
             actions,
             rewards,
             terminals)
+        self.worker_policy.copy_to(self.master_policy)
