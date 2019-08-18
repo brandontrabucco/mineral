@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.networks.network import Network
+from mineral.core.cloneable import Cloneable
 
 
 class Dense(Network):
@@ -13,6 +14,10 @@ class Dense(Network):
         **kwargs
     ):
         Network.__init__(self, **kwargs)
+        Cloneable.__init__(
+            self,
+            hidden_sizes,
+            **kwargs)
         self.dense_layers = [
             tf.keras.layers.Dense(size)
             for size in hidden_sizes]

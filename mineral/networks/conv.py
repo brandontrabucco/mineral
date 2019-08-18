@@ -3,9 +3,10 @@
 
 import tensorflow as tf
 from mineral.networks.network import Network
+from mineral.core.cloneable import Cloneable
 
 
-class Conv(Network):
+class Conv(Network, Cloneable):
 
     def __init__(
         self,
@@ -16,6 +17,13 @@ class Conv(Network):
         **kwargs
     ):
         Network.__init__(self, **kwargs)
+        Cloneable.__init__(
+            self,
+            filter_sizes,
+            kernel_sizes,
+            stride_sizes,
+            hidden_sizes,
+            **kwargs)
         self.conv_layers = [
             tf.keras.layers.Conv2D(filters, kernels, strides=strides, padding="same")
             for filters, kernels, strides in zip(

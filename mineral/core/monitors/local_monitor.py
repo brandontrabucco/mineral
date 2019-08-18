@@ -68,16 +68,21 @@ class LocalMonitor(Monitor):
                 logging_dir, self.record_queue))
         self.thread.start()
         self.step = 0
+        self.lock = threading.Lock()
 
     def set_step(
         self,
         step
     ):
+        self.lock.acquire()
         self.step = step
+        self.lock.release()
 
     def record(
         self,
         key,
         value,
     ):
+        self.lock.acquire()
         self.record_queue.put((self.step, key, value))
+        self.lock.release()

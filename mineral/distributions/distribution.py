@@ -41,9 +41,25 @@ class Distribution(ABC):
         return NotImplemented
 
     @abstractmethod
+    def sample_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return NotImplemented
+
+    @abstractmethod
     def get_expected_value(
         self,
         *inputs,
+        **kwargs
+    ):
+        return NotImplemented
+
+    @abstractmethod
+    def get_expected_value_from_prior(
+        self,
+        shape,
         **kwargs
     ):
         return NotImplemented

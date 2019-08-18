@@ -26,6 +26,13 @@ class TanhGaussian(Gaussian, ABC):
     ):
         return tf.math.tanh(Gaussian.sample(self, *inputs, **kwargs))
 
+    def sample_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return tf.math.tanh(Gaussian.sample_from_prior(self, shape, **kwargs))
+
     def get_expected_value(
         self,
         *inputs,
@@ -33,3 +40,10 @@ class TanhGaussian(Gaussian, ABC):
     ):
         return tf.math.tanh(Gaussian.get_expected_value(
             self, *inputs, **kwargs))
+
+    def get_expected_value_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return tf.math.tanh(Gaussian.get_expected_value_from_prior(self, shape, **kwargs))

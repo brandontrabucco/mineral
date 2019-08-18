@@ -11,7 +11,7 @@ from mineral.core.cloneable import Cloneable
 class ProxyEnv(Env, Cloneable):
 
     def __init__(
-        self, 
+        self,
         wrapped_env,
         *wrapped_env_args,
         reward_scale=1.0,

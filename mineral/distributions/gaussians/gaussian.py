@@ -49,6 +49,13 @@ class Gaussian(Distribution, ABC):
         return mean + tf.math.exp(0.5 * log_variance) * tf.random.normal(
             tf.shape(mean), dtype=tf.float32)
 
+    def sample_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return tf.random.normal(shape, dtype=tf.float32)
+
     def get_expected_value(
         self,
         *inputs,
@@ -56,6 +63,13 @@ class Gaussian(Distribution, ABC):
     ):
         mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return mean
+
+    def get_expected_value_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return tf.zeros(shape, dtype=tf.float32)
 
     def get_kl_divergence(
         self,

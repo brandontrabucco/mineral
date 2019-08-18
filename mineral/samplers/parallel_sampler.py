@@ -35,7 +35,7 @@ class ParallelSampler(Sampler):
                 num_exploration_paths=(num_exploration_paths % num_threads + num_exploration_paths // num_threads),
                 num_evaluation_paths=(num_evaluation_paths % num_threads + num_evaluation_paths // num_threads),
                 **kwargs)]
-        for _i in range(num_threads):
+        for _i in range(1, num_threads):
             self.inner_samplers.append(PathSampler(
                 *args,
                 max_path_length=max_path_length,
@@ -43,8 +43,14 @@ class ParallelSampler(Sampler):
                 num_exploration_paths=num_exploration_paths//num_threads,
                 num_evaluation_paths=num_evaluation_paths//num_threads,
                 **kwargs))
+        lock = threading.Lock()
+
+        def increment_function():
+            lock.acquire()
+            self.increment()
+            lock.release()
         for inner_sampler in self.inner_samplers:
-            inner_sampler.increment = self.increment
+            inner_sampler.increment = increment_function
 
     def collect(
         self,

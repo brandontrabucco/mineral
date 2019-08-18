@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 from mineral.networks.network import Network
+from mineral.core.cloneable import Cloneable
 
 
 class ConvTranspose(Network):
@@ -17,6 +18,14 @@ class ConvTranspose(Network):
         **kwargs
     ):
         Network.__init__(self, **kwargs)
+        Cloneable.__init__(
+            self,
+            filter_sizes,
+            kernel_sizes,
+            stride_sizes,
+            hidden_sizes,
+            initial_image_shape,
+            **kwargs)
         self.dense_layers = [
             tf.keras.layers.Dense(size)
             for size in hidden_sizes]

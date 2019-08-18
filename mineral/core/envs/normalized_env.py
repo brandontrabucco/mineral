@@ -11,10 +11,10 @@ class NormalizedEnv(ProxyEnv):
 
     def __init__(
         self, 
-        wrapped_env,
+        *args,
         **kwargs
     ):
-        ProxyEnv.__init__(self, wrapped_env, **kwargs)
+        ProxyEnv.__init__(self, *args, **kwargs)
         self.original_observation_space = self.observation_space.spaces
         self.original_action_space = self.action_space
         self.observation_space = ml.nested_apply(

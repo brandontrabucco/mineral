@@ -57,8 +57,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
         **kwargs
     ):
         with tf.GradientTape() as gradient_tape:
-            return gradient_tape.gradient(
-                loss_function(), self.trainable_variables)
+            return gradient_tape.gradient(loss_function(), self.trainable_variables)
 
     def apply_gradients(
         self,
@@ -82,8 +81,14 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
     def sample(self, *inputs, **kwargs):
         return self.distribution_class.sample(self, *inputs, **kwargs)
 
+    def sample_from_prior(self, shape, **kwargs):
+        return self.distribution_class.sample_from_prior(self, shape, **kwargs)
+
     def get_expected_value(self, *inputs, **kwargs):
         return self.distribution_class.get_expected_value(self, *inputs, **kwargs)
+
+    def get_expected_value_from_prior(self, shape, **kwargs):
+        return self.distribution_class.get_expected_value_from_prior(self, shape, **kwargs)
 
     def get_log_probs(self, *inputs, **kwargs):
         return self.distribution_class.get_log_probs(self, *inputs, **kwargs)

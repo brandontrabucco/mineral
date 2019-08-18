@@ -29,7 +29,7 @@ def run_experiment(variant):
         tf.config.experimental.set_memory_growth(gpu, True)
 
     experiment_id = variant["experiment_id"]
-    logging_dir = "./pointmass/hac/sac/{}".format(
+    logging_dir = "./pointmass/sac/{}".format(
         experiment_id)
 
     max_path_length = variant["max_path_length"]
@@ -76,11 +76,12 @@ def run_experiment(variant):
 
     sampler = ParallelSampler(
         env, policy, buffer,
-        time_skips=(1,),
         max_path_length=max_path_length,
         num_warm_up_paths=num_warm_up_paths,
         num_exploration_paths=num_exploration_paths,
         num_evaluation_paths=num_evaluation_paths,
+        time_skips=(1,),
+        num_threads=variant["num_threads"],
         selector=(lambda i, x: x["proprio_observation"]),
         monitor=monitor)
 
@@ -133,10 +134,13 @@ def run_experiment(variant):
 
     trainer.train()
 
+    import time
+    time.sleep(3600.0)
+
 
 if __name__ == "__main__":
 
-    num_seeds = 1
+    num_seeds = 5
 
     for experiment_id in range(num_seeds):
 
@@ -145,13 +149,14 @@ if __name__ == "__main__":
             max_path_length=200,
             max_size=10000,
             num_warm_up_paths=100,
-            num_exploration_paths=1,
-            num_evaluation_paths=20,
-            num_trains_per_step=100,
+            num_exploration_paths=0,
+            num_evaluation_paths=0,
+            num_trains_per_step=0,
             update_tuner_every=100,
             update_actor_every=100,
             batch_size=20,
-            num_steps=10000)
+            num_threads=2**(experiment_id),
+            num_steps=1)
 
         multiprocessing.Process(
             target=run_experiment, args=(variant,)).start()

@@ -81,8 +81,8 @@ class PathSampler(Sampler):
                     hierarchy_samples[level][3] += reward
                     sample = hierarchy_samples[level][1]
                     if (save_paths and (
-                            len(sample["induced_actions"]) == self.time_skips[level] or
-                            "induced_actions" not in sample)):
+                            "induced_actions" not in sample or
+                            len(sample["induced_actions"]) == self.time_skips[level])):
                         self.buffers[level].insert_sample(heads[level], *hierarchy_samples[level])
                 if render:
                     self.env.render(**render_kwargs)

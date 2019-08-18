@@ -3,9 +3,10 @@
 
 import tensorflow as tf
 from mineral.networks.network import Network
+from mineral.core.cloneable import Cloneable
 
 
-class EncoderDecoder(Network):
+class EncoderDecoder(Network, Cloneable):
 
     def __init__(
         self,
@@ -17,6 +18,14 @@ class EncoderDecoder(Network):
         sample_decoder=False,
     ):
         tf.keras.Model.__init__(self)
+        Cloneable.__init__(
+            self,
+            encoder,
+            decoder,
+            latent_size,
+            beta=beta,
+            sample_encoder=sample_encoder,
+            sample_decoder=sample_decoder)
         self.encoder = encoder
         self.decoder = decoder
         self.latent_size = latent_size
@@ -61,9 +70,9 @@ class EncoderDecoder(Network):
 
     def sample_from_prior(self, **kwargs):
         if self.sample_encoder:
-            latent_variable = tf.random.normal([1, self.latent_size])
+            latent_variable = self.encoder.sample_from_prior([1, self.latent_size], **kwargs)
         else:
-            latent_variable = tf.zeros([1, self.latent_size])
+            latent_variable = self.encoder.get_expected_value_from_prior([1, self.latent_size], **kwargs)
         if self.sample_decoder:
             return self.decoder.sample(latent_variable, **kwargs)
         else:
@@ -71,6 +80,10 @@ class EncoderDecoder(Network):
 
     def get_expected_value(self, *inputs, **kwargs):
         latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
+        return self.decoder.get_expected_value(latent_variable, **kwargs)
+
+    def get_expected_value_from_prior(self, **kwargs):
+        latent_variable = self.encoder.get_expected_value_from_prior([1, self.latent_size], **kwargs)
         return self.decoder.get_expected_value(latent_variable, **kwargs)
 
     def get_log_probs(self, *inputs, **kwargs):

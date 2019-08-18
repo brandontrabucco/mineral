@@ -16,6 +16,7 @@ class Sampler(ABC):
         num_evaluation_paths=32,
         selector=None,
         monitor=None,
+        logging_interval=1000,
         **kwargs
     ):
         self.max_path_length = max_path_length
@@ -24,6 +25,7 @@ class Sampler(ABC):
         self.num_evaluation_paths = num_evaluation_paths
         self.selector = (lambda i, x: x) if selector is None else selector
         self.monitor = monitor
+        self.logging_interval = logging_interval
         self.num_steps_collected = 0
         self.begin_time = time.time()
 
@@ -31,12 +33,13 @@ class Sampler(ABC):
         self
     ):
         self.num_steps_collected += 1
-        elapsed = time.time() - self.begin_time
         if self.monitor is not None:
             self.monitor.set_step(self.num_steps_collected)
-            self.monitor.record("steps_time", elapsed)
-            self.monitor.record(
-                "steps_per_second", self.num_steps_collected / elapsed)
+            if self.num_steps_collected % self.logging_interval == 0:
+                elapsed = time.time() - self.begin_time
+                self.monitor.record("steps_time", elapsed)
+                self.monitor.record(
+                    "steps_per_second", self.num_steps_collected / elapsed)
 
     def warm_up(
         self,

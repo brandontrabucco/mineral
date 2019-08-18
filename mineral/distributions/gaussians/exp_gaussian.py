@@ -26,6 +26,13 @@ class ExpGaussian(Gaussian, ABC):
     ):
         return tf.math.exp(Gaussian.sample(self, *inputs, **kwargs))
 
+    def sample_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return tf.math.exp(Gaussian.sample_from_prior(self, shape, **kwargs))
+
     def get_expected_value(
         self,
         *inputs,
@@ -33,3 +40,10 @@ class ExpGaussian(Gaussian, ABC):
     ):
         mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return tf.exp(mean + 0.5 * tf.math.exp(log_variance))
+
+    def get_expected_value_from_prior(
+        self,
+        shape,
+        **kwargs
+    ):
+        return tf.math.exp(Gaussian.get_expected_value_from_prior(self, shape, **kwargs))

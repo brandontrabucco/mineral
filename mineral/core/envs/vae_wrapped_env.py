@@ -4,9 +4,10 @@
 import numpy as np
 from gym.spaces import Box, Dict, Tuple
 from mineral.core.envs.proxy_env import ProxyEnv
+from mineral.core.cloneable import Cloneable
 
 
-class VAEWrappedEnv(ProxyEnv):
+class VAEWrappedEnv(ProxyEnv, Cloneable):
 
     def __init__(
         self, 
@@ -17,6 +18,13 @@ class VAEWrappedEnv(ProxyEnv):
         **kwargs
     ):
         ProxyEnv.__init__(self, wrapped_env, **kwargs)
+        Cloneable.__init__(
+            self,
+            wrapped_env,
+            vae,
+            selector=(lambda x: x),
+            assigner=(lambda x, y: y),
+            **kwargs)
         observation_space = self.wrapped_env.observation_space
         if (isinstance(observation_space, Dict) or
                 isinstance(observation_space, Tuple)):
@@ -28,6 +36,15 @@ class VAEWrappedEnv(ProxyEnv):
         self.vae = vae
         self.selector = selector
         self.assigner = assigner
+
+    def copy_to(
+        self,
+        clone
+    ):
+        ProxyEnv.copy_to(clone)
+        clone.vae = self.vae
+        clone.selector = self.selector
+        clone.assigner = self.assigner
 
     def reset(
         self,
