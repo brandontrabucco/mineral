@@ -27,12 +27,12 @@ class SoftQNetwork(QNetwork):
         rewards,
         terminals
     ):
-        next_actions = self.worker_policy.sample(
+        next_actions = self.policy.sample(
             observations[:, 1:, ...])
-        next_log_probs = self.worker_policy.get_log_probs(
+        next_log_probs = self.policy.get_log_probs(
             next_actions,
             observations[:, 1:, ...])
-        next_target_qvalues = self.worker_target_qf.get_expected_value(
+        next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
             next_actions)
         target_values = rewards + (
@@ -48,9 +48,9 @@ class SoftQNetwork(QNetwork):
         rewards,
         terminals
     ):
-        sampled_actions = self.worker_policy.sample(
+        sampled_actions = self.policy.sample(
             observations[:, :(-1), ...])
-        sampled_log_probs = terminals[:, :(-1)] * self.worker_policy.get_log_probs(
+        sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
             sampled_actions,
             observations[:, :(-1), ...])
         discount_target_values = discounted_sum((

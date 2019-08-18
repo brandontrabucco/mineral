@@ -27,13 +27,11 @@ class SoftActorCritic(DDPG):
         terminals
     ):
         def loss_function():
-            policy_actions = self.worker_policy.sample(
-                observations[:, :(-1), ...],
-                training=True)
-            policy_log_probs = self.worker_policy.get_log_probs(
+            policy_actions = self.policy.sample(
+                observations[:, :(-1), ...])
+            policy_log_probs = self.policy.get_log_probs(
                 policy_actions,
-                observations[:, :(-1), ...],
-                training=True)
+                observations[:, :(-1), ...])
             advantages = self.critic.get_advantages(
                 observations,
                 policy_actions,
@@ -66,5 +64,5 @@ class SoftActorCritic(DDPG):
                 "rewards_mean",
                 tf.reduce_mean(rewards))
             return policy_loss
-        self.worker_policy.minimize(
+        self.policy.minimize(
             loss_function, observations[:, :(-1), ...])

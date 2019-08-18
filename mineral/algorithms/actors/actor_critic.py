@@ -27,7 +27,6 @@ class ActorCritic(PolicyGradient):
         rewards,
         terminals
     ):
-        self.master_policy.copy_to(self.worker_policy)
         returns = self.critic.get_advantages(
             observations,
             actions,
@@ -50,4 +49,3 @@ class ActorCritic(PolicyGradient):
             actions,
             returns,
             terminals)
-        self.worker_policy.copy_to(self.master_policy)

@@ -1,7 +1,6 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
-import threading
 from mineral.core.trainers.trainer import Trainer
 
 
@@ -42,15 +41,6 @@ class LocalTrainer(Trainer):
                 self.monitor.record("expl_average_reward", expl_reward)
                 self.monitor.record("eval_average_reward", eval_reward)
 
-            def inner_train(algorithm, buffer, num_trains):
-                for training_step in range(num_trains):
-                    algorithm.gradient_update(buffer)
-
-            threads = [threading.Thread(
-                target=inner_train, args=(a, b, self.num_trains_per_step))
-                for a, b in zip(self.algorithms, self.buffers)]
-
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join()
+            for a, b in zip(self.algorithms, self.buffers):
+                for training_step in range(self.num_trains_per_step):
+                    a.gradient_update(b)

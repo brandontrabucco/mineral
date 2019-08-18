@@ -19,12 +19,9 @@ class QNetwork(Critic):
         **kwargs
     ):
         Critic.__init__(self, **kwargs)
-        self.master_policy = policy
-        self.worker_policy = policy.clone()
-        self.master_qf = qf
-        self.worker_qf = qf.clone()
-        self.master_target_qf = target_qf
-        self.worker_target_qf = target_qf.clone()
+        self.policy = policy
+        self.qf = qf
+        self.target_qf = target_qf
         self.gamma = gamma
         self.bellman_weight = bellman_weight
         self.discount_weight = discount_weight
@@ -36,9 +33,9 @@ class QNetwork(Critic):
         rewards,
         terminals
     ):
-        next_actions = self.worker_policy.sample(
+        next_actions = self.policy.sample(
             observations[:, 1:, ...])
-        next_target_qvalues = self.worker_target_qf.get_expected_value(
+        next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
             next_actions)
         target_values = rewards + (
@@ -70,12 +67,8 @@ class QNetwork(Critic):
         bellman_target_values,
         discount_target_values
     ):
-        self.master_policy.copy_to(self.worker_policy)
-        self.master_qf.copy_to(self.worker_qf)
-        self.master_target_qf.copy_to(self.worker_target_qf)
-
         def loss_function():
-            qvalues = terminals[:, :(-1)] * self.worker_qf.get_expected_value(
+            qvalues = terminals[:, :(-1)] * self.qf.get_expected_value(
                 observations[:, :(-1), ...],
                 actions)[:, :, 0]
             bellman_loss_qf = tf.reduce_mean(
@@ -98,18 +91,15 @@ class QNetwork(Critic):
             return (
                 self.bellman_weight * bellman_loss_qf +
                 self.discount_weight * discount_loss_qf)
-        self.worker_qf.minimize(
+        self.qf.minimize(
             loss_function,
             observations[:, :(-1), ...],
             actions)
-        self.worker_policy.copy_to(self.master_policy)
-        self.worker_qf.copy_to(self.master_qf)
-        self.worker_target_qf.copy_to(self.master_target_qf)
 
     def soft_update(
         self
     ):
-        self.worker_target_qf.soft_update(self.worker_qf.get_weights())
+        self.target_qf.soft_update(self.qf.get_weights())
 
     def get_advantages(
         self,
@@ -118,12 +108,9 @@ class QNetwork(Critic):
         rewards,
         terminals,
     ):
-        qvalues = self.master_qf.get_expected_value(
-            observations[:, :(-1), ...],
-            actions)
-        values = self.master_qf.get_expected_value(
-            observations[:, :(-1), ...],
-            self.master_policy.sample(
-                observations[:, :(-1), ...]))
+        qvalues = self.qf.get_expected_value(
+            observations[:, :(-1), ...], actions)
+        values = self.qf.get_expected_value(
+            observations[:, :(-1), ...], self.policy.sample(observations[:, :(-1), ...]))
         return terminals[:, :(-1)] * (
             qvalues[:, :, 0] - values[:, :, 0])

@@ -14,12 +14,9 @@ class PolicyGradient(Actor):
         gamma=1.0,
         **kwargs
     ):
-        self.master_policy = policy
-        self.worker_policy = policy.clone()
+        Actor.__init__(self, **kwargs)
+        self.policy = policy
         self.gamma = gamma
-        Actor.__init__(
-            self,
-            **kwargs)
 
     def update_actor(
         self,
@@ -29,7 +26,7 @@ class PolicyGradient(Actor):
         terminals
     ):
         def loss_function():
-            log_probs = self.worker_policy.get_log_probs(
+            log_probs = self.policy.get_log_probs(
                 actions,
                 observations[:, :(-1), ...],
                 training=True)
@@ -48,7 +45,7 @@ class PolicyGradient(Actor):
                 "policy_loss",
                 policy_loss)
             return policy_loss
-        self.worker_policy.minimize(
+        self.policy.minimize(
             loss_function,
             observations[:, :(-1), ...])
 
@@ -59,7 +56,6 @@ class PolicyGradient(Actor):
         rewards,
         terminals
     ):
-        self.master_policy.copy_to(self.worker_policy)
         returns = discounted_sum(rewards, self.gamma)
         advantages = returns - tf.reduce_mean(returns)
         self.record(
@@ -79,5 +75,4 @@ class PolicyGradient(Actor):
             actions,
             advantages,
             terminals)
-        self.worker_policy.copy_to(self.master_policy)
 
