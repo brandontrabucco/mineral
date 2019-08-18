@@ -38,7 +38,6 @@ class LocalTrainer(Trainer):
                 if self.saver is not None:
                     self.saver.save(iteration)
 
-            print("CHECKING {}".format(self.monitor is not None))
             if self.monitor is not None:
                 self.monitor.record("expl_average_reward", expl_reward)
                 self.monitor.record("eval_average_reward", eval_reward)

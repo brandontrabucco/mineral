@@ -134,9 +134,6 @@ def run_experiment(variant):
 
     trainer.train()
 
-    import time
-    time.sleep(3600.0)
-
 
 if __name__ == "__main__":
 
@@ -146,17 +143,17 @@ if __name__ == "__main__":
 
         variant = dict(
             experiment_id=experiment_id,
-            max_path_length=200,
+            max_path_length=10,
             max_size=10000,
             num_warm_up_paths=100,
-            num_exploration_paths=0,
-            num_evaluation_paths=0,
-            num_trains_per_step=0,
-            update_tuner_every=100,
-            update_actor_every=100,
-            batch_size=20,
-            num_threads=2**(experiment_id),
-            num_steps=1)
+            num_exploration_paths=1,
+            num_evaluation_paths=10,
+            num_trains_per_step=320,
+            update_tuner_every=32,
+            update_actor_every=32,
+            batch_size=10,
+            num_threads=16,
+            num_steps=100)
 
         multiprocessing.Process(
             target=run_experiment, args=(variant,)).start()
