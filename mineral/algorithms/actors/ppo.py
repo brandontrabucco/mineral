@@ -25,7 +25,8 @@ class PPO(ImportanceSampling):
         returns,
         terminals
     ):
-        if self.iteration - self.last_old_update_iteration >= self.old_update_every:
+        if (self.iteration >= self.old_update_after and
+                self.iteration - self.last_old_update_iteration >= self.old_update_every):
             self.last_old_update_iteration = self.iteration
             self.old_policy.set_weights(self.policy.get_weights())
 
