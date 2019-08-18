@@ -28,20 +28,20 @@ ppo_variant = dict(
     hidden_size=300,
     tau=0.005,
     learning_rate=0.0003,
-    batch_size=4,
+    batch_size=32,
     gamma=0.99,
     lamb=0.95,
     epsilon=0.1,
-    bellman_weight=1.0,
-    discount_weight=0.0,
-    max_size=1000,
-    max_path_length=1000,
+    bellman_weight=0.0,
+    discount_weight=1.0,
+    max_size=32,
+    max_path_length=100,
     num_warm_up_paths=0,
-    num_exploration_paths=4,
-    num_evaluation_paths=4,
-    num_threads=4,
+    num_exploration_paths=32,
+    num_evaluation_paths=32,
+    num_threads=16,
     num_steps=10000,
-    num_trains_per_step=32)
+    num_trains_per_step=10)
 
 
 def ppo(

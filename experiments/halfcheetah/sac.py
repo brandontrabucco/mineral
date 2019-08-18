@@ -8,7 +8,7 @@ from gym.envs.mujoco.half_cheetah import HalfCheetahEnv
 
 def run_experiment(experiment_id):
 
-    sac_variant["logging_dir"] = "./halfcheetah/sac/{}".format(experiment_id)
+    sac_variant["logging_dir"] = "./half-cheetah/sac/{}".format(experiment_id)
     sac_variant["reward_scale"] = 1.0
     sac_variant["hidden_size"] = 300
     sac_variant["tau"] = 0.005
