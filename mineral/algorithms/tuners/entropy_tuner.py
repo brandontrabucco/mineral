@@ -48,3 +48,6 @@ class EntropyTuner(Tuner):
         self.optimizer.minimize(
             loss_function, self.tuning_variable)
         self.worker_policy.copy_to(self.master_policy)
+
+    def get_tuning_variable(self):
+        return tf.exp(self.tuning_variable)
