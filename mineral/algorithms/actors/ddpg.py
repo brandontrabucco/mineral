@@ -10,7 +10,6 @@ class DDPG(ActorCritic):
     def __init__(
         self,
         policy,
-        target_policy,
         critic,
         **kwargs
     ):
@@ -19,7 +18,6 @@ class DDPG(ActorCritic):
             policy,
             critic,
             **kwargs)
-        self.target_policy = target_policy
 
     def update_actor(
         self,
@@ -76,5 +74,3 @@ class DDPG(ActorCritic):
             actions,
             rewards,
             terminals)
-        self.target_policy.soft_update(
-            self.policy.get_weights())

@@ -31,21 +31,18 @@ class SoftValueNetwork(ValueNetwork):
         rewards,
         terminals
     ):
-        next_actions = self.policy.get_expected_value(
-            observations[:, 1:, ...],
-            training=True)
-        next_log_probs = self.policy.get_log_probs(
-            next_actions,
-            observations[:, 1:, ...],
-            training=True)
+        sampled_actions = self.policy.get_expected_value(
+            observations[:, :(-1), ...])
+        sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+            sampled_actions,
+            observations[:, :(-1), ...])
         next_target_values = self.target_vf.get_expected_value(
-            observations[:, 1:, ...],
-            training=True)
-        target_values = rewards + (
+            observations[:, 1:, ...])
+        target_values = rewards - self.alpha * sampled_log_probs * terminals[:, :(-1)] + (
             terminals[:, 1:] * self.gamma * (
-                next_target_values[:, :, 0] - self.alpha * next_log_probs))
+                next_target_values[:, :, 0]))
         self.record(
-            "bellman_target_values_mean",
+            "value_bellman_target_mean",
             tf.reduce_mean(target_values))
         return target_values
 
@@ -56,14 +53,15 @@ class SoftValueNetwork(ValueNetwork):
         rewards,
         terminals
     ):
-        log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
-            actions,
-            observations[:, :(-1), ...],
-            training=True)
+        sampled_actions = self.policy.sample(
+            observations[:, :(-1), ...])
+        sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+            sampled_actions,
+            observations[:, :(-1), ...])
         discount_target_values = discounted_sum((
-            rewards - self.alpha * log_probs), self.gamma)
+            rewards - self.alpha * sampled_log_probs), self.gamma)
         self.record(
-            "discount_target_values_mean",
+            "value_discount_target_mean",
             tf.reduce_mean(discount_target_values))
         return discount_target_values
 

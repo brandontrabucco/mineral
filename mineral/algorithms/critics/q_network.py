@@ -13,9 +13,7 @@ class QNetwork(Critic):
         policy,
         qf,
         target_qf,
-        gamma=1.0,
-        std=1.0,
-        clip_radius=1.0,
+        gamma=0.99,
         bellman_weight=1.0,
         discount_weight=1.0,
         **kwargs
@@ -25,8 +23,6 @@ class QNetwork(Critic):
         self.qf = qf
         self.target_qf = target_qf
         self.gamma = gamma
-        self.std = std
-        self.clip_radius = clip_radius
         self.bellman_weight = bellman_weight
         self.discount_weight = discount_weight
 
@@ -37,22 +33,15 @@ class QNetwork(Critic):
         rewards,
         terminals
     ):
-        next_actions = self.policy.get_expected_value(
-            observations[:, 1:, ...],
-            training=True)
-        epsilon = tf.clip_by_value(
-            self.std * tf.random.normal(
-                tf.shape(next_actions),
-                dtype=tf.float32), -self.clip_radius, self.clip_radius)
-        noisy_next_actions = next_actions + epsilon
+        next_actions = self.policy.sample(
+            observations[:, 1:, ...])
         next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
-            noisy_next_actions,
-            training=True)
+            next_actions)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * next_target_qvalues[:, :, 0])
         self.record(
-            "bellman_target_values_mean",
+            "q_bellman_target_mean",
             tf.reduce_mean(target_values))
         return target_values
 
@@ -65,7 +54,7 @@ class QNetwork(Critic):
     ):
         discount_target_values = discounted_sum(rewards, self.gamma)
         self.record(
-            "discount_target_values_mean",
+            "q_discount_target_mean",
             tf.reduce_mean(discount_target_values))
         return discount_target_values
 
@@ -81,8 +70,7 @@ class QNetwork(Critic):
         def loss_function():
             qvalues = terminals[:, :(-1)] * self.qf.get_expected_value(
                 observations[:, :(-1), ...],
-                actions,
-                training=True)[:, :, 0]
+                actions)[:, :, 0]
             bellman_loss_qf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     bellman_target_values,
@@ -95,10 +83,10 @@ class QNetwork(Critic):
                 "qvalues_mean",
                 tf.reduce_mean(qvalues))
             self.record(
-                "bellman_loss",
+                "q_bellman_loss",
                 bellman_loss_qf)
             self.record(
-                "discount_loss",
+                "q_discount_loss",
                 discount_loss_qf)
             return (
                 self.bellman_weight * bellman_loss_qf +
@@ -122,12 +110,10 @@ class QNetwork(Critic):
     ):
         qvalues = self.qf.get_expected_value(
             observations[:, :(-1), ...],
-            actions,
-            training=True)
+            actions)
         values = self.qf.get_expected_value(
             observations[:, :(-1), ...],
-            self.policy.get_expected_value(
-                observations[:, :(-1), ...],
-                training=True), training=True)
+            self.policy.sample(
+                observations[:, :(-1), ...]))
         return terminals[:, :(-1)] * (
             qvalues[:, :, 0] - values[:, :, 0])

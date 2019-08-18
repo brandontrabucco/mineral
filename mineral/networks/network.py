@@ -72,7 +72,11 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
         self.set_weights([self.tau * w + (1.0 - self.tau) * w_self
                           for w, w_self in zip(weights, self.get_weights())])
 
-    def get_activations(self, *inputs, **kwargs):
+    def get_activations(
+        self,
+        *inputs,
+        **kwargs
+    ):
         return self(*inputs, **kwargs)
 
     def get_parameters(self, *inputs, **kwargs):

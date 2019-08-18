@@ -17,7 +17,9 @@ class Cloneable(ABC):
     def clone(
         self
     ):
-        return self.__class__(*self._clone_args, **self._clone_kwargs)
+        clone = self.__class__(*self._clone_args, **self._clone_kwargs)
+        self.copy_to(clone)
+        return clone
 
     @abstractmethod
     def copy_to(

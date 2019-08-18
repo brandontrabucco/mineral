@@ -27,28 +27,18 @@ class SoftQNetwork(QNetwork):
         rewards,
         terminals
     ):
-        next_actions = self.policy.get_expected_value(
-            observations[:, 1:, ...],
-            training=True)
+        next_actions = self.policy.sample(
+            observations[:, 1:, ...])
         next_log_probs = self.policy.get_log_probs(
             next_actions,
-            observations[:, 1:, ...],
-            training=True)
-        epsilon = tf.clip_by_value(
-            self.std * tf.random.normal(
-                tf.shape(next_actions),
-                dtype=tf.float32), -self.clip_radius, self.clip_radius)
-        noisy_next_actions = next_actions + epsilon
+            observations[:, 1:, ...])
         next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
-            noisy_next_actions,
-            training=True)
+            next_actions)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * (
                 next_target_qvalues[:, :, 0] - self.alpha * next_log_probs))
-        self.record(
-            "bellman_target_values_mean",
-            tf.reduce_mean(target_values))
+        self.record("q_bellman_target_mean", tf.reduce_mean(target_values))
         return target_values
 
     def discount_target_values(
@@ -58,15 +48,14 @@ class SoftQNetwork(QNetwork):
         rewards,
         terminals
     ):
-        log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
-            actions,
-            observations[:, :(-1), ...],
-            training=True)
+        sampled_actions = self.policy.sample(
+            observations[:, :(-1), ...])
+        sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
+            sampled_actions,
+            observations[:, :(-1), ...])
         discount_target_values = discounted_sum((
-            rewards - self.alpha * log_probs), self.gamma)
-        self.record(
-            "discount_target_values_mean",
-            tf.reduce_mean(discount_target_values))
+            rewards - self.alpha * sampled_log_probs), self.gamma)
+        self.record("q_discount_target_mean", tf.reduce_mean(discount_target_values))
         return discount_target_values
 
     def update_critic(

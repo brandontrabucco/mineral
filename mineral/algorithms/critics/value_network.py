@@ -12,7 +12,7 @@ class ValueNetwork(Critic):
         self,
         vf,
         target_vf,
-        gamma=1.0,
+        gamma=0.99,
         bellman_weight=1.0,
         discount_weight=1.0,
         **kwargs
@@ -32,12 +32,11 @@ class ValueNetwork(Critic):
         terminals
     ):
         next_target_values = self.target_vf.get_expected_value(
-            observations[:, 1:, ...],
-            training=True)
+            observations[:, 1:, ...])
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * next_target_values[:, :, 0])
         self.record(
-            "bellman_target_values_mean",
+            "value_bellman_target_mean",
             tf.reduce_mean(target_values))
         return target_values
 
@@ -50,7 +49,7 @@ class ValueNetwork(Critic):
     ):
         discount_target_values = discounted_sum(rewards, self.gamma)
         self.record(
-            "discount_target_values_mean",
+            "value_discount_target_mean",
             tf.reduce_mean(discount_target_values))
         return discount_target_values
 
@@ -65,8 +64,7 @@ class ValueNetwork(Critic):
     ):
         def loss_function():
             values = terminals[:, :(-1)] * self.vf.get_expected_value(
-                observations[:, :(-1), ...],
-                training=True)[:, :, 0]
+                observations[:, :(-1), ...])[:, :, 0]
             bellman_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     bellman_target_values,
@@ -79,10 +77,10 @@ class ValueNetwork(Critic):
                 "values_mean",
                 tf.reduce_mean(values))
             self.record(
-                "bellman_loss",
+                "value_bellman_loss",
                 bellman_loss_vf)
             self.record(
-                "discount_loss",
+                "value_discount_loss",
                 discount_loss_vf)
             return (
                 self.bellman_weight * bellman_loss_vf +

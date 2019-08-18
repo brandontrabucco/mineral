@@ -5,7 +5,7 @@ import tensorflow as tf
 from mineral.algorithms.critics.critic import Critic
 
 
-class TwinDelayedCritic(Critic):
+class TwinCritic(Critic):
 
     def __init__(
         self,
@@ -43,11 +43,17 @@ class TwinDelayedCritic(Critic):
         rewards,
         terminals
     ):
-        return self.critic1.discount_target_values(
-            observations,
-            actions,
-            rewards,
-            terminals)
+        return tf.minimum(
+            self.critic1.discount_target_values(
+                observations,
+                actions,
+                rewards,
+                terminals),
+            self.critic2.discount_target_values(
+                observations,
+                actions,
+                rewards,
+                terminals))
 
     def update_critic(
         self,
