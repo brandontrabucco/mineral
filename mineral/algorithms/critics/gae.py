@@ -2,23 +2,71 @@
 
 
 import tensorflow as tf
-from mineral.algorithms.critics.value_learning import ValueLearning
+from mineral.algorithms.critics.critic import Critic
 from mineral import discounted_sum
 
 
-class GAE(ValueLearning):
+class GAE(Critic):
 
     def __init__(
         self,
-        *args,
+        critic,
+        gamma=0.99,
         lamb=0.95,
         **kwargs
     ):
-        ValueLearning.__init__(
-            self,
-            *args,
-            **kwargs)
+        Critic.__init__(self, **kwargs)
+        self.critic = critic
+        self.gamma = gamma
         self.lamb = lamb
+
+    def bellman_target_values(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        return self.critic.bellman_target_values(
+            observations,
+            actions,
+            rewards,
+            terminals)
+
+    def discount_target_values(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals
+    ):
+        return self.critic.discount_target_values(
+            observations,
+            actions,
+            rewards,
+            terminals)
+
+    def update_critic(
+        self,
+        observations,
+        actions,
+        rewards,
+        terminals,
+        bellman_target_values,
+        discount_target_values
+    ):
+        self.critic.update_critic(
+            observations,
+            actions,
+            rewards,
+            terminals,
+            bellman_target_values,
+            discount_target_values)
+
+    def soft_update(
+        self
+    ):
+        self.critic.soft_update()
 
     def get_advantages(
         self,
@@ -27,13 +75,12 @@ class GAE(ValueLearning):
         rewards,
         terminals
     ):
-        values = self.vf.get_expected_value(
+        advantages = self.critic.get_advantages(
             observations,
-            training=True)[:, :, 0]
-        advantages = discounted_sum(
-            terminals[:, :(-1)] * (rewards - values[:, :(-1)]) +
-            terminals[:, 1:] * values[:, 1:] * self.gamma,
-            self.gamma)
-        self.record(
-            "advantages_mean", tf.reduce_mean(advantages))
+            actions,
+            rewards,
+            terminals)
+        advantages = discounted_sum(advantages, self.gamma)
+        self.record("generalized_advantages_mean",
+                    tf.reduce_mean(advantages))
         return advantages

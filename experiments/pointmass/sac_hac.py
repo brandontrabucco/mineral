@@ -13,7 +13,7 @@ from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
-from mineral.algorithms.critics.soft_q_learning import SoftQLearning
+from mineral.algorithms.critics.soft_q_network import SoftQNetwork
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
 
@@ -214,7 +214,7 @@ def run_experiment(variant):
         monitor=monitor,
         logging_prefix="lower_")
 
-    lower_critic = SoftQLearning(
+    lower_critic = SoftQNetwork(
         lower_target_policy,
         lower_qf,
         lower_target_qf,
@@ -255,7 +255,7 @@ def run_experiment(variant):
         monitor=monitor,
         logging_prefix="upper_")
 
-    upper_critic = SoftQLearning(
+    upper_critic = SoftQNetwork(
         upper_target_policy,
         upper_qf,
         upper_target_qf,

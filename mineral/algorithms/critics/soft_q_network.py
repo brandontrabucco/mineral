@@ -2,26 +2,22 @@
 
 
 import tensorflow as tf
-from mineral.algorithms.critics.value_learning import ValueLearning
+from mineral.algorithms.critics.q_network import QNetwork
 from mineral import discounted_sum
 
 
-class SoftValueLearning(ValueLearning):
+class SoftQNetwork(QNetwork):
 
     def __init__(
         self,
-        policy,
-        vf,
-        target_vf,
+        *args,
         alpha=1.0,
         **kwargs
     ):
-        ValueLearning.__init__(
+        QNetwork.__init__(
             self,
-            vf,
-            target_vf,
+            *args,
             **kwargs)
-        self.policy = policy
         self.alpha = alpha
 
     def bellman_target_values(
@@ -38,12 +34,18 @@ class SoftValueLearning(ValueLearning):
             next_actions,
             observations[:, 1:, ...],
             training=True)
-        next_target_values = self.target_vf.get_expected_value(
+        epsilon = tf.clip_by_value(
+            self.std * tf.random.normal(
+                tf.shape(next_actions),
+                dtype=tf.float32), -self.clip_radius, self.clip_radius)
+        noisy_next_actions = next_actions + epsilon
+        next_target_qvalues = self.target_qf.get_expected_value(
             observations[:, 1:, ...],
+            noisy_next_actions,
             training=True)
         target_values = rewards + (
             terminals[:, 1:] * self.gamma * (
-                next_target_values[:, :, 0] - self.alpha * next_log_probs))
+                next_target_qvalues[:, :, 0] - self.alpha * next_log_probs))
         self.record(
             "bellman_target_values_mean",
             tf.reduce_mean(target_values))
@@ -76,7 +78,7 @@ class SoftValueLearning(ValueLearning):
         bellman_target_values,
         discount_target_values
     ):
-        ValueLearning.update_critic(
+        QNetwork.update_critic(
             self,
             observations,
             actions,

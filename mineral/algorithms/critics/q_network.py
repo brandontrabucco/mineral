@@ -6,21 +6,27 @@ from mineral.algorithms.critics.critic import Critic
 from mineral import discounted_sum
 
 
-class ValueLearning(Critic):
+class QNetwork(Critic):
 
     def __init__(
         self,
-        vf,
-        target_vf,
+        policy,
+        qf,
+        target_qf,
         gamma=1.0,
+        std=1.0,
+        clip_radius=1.0,
         bellman_weight=1.0,
         discount_weight=1.0,
         **kwargs
     ):
         Critic.__init__(self, **kwargs)
-        self.vf = vf
-        self.target_vf = target_vf
+        self.policy = policy
+        self.qf = qf
+        self.target_qf = target_qf
         self.gamma = gamma
+        self.std = std
+        self.clip_radius = clip_radius
         self.bellman_weight = bellman_weight
         self.discount_weight = discount_weight
 
@@ -31,11 +37,20 @@ class ValueLearning(Critic):
         rewards,
         terminals
     ):
-        next_target_values = self.target_vf.get_expected_value(
+        next_actions = self.policy.get_expected_value(
             observations[:, 1:, ...],
             training=True)
+        epsilon = tf.clip_by_value(
+            self.std * tf.random.normal(
+                tf.shape(next_actions),
+                dtype=tf.float32), -self.clip_radius, self.clip_radius)
+        noisy_next_actions = next_actions + epsilon
+        next_target_qvalues = self.target_qf.get_expected_value(
+            observations[:, 1:, ...],
+            noisy_next_actions,
+            training=True)
         target_values = rewards + (
-            terminals[:, 1:] * self.gamma * next_target_values[:, :, 0])
+            terminals[:, 1:] * self.gamma * next_target_qvalues[:, :, 0])
         self.record(
             "bellman_target_values_mean",
             tf.reduce_mean(target_values))
@@ -64,47 +79,55 @@ class ValueLearning(Critic):
         discount_target_values
     ):
         def loss_function():
-            values = terminals[:, :(-1)] * self.vf.get_expected_value(
+            qvalues = terminals[:, :(-1)] * self.qf.get_expected_value(
                 observations[:, :(-1), ...],
+                actions,
                 training=True)[:, :, 0]
-            bellman_loss_vf = tf.reduce_mean(
+            bellman_loss_qf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     bellman_target_values,
-                    values))
-            discount_loss_vf = tf.reduce_mean(
+                    qvalues))
+            discount_loss_qf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
                     discount_target_values,
-                    values))
+                    qvalues))
             self.record(
-                "values_mean",
-                tf.reduce_mean(values))
+                "qvalues_mean",
+                tf.reduce_mean(qvalues))
             self.record(
                 "bellman_loss",
-                bellman_loss_vf)
+                bellman_loss_qf)
             self.record(
                 "discount_loss",
-                discount_loss_vf)
+                discount_loss_qf)
             return (
-                self.bellman_weight * bellman_loss_vf +
-                self.discount_weight * discount_loss_vf)
-        self.vf.minimize(
+                self.bellman_weight * bellman_loss_qf +
+                self.discount_weight * discount_loss_qf)
+        self.qf.minimize(
             loss_function,
-            observations[:, :(-1), ...])
+            observations[:, :(-1), ...],
+            actions)
 
     def soft_update(
         self
     ):
-        self.target_vf.soft_update(self.vf.get_weights())
+        self.target_qf.soft_update(self.qf.get_weights())
 
     def get_advantages(
         self,
         observations,
         actions,
         rewards,
-        terminals
+        terminals,
     ):
-        values = terminals[:, :(-1)] * self.vf.get_expected_value(
-            observations[:, :(-1), ...])
-        next_values = terminals[:, 1:] * self.vf.get_expected_value(
-            observations[:, 1:, ...])
-        return rewards + next_values - values
+        qvalues = self.qf.get_expected_value(
+            observations[:, :(-1), ...],
+            actions,
+            training=True)
+        values = self.qf.get_expected_value(
+            observations[:, :(-1), ...],
+            self.policy.get_expected_value(
+                observations[:, :(-1), ...],
+                training=True), training=True)
+        return terminals[:, :(-1)] * (
+            qvalues[:, :, 0] - values[:, :, 0])
