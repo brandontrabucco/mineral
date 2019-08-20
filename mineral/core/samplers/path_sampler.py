@@ -102,4 +102,4 @@ class PathSampler(Sampler):
                     self.increment()
                 if done:
                     break
-        return np.mean(all_rewards) if len(all_rewards) > 0 else 0.0
+        return all_rewards

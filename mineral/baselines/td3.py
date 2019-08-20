@@ -11,9 +11,8 @@ from mineral.core.monitors.local_monitor import LocalMonitor
 from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
-from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
-from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
-from mineral.algorithms.critics.soft_q_network import SoftQNetwork
+from mineral.algorithms.actors.ddpg import DDPG
+from mineral.algorithms.critics.q_network import QNetwork
 from mineral.algorithms.critics.twin_critic import TwinCritic
 
 from mineral.core.envs.normalized_env import NormalizedEnv
@@ -23,8 +22,8 @@ from mineral.core.buffers.off_policy_buffer import OffPolicyBuffer
 from mineral.core.samplers.parallel_sampler import ParallelSampler
 
 
-sac_variant = dict(
-    logging_dir="./sac",
+td3_variant = dict(
+    logging_dir="./td3",
     reward_scale=1.0,
     hidden_size=300,
     tau=0.005,
@@ -43,7 +42,7 @@ sac_variant = dict(
     num_trains_per_step=1000)
 
 
-def sac(
+def td3(
     variant,
     env_class,
     observation_key="proprio_observation",
@@ -75,31 +74,21 @@ def sac(
     target_qf1 = qf1.clone()
     target_qf2 = qf1.clone()
 
-    tuner = EntropyTuner(
-        policy,
-        optimizer_class=tf.keras.optimizers.Adam,
-        optimizer_kwargs=dict(lr=variant["learning_rate"]),
-        target=(-action_dim),
-        batch_size=variant["batch_size"],
-        monitor=monitor)
-
-    critic1 = SoftQNetwork(
+    critic1 = QNetwork(
         policy,
         qf1,
         target_qf1,
         gamma=variant["gamma"],
-        alpha=tuner.get_tuning_variable(),
         bellman_weight=variant["bellman_weight"],
         discount_weight=variant["discount_weight"],
         batch_size=variant["batch_size"],
         monitor=monitor)
 
-    critic2 = SoftQNetwork(
+    critic2 = QNetwork(
         policy,
         qf2,
         target_qf2,
         gamma=variant["gamma"],
-        alpha=tuner.get_tuning_variable(),
         bellman_weight=variant["bellman_weight"],
         discount_weight=variant["discount_weight"],
         batch_size=variant["batch_size"],
@@ -107,10 +96,9 @@ def sac(
 
     critic = TwinCritic(critic1, critic2)
 
-    actor = SoftActorCritic(
+    actor = DDPG(
         policy,
         critic,
-        alpha=tuner.get_tuning_variable(),
         batch_size=variant["batch_size"],
         update_every=variant["num_trains_per_step"],
         monitor=monitor)
@@ -143,8 +131,8 @@ def sac(
 
     trainer = LocalTrainer(
         sampler,
-        [step_buffer, step_buffer, step_buffer],
-        [actor, critic, tuner],
+        [step_buffer, step_buffer],
+        [actor, critic],
         num_steps=variant["num_steps"],
         num_trains_per_step=variant["num_trains_per_step"],
         saver=saver,

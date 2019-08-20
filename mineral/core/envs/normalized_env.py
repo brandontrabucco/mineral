@@ -2,6 +2,7 @@
 
 
 import numpy as np
+import tensorflow as tf
 import mineral as ml
 from gym.spaces import Box
 from mineral.core.envs.proxy_env import ProxyEnv

@@ -6,7 +6,7 @@ import mineral as ml
 from mineral.core.buffers.buffer import Buffer
 
 
-class StepBuffer(Buffer):
+class OffPolicyBuffer(Buffer):
 
     def __init__(
         self,
@@ -60,26 +60,29 @@ class StepBuffer(Buffer):
         self,
         batch_size
     ):
+        def join(first, second):
+            return np.concatenate([first, second], 1)
         paths = np.arange(self.max_size)
         path_indices = np.arange(self.max_path_length)
-        candidates = np.stack(*np.meshgrid(paths, path_indices), axis=(-1)).reshape(-1, 2)
-        lengths = ml.nested_apply(lambda x: x[indices, ...], self.tail)
-        terminals = (lengths[:, np.newaxis] - 1 > path_indices).astype(np.float32).reshape(-1)
+        candidates = np.stack(np.meshgrid(path_indices, paths), axis=(-1)).reshape(-1, 2)
+        terminals = (self.tail[:, np.newaxis] - 1 > path_indices).astype(np.float32)
         indices = np.random.choice(
-            self.max_size * self.max_path_length,
+            candidates.shape[0],
             size=batch_size,
-            p=terminals,
-            replace=(self.max_size * self.max_path_length < batch_size))
+            p=terminals.reshape(-1) / terminals.sum(),
+            replace=(candidates.shape[0] < batch_size))
         indices = np.take(candidates, indices, axis=0)
-        observations = ml.nested_apply(
-            lambda x: x[indices[:, 0], indices[:, 1]:(indices[:, 1] + 2), ...],
-            self.observations)
+        first_observations = ml.nested_apply(
+            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...], self.observations)
+        next_observations = ml.nested_apply(
+            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0] + 1, ...], self.observations)
         actions = ml.nested_apply(
-            lambda x: x[indices[:, 0], indices[:, 1]:(indices[:, 1] + 1), ...],
-            self.actions)
+            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...], self.actions)
         rewards = ml.nested_apply(
-            lambda x: x[indices[:, 0], indices[:, 1]:(indices[:, 1] + 1), ...],
-            self.rewards)
-        terminals = terminals[indices[:, 0], indices[:, 1]:(indices[:, 1] + 2)]
-        rewards = terminals[:, :(-1)] * rewards
+            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...], self.rewards)
+        first_terminals = terminals[indices[:, 1], np.newaxis, indices[:, 0]]
+        next_terminals = terminals[indices[:, 1], np.newaxis, indices[:, 0] + 1]
+        rewards = first_terminals * rewards
+        observations = ml.nested_apply(join, first_observations, next_observations)
+        terminals = ml.nested_apply(join, first_terminals, next_terminals)
         return self.selector(observations), actions, rewards, terminals

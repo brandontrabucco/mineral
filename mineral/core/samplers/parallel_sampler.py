@@ -63,7 +63,7 @@ class ParallelSampler(Sampler):
             t.start()
         for t in threads:
             t.join()
-        return np.mean(reward_list)
+        return reward_list
 
     def warm_up(
         self,
@@ -71,7 +71,7 @@ class ParallelSampler(Sampler):
         **render_kwargs
     ):
         def thread_function(inner_sampler, output_list):
-            output_list.append(inner_sampler.warm_up(render=render, **render_kwargs))
+            output_list.extend(inner_sampler.warm_up(render=render, **render_kwargs))
         return self.collect(thread_function)
 
     def explore(
@@ -80,7 +80,7 @@ class ParallelSampler(Sampler):
         **render_kwargs
     ):
         def thread_function(inner_sampler, output_list):
-            output_list.append(inner_sampler.explore(render=render, **render_kwargs))
+            output_list.extend(inner_sampler.explore(render=render, **render_kwargs))
         return self.collect(thread_function)
 
     def evaluate(
@@ -89,5 +89,5 @@ class ParallelSampler(Sampler):
         **render_kwargs
     ):
         def thread_function(inner_sampler, output_list):
-            output_list.append(inner_sampler.evaluate(render=render, **render_kwargs))
+            output_list.extend(inner_sampler.evaluate(render=render, **render_kwargs))
         return self.collect(thread_function)

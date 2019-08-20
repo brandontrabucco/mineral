@@ -1,6 +1,7 @@
 """Author: Brandon Trabucco, Copyright 2019"""
 
 
+import numpy as np
 from mineral.core.trainers.trainer import Trainer
 
 
@@ -30,8 +31,8 @@ class LocalTrainer(Trainer):
             if iteration == 0:
                 self.sampler.warm_up()
 
-            expl_reward = self.sampler.explore()
-            eval_reward = self.sampler.evaluate()
+            expl_reward = np.mean(self.sampler.explore())
+            eval_reward = np.mean(self.sampler.evaluate())
             if iteration > 0 and eval_reward > best_reward:
                 best_reward = eval_reward
                 if self.saver is not None:
