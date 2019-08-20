@@ -9,7 +9,7 @@ from mineral.core.savers.saver import Saver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
-from mineral.networks.dense import Dense
+from mineral.networks import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
@@ -20,9 +20,9 @@ from mineral.algorithms.multi_algorithm import MultiAlgorithm
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
-from mineral.buffers.path_buffer import PathBuffer
-from mineral.buffers.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
-from mineral.samplers.path_sampler import PathSampler
+from mineral.core.buffers.path_buffer import PathBuffer
+from mineral.relabelers import GoalConditionedRelabeler
+from mineral.core.samplers.path_sampler import PathSampler
 
 
 def run_experiment(variant):

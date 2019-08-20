@@ -8,7 +8,7 @@ from mineral.core.savers.local_saver import LocalSaver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
-from mineral.networks.dense import Dense
+from mineral.networks import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
@@ -18,8 +18,8 @@ from mineral.algorithms.critics.twin_critic import TwinCritic
 
 from mineral.core.envs.normalized_env import NormalizedEnv
 
-from mineral.buffers.path_buffer import PathBuffer
-from mineral.samplers.parallel_sampler import ParallelSampler
+from mineral.core.buffers.path_buffer import PathBuffer
+from mineral.core.samplers.parallel_sampler import ParallelSampler
 
 
 sac_variant = dict(

@@ -2,23 +2,25 @@
 
 
 import tensorflow as tf
-from mineral.buffers.relabelers.relabeler import Relabeler
+from mineral.relabelers import Relabeler
 
 
-class ReachabilityRelabeler(Relabeler):
+class SubgoalTestingRelabeler(Relabeler):
     
     def __init__(
         self,
-        policy,
         *args,
         observation_selector=(lambda x: x["proprio_observation"]),
-        reward_scale=1.0,
+        order=2,
+        threshold=0.1,
+        penalty=(-1.0),
         **kwargs
     ):
         Relabeler.__init__(self, *args, **kwargs)
-        self.policy = policy
         self.observation_selector = observation_selector
-        self.reward_scale = reward_scale
+        self.order = order
+        self.threshold = threshold
+        self.penalty = penalty
 
     def relabel(
         self,
@@ -34,17 +36,18 @@ class ReachabilityRelabeler(Relabeler):
         cumulative_distances = 0.0
         for lower_observation in induced_observations:
             error = lower_observation[:, 1:, ...] - actions
-            cumulative_distances += self.reward_scale * tf.linalg.norm(
-                tf.reshape(error, [tf.shape(error)[1], tf.shape(error)[1], -1]),
+            cumulative_distances += tf.linalg.norm(
+                tf.reshape(error, [tf.shape(error)[0], tf.shape(error)[1], -1]),
                 ord=self.order, axis=(-1))
 
-        relabel_condition = self.relabel_probability >= tf.random.uniform(
-            tf.shape(rewards),
-            maxval=1.0,
-            dtype=tf.float32)
+        test_passed_condition = cumulative_distances < self.threshold
+        tested_rewards = tf.where(
+            test_passed_condition,
+            rewards,
+            rewards + self.penalty)
 
         rewards = tf.where(
-            relabel_condition, -cumulative_distances, rewards)
+            self.get_relabeled_mask(rewards), tested_rewards, rewards)
         return (
             observations,
             actions,

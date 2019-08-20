@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from mineral.buffers.buffer import Buffer
+from mineral.core.buffers import Buffer
 from abc import ABC, abstractmethod
 
 

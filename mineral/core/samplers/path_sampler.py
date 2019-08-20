@@ -2,7 +2,7 @@
 
 
 import numpy as np
-from mineral.samplers.sampler import Sampler
+from mineral.core.samplers.sampler import Sampler
 
 
 class PathSampler(Sampler):

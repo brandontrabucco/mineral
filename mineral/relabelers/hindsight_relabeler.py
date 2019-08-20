@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from mineral.buffers.relabelers.relabeler import Relabeler
+from mineral.relabelers import Relabeler
 
 
 def default_goal_assigner(goal, observation):

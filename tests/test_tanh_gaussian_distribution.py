@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
-from mineral.networks.dense.dense_policy import DensePolicy
+from mineral.networks import DensePolicy
 
 
 if __name__ == "__main__":

@@ -4,14 +4,14 @@ import tensorflow as tf
 
 from mineral.core.monitors.local_monitor import LocalMonitor
 
-from mineral.networks.dense import Dense
+from mineral.networks import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
-from mineral.buffers.path_buffer import PathBuffer
-from mineral.samplers.parallel_sampler import ParallelSampler
+from mineral.core.buffers.path_buffer import PathBuffer
+from mineral.core.samplers.parallel_sampler import ParallelSampler
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@
 
 import threading
 import numpy as np
-from mineral.samplers.sampler import Sampler
-from mineral.samplers.path_sampler import PathSampler
+from mineral.core.samplers.sampler import Sampler
+from mineral.core.samplers.path_sampler import PathSampler
 
 
 class ParallelSampler(Sampler):

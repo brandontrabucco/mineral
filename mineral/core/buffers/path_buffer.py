@@ -3,7 +3,7 @@
 
 import numpy as np
 import mineral as ml
-from mineral.buffers.buffer import Buffer
+from mineral.core.buffers import Buffer
 
 
 class PathBuffer(Buffer):
