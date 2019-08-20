@@ -18,7 +18,7 @@ from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.multi_algorithm import MultiAlgorithm
 
 from mineral.core.envs.normalized_env import NormalizedEnv
-from mineral.core.envs.contrib.ant_maze_env import AntMazeEnv
+from mineral.core.envs.ant.ant_maze_env import AntMazeEnv
 
 from mineral.core.buffers.path_buffer import PathBuffer
 from mineral.relabelers import GoalConditionedRelabeler

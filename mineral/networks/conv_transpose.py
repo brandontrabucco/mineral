@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from mineral.networks import Network
+from mineral.networks.network import Network
 from mineral.core.cloneable import Cloneable
 
 
@@ -41,7 +41,6 @@ class ConvTranspose(Network):
     def call(
         self,
         *inputs,
-        training=False,
         **kwargs
     ):
         proprioceptive_inputs = [x for x in inputs if 2 <= len(x.shape) < 4]

@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from mineral.relabelers import Relabeler
+from mineral.relabelers.relabeler import Relabeler
 
 
 class HIRORelabeler(Relabeler):

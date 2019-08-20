@@ -2,6 +2,7 @@
 
 
 import numpy as np
+import mineral as ml
 from mineral.core.samplers.sampler import Sampler
 
 
@@ -34,9 +35,10 @@ class PathSampler(Sampler):
         random=False,
     ):
         for level in reversed(range(self.num_levels)):
-            observation_for_this_level = {**observation}
             if time_step % np.prod(self.time_skips[:level + 1]) == 0:
+                observation_for_this_level = {**observation}
                 if level < self.num_levels - 1:
+                    observation_for_this_level["achieved_goal"] = observation_for_this_level
                     observation_for_this_level["goal"] = hierarchy_samples[level + 1][2]
                 policy_inputs = self.selector(
                     level, observation_for_this_level)[np.newaxis, ...]
@@ -84,6 +86,16 @@ class PathSampler(Sampler):
                             "induced_actions" not in sample or
                             len(sample["induced_actions"]) == self.time_skips[level])):
                         self.buffers[level].insert_sample(heads[level], *hierarchy_samples[level])
+                        relative_step = time_step // np.prod(self.time_skips[:level])
+                        if level > 0:
+                            def relabel_achieved_goal(x, y):
+                                x[heads[level], (
+                                    relative_step -
+                                    self.time_skips[level]):relative_step, ...] = y[np.newaxis, ...]
+                            ml.nested_apply(
+                                relabel_achieved_goal,
+                                self.buffers[level - 1].observations["achieved_goal"],
+                                hierarchy_samples[level - 1][1])
                 if render:
                     self.env.render(**render_kwargs)
                 if save_paths:

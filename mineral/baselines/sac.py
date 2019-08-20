@@ -8,7 +8,7 @@ from mineral.core.savers.local_saver import LocalSaver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
-from mineral.networks import Dense
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
@@ -19,6 +19,7 @@ from mineral.algorithms.critics.twin_critic import TwinCritic
 from mineral.core.envs.normalized_env import NormalizedEnv
 
 from mineral.core.buffers.path_buffer import PathBuffer
+from mineral.core.buffers.step_buffer import StepBuffer
 from mineral.core.samplers.parallel_sampler import ParallelSampler
 
 
@@ -28,18 +29,18 @@ sac_variant = dict(
     hidden_size=300,
     tau=0.005,
     learning_rate=0.0003,
-    batch_size=10,
+    batch_size=128,
     gamma=0.99,
     bellman_weight=1.0,
     discount_weight=0.0,
-    max_size=10000,
-    max_path_length=100,
-    num_warm_up_paths=100,
+    max_size=1000,
+    max_path_length=1000,
+    num_warm_up_paths=10,
     num_exploration_paths=1,
-    num_evaluation_paths=100,
-    num_threads=16,
+    num_evaluation_paths=10,
+    num_threads=10,
     num_steps=10000,
-    num_trains_per_step=100)
+    num_trains_per_step=1000)
 
 
 def sac(
@@ -119,6 +120,8 @@ def sac(
         selector=(lambda x: x[observation_key]),
         monitor=monitor)
 
+    step_buffer = StepBuffer(buffer)
+
     sampler = ParallelSampler(
         env, policy, buffer,
         max_path_length=variant["max_path_length"],
@@ -139,7 +142,7 @@ def sac(
 
     trainer = LocalTrainer(
         sampler,
-        [buffer, buffer, buffer],
+        [step_buffer, step_buffer, step_buffer],
         [actor, critic, tuner],
         num_steps=variant["num_steps"],
         num_trains_per_step=variant["num_trains_per_step"],

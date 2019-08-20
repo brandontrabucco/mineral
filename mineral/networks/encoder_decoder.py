@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from mineral.networks import Network
+from mineral.networks.network import Network
 from mineral.core.cloneable import Cloneable
 
 

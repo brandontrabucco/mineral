@@ -2,7 +2,7 @@
 
 
 import tensorflow as tf
-from mineral.networks import Network
+from mineral.networks.network import Network
 from mineral.core.cloneable import Cloneable
 
 
@@ -37,7 +37,6 @@ class Conv(Network, Cloneable):
     def call(
         self,
         *inputs,
-        training=False,
         **kwargs
     ):
         image_inputs = tf.concat([x for x in inputs if len(x.shape) >= 4], -1)

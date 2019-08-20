@@ -23,10 +23,10 @@ import numpy as np
 import gym
 import random
 
-from mineral.core.envs.contrib import maze_env_utils
+from mineral.core.envs.ant import maze_env_utils
 
 # Directory that contains mujoco xml files.
-MODEL_DIR = 'mineral/core/envs/contrib/assets'
+MODEL_DIR = 'mineral/core/envs/ant/assets'
 
 
 class MazeEnv(gym.Env):
