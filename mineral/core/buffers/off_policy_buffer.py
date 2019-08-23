@@ -73,16 +73,13 @@ class OffPolicyBuffer(Buffer):
             replace=(candidates.shape[0] < batch_size))
         indices = np.take(candidates, indices, axis=0)
         first_observations = ml.nested_apply(
-            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...], self.observations)
+            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...],
+            self.observations)
         next_observations = ml.nested_apply(
-            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0] + 1, ...], self.observations)
-        actions = ml.nested_apply(
-            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...], self.actions)
-        rewards = ml.nested_apply(
-            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0], ...], self.rewards)
-        first_terminals = terminals[indices[:, 1], np.newaxis, indices[:, 0]]
-        next_terminals = terminals[indices[:, 1], np.newaxis, indices[:, 0] + 1]
-        rewards = first_terminals * rewards
+            lambda x: x[indices[:, 1], np.newaxis, indices[:, 0] + 1, ...],
+            self.observations)
         observations = ml.nested_apply(join, first_observations, next_observations)
-        terminals = ml.nested_apply(join, first_terminals, next_terminals)
+        actions = self.actions[indices[:, 1], np.newaxis, indices[:, 0], ...]
+        rewards = self.rewards[indices[:, 1], np.newaxis, indices[:, 0], ...]
+        terminals = np.ones([rewards.shape[0], 2])
         return self.selector(observations), actions, rewards, terminals

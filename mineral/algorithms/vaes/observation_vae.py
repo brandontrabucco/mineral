@@ -25,7 +25,7 @@ class ObservationVAE(VAE):
         terminals
     ):
         def loss_function():
-            log_probs_vae = self.worker_vae_network.get_log_probs(
+            log_probs_vae = self.vae_network.get_log_probs(
                 observations,
                 observations,
                 training=True)
@@ -36,10 +36,10 @@ class ObservationVAE(VAE):
                 observations[0, (-1):, ...])
             self.record(
                 "vae_reconstruction",
-                self.worker_vae_network.get_expected_value(observations[0, (-1):, ...]))
+                self.vae_network.get_expected_value(observations[0, (-1):, ...]))
             self.record(
                 "vae_prior",
-                self.worker_vae_network.sample_from_prior())
+                self.vae_network.sample_from_prior())
             self.record(
                 "log_probs_vae_mean",
                 tf.reduce_mean(log_probs_vae))
@@ -47,6 +47,6 @@ class ObservationVAE(VAE):
                 "loss_vae",
                 loss_vae)
             return loss_vae
-        self.worker_vae_network.minimize(
+        self.vae_network.minimize(
             loss_function,
             observations)

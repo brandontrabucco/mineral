@@ -9,19 +9,18 @@ from mineral.core.savers.saver import Saver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
-from mineral.networks import Dense
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.algorithms.actors.soft_actor_critic import SoftActorCritic
 from mineral.algorithms.critics.soft_q_network import SoftQNetwork
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
-from mineral.algorithms.multi_algorithm import MultiAlgorithm
 
 from mineral.core.envs.normalized_env import NormalizedEnv
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 from mineral.core.buffers.path_buffer import PathBuffer
-from mineral.relabelers import GoalConditionedRelabeler
+from mineral.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
 from mineral.core.samplers.path_sampler import PathSampler
 
 
@@ -199,7 +198,7 @@ def run_experiment(variant):
         gamma=0.99,
         clip_radius=0.2,
         std=0.1,
-        alpha=lower_tuner.get_tuning_variable(),
+        log_alpha=lower_tuner.get_tuning_variable(),
         batch_size=batch_size,
         selector=both_selector,
         monitor=monitor,
@@ -209,7 +208,7 @@ def run_experiment(variant):
         lower_policy,
         lower_target_policy,
         lower_critic,
-        alpha=lower_tuner.get_tuning_variable(),
+        log_alpha=lower_tuner.get_tuning_variable(),
         update_every=update_actor_every,
         batch_size=batch_size,
         selector=both_selector,
@@ -240,7 +239,7 @@ def run_experiment(variant):
         gamma=0.99,
         clip_radius=0.2,
         std=0.1,
-        alpha=upper_tuner.get_tuning_variable(),
+        log_alpha=upper_tuner.get_tuning_variable(),
         batch_size=batch_size,
         selector=observation_selector,
         monitor=monitor,
@@ -250,7 +249,7 @@ def run_experiment(variant):
         upper_policy,
         upper_target_policy,
         upper_critic,
-        alpha=upper_tuner.get_tuning_variable(),
+        log_alpha=upper_tuner.get_tuning_variable(),
         update_every=update_actor_every,
         batch_size=batch_size,
         selector=observation_selector,

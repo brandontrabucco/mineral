@@ -64,7 +64,7 @@ class Gaussian(Distribution, ABC):
         mean, log_variance = self.get_parameters(*inputs, **kwargs)
         return mean
 
-    def get_expected_value_from_prior(
+    def get_expected_value_of_prior(
         self,
         shape,
         **kwargs

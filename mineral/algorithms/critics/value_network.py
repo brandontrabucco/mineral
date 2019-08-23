@@ -67,11 +67,11 @@ class ValueNetwork(Critic):
                 observations[:, :(-1), ...])[:, :, 0]
             bellman_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
-                    bellman_target_values,
+                    tf.stop_gradient(bellman_target_values),
                     values))
             discount_loss_vf = tf.reduce_mean(
                 tf.losses.mean_squared_error(
-                    discount_target_values,
+                    tf.stop_gradient(discount_target_values),
                     values))
             self.record(
                 "values_mean",

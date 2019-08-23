@@ -2,7 +2,7 @@
 
 
 import multiprocessing
-from mineral.baselines.ppo import ppo, ppo_variant
+from mineral.baselines.monolithic.ppo import ppo, ppo_variant
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 

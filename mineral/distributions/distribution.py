@@ -57,7 +57,7 @@ class Distribution(ABC):
         return NotImplemented
 
     @abstractmethod
-    def get_expected_value_from_prior(
+    def get_expected_value_of_prior(
         self,
         shape,
         **kwargs

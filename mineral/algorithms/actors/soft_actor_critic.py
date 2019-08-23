@@ -10,14 +10,14 @@ class SoftActorCritic(DDPG):
     def __init__(
         self,
         *args,
-        alpha=1.0,
+        log_alpha=1.0,
         **kwargs
     ):
         DDPG.__init__(
             self,
             *args,
             **kwargs)
-        self.alpha = alpha
+        self.log_alpha = log_alpha
 
     def update_actor(
         self,
@@ -38,7 +38,10 @@ class SoftActorCritic(DDPG):
                 rewards,
                 terminals)
             policy_loss = tf.reduce_mean(
-                self.alpha * policy_log_probs - advantages)
+                tf.exp(self.log_alpha) * policy_log_probs - advantages)
+            self.record(
+                "alpha",
+                tf.exp(self.log_alpha))
             self.record(
                 "policy_loss",
                 policy_loss)

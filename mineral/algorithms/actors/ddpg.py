@@ -28,8 +28,7 @@ class DDPG(ActorCritic):
     ):
         def loss_function():
             policy_actions = self.policy.sample(
-                observations[:, :(-1), ...],
-                training=True)
+                observations[:, :(-1), ...])
             advantages = self.critic.get_advantages(
                 observations,
                 policy_actions,

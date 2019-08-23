@@ -82,6 +82,6 @@ class PathBuffer(Buffer):
         lengths = ml.nested_apply(
             lambda x: x[indices, ...], self.tail)
         max_lengths = np.arange(self.max_path_length)[np.newaxis, :]
-        terminals = (lengths[:, np.newaxis] - 1 > max_lengths).astype(np.float32)
+        terminals = (lengths[:, np.newaxis] > max_lengths).astype(np.float32)
         rewards = terminals[:, :(-1)] * rewards
         return self.selector(observations), actions, rewards, terminals

@@ -19,13 +19,8 @@ class EncoderDecoder(Network, Cloneable):
     ):
         tf.keras.Model.__init__(self)
         Cloneable.__init__(
-            self,
-            encoder,
-            decoder,
-            latent_size,
-            beta=beta,
-            sample_encoder=sample_encoder,
-            sample_decoder=sample_decoder)
+            self, encoder, decoder, latent_size, beta=beta,
+            sample_encoder=sample_encoder, sample_decoder=sample_decoder)
         self.encoder = encoder
         self.decoder = decoder
         self.latent_size = latent_size
@@ -72,7 +67,7 @@ class EncoderDecoder(Network, Cloneable):
         if self.sample_encoder:
             latent_variable = self.encoder.sample_from_prior([1, self.latent_size], **kwargs)
         else:
-            latent_variable = self.encoder.get_expected_value_from_prior([1, self.latent_size], **kwargs)
+            latent_variable = self.encoder.get_expected_value_of_prior([1, self.latent_size], **kwargs)
         if self.sample_decoder:
             return self.decoder.sample(latent_variable, **kwargs)
         else:
@@ -82,8 +77,8 @@ class EncoderDecoder(Network, Cloneable):
         latent_variable = self.encoder.get_expected_value(*inputs, **kwargs)
         return self.decoder.get_expected_value(latent_variable, **kwargs)
 
-    def get_expected_value_from_prior(self, **kwargs):
-        latent_variable = self.encoder.get_expected_value_from_prior([1, self.latent_size], **kwargs)
+    def get_expected_value_of_prior(self, **kwargs):
+        latent_variable = self.encoder.get_expected_value_of_prior([1, self.latent_size], **kwargs)
         return self.decoder.get_expected_value(latent_variable, **kwargs)
 
     def get_log_probs(self, *inputs, **kwargs):

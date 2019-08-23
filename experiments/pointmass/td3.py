@@ -2,7 +2,7 @@
 
 
 import multiprocessing
-from mineral.baselines.td3 import td3, td3_variant
+from mineral.baselines.monolithic.td3 import td3, td3_variant
 from mineral.core.envs.debug.pointmass_env import PointmassEnv
 
 

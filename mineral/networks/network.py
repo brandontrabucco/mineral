@@ -91,8 +91,8 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
     def get_expected_value(self, *inputs, **kwargs):
         return self.distribution_class.get_expected_value(self, *inputs, **kwargs)
 
-    def get_expected_value_from_prior(self, shape, **kwargs):
-        return self.distribution_class.get_expected_value_from_prior(self, shape, **kwargs)
+    def get_expected_value_of_prior(self, shape, **kwargs):
+        return self.distribution_class.get_expected_value_of_prior(self, shape, **kwargs)
 
     def get_log_probs(self, *inputs, **kwargs):
         return self.distribution_class.get_log_probs(self, *inputs, **kwargs)

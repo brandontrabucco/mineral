@@ -8,13 +8,13 @@ from mineral.core.savers.local_saver import LocalSaver
 from mineral.core.trainers.local_trainer import LocalTrainer
 from mineral.core.monitors.local_monitor import LocalMonitor
 
-from mineral.networks import Dense
+from mineral.networks.dense import Dense
 from mineral.distributions.gaussians.tanh_gaussian import TanhGaussian
 
 from mineral.algorithms.tuners.entropy_tuner import EntropyTuner
 from mineral.algorithms.critics.soft_value_network import SoftValueNetwork
 from mineral.algorithms.critics.gae import GAE
-from mineral.algorithms.actors.ppo import PPO
+from mineral.algorithms.actors.actor_critic import ActorCritic
 
 from mineral.core.envs.normalized_env import NormalizedEnv
 
@@ -22,8 +22,8 @@ from mineral.core.buffers.path_buffer import PathBuffer
 from mineral.core.samplers.parallel_sampler import ParallelSampler
 
 
-ppo_variant = dict(
-    logging_dir="./ppo",
+a3c_variant = dict(
+    logging_dir="./a3c",
     reward_scale=1.0,
     hidden_size=300,
     tau=0.005,
@@ -31,7 +31,6 @@ ppo_variant = dict(
     batch_size=32,
     gamma=0.99,
     lamb=0.95,
-    epsilon=0.2,
     bellman_weight=0.0,
     discount_weight=1.0,
     max_size=32,
@@ -44,7 +43,7 @@ ppo_variant = dict(
     num_trains_per_step=10)
 
 
-def ppo(
+def a3c(
     variant,
     env_class,
     observation_key="proprio_observation",
@@ -72,7 +71,6 @@ def ppo(
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs=dict(lr=variant["learning_rate"]))
 
-    old_policy = policy.clone()
     target_vf = vf.clone()
 
     tuner = EntropyTuner(
@@ -88,7 +86,7 @@ def ppo(
         vf,
         target_vf,
         gamma=variant["gamma"],
-        alpha=tuner.get_tuning_variable(),
+        log_alpha=tuner.get_tuning_variable(),
         bellman_weight=variant["bellman_weight"],
         discount_weight=variant["discount_weight"],
         batch_size=variant["batch_size"],
@@ -99,14 +97,10 @@ def ppo(
         gamma=variant["gamma"],
         lamb=variant["lamb"])
 
-    actor = PPO(
+    actor = ActorCritic(
         policy,
-        old_policy,
         critic,
         gamma=variant["gamma"],
-        epsilon=variant["epsilon"],
-        alpha=tuner.get_tuning_variable(),
-        old_update_every=variant["num_trains_per_step"],
         batch_size=variant["batch_size"],
         monitor=monitor)
 
@@ -129,7 +123,6 @@ def ppo(
     saver = LocalSaver(
         variant["logging_dir"],
         policy=policy,
-        old_policy=old_policy,
         vf=vf,
         target_vf=target_vf)
 

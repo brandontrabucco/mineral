@@ -13,7 +13,7 @@ class SoftValueNetwork(ValueNetwork):
         policy,
         vf,
         target_vf,
-        alpha=1.0,
+        log_alpha=1.0,
         **kwargs
     ):
         ValueNetwork.__init__(
@@ -22,7 +22,7 @@ class SoftValueNetwork(ValueNetwork):
             target_vf,
             **kwargs)
         self.policy = policy
-        self.alpha = alpha
+        self.log_alpha = log_alpha
 
     def bellman_target_values(
         self,
@@ -38,7 +38,7 @@ class SoftValueNetwork(ValueNetwork):
             observations[:, :(-1), ...])
         next_target_values = self.target_vf.get_expected_value(
             observations[:, 1:, ...])
-        target_values = rewards - self.alpha * sampled_log_probs * terminals[:, :(-1)] + (
+        target_values = rewards - tf.exp(self.log_alpha) * sampled_log_probs * terminals[:, :(-1)] + (
             terminals[:, 1:] * self.gamma * (
                 next_target_values[:, :, 0]))
         self.record(
@@ -53,13 +53,13 @@ class SoftValueNetwork(ValueNetwork):
         rewards,
         terminals
     ):
-        sampled_actions = self.policy.sample(
+        sampled_actions = self.policy.get_expected_value(
             observations[:, :(-1), ...])
         sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
             sampled_actions,
             observations[:, :(-1), ...])
         discount_target_values = discounted_sum((
-            rewards - self.alpha * sampled_log_probs), self.gamma)
+                rewards - tf.exp(self.log_alpha) * sampled_log_probs), self.gamma)
         self.record(
             "value_discount_target_mean",
             tf.reduce_mean(discount_target_values))
@@ -72,7 +72,7 @@ class SoftValueNetwork(ValueNetwork):
         rewards,
         terminals
     ):
-        sampled_actions = self.policy.sample(
+        sampled_actions = self.policy.get_expected_value(
             observations[:, :(-1), ...])
         sampled_log_probs = terminals[:, :(-1)] * self.policy.get_log_probs(
             sampled_actions,
@@ -83,4 +83,4 @@ class SoftValueNetwork(ValueNetwork):
             actions,
             rewards,
             terminals)
-        return advantages - self.alpha * sampled_log_probs
+        return advantages - tf.exp(self.log_alpha) * sampled_log_probs

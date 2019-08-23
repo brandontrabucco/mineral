@@ -14,16 +14,14 @@ class VAE(Base, ABC):
     ):
         Base.__init__(
             self,
-            **kwargs
-        )
-        self.master_vae_network = vae_network
-        self.worker_vae_network = vae_network.clone()
+            **kwargs)
+        self.vae_network = vae_network
 
     def get_encoding(
         self,
         inputs
     ):
-        return self.master_vae_network.encoder.get_expected_value(
+        return self.vae_network.encoder.get_expected_value(
             inputs)
 
     @abstractmethod
@@ -43,10 +41,8 @@ class VAE(Base, ABC):
         rewards,
         terminals
     ):
-        self.master_vae_network.copy_to(self.worker_vae_network)
         self.update_vae(
             observations,
             actions,
             rewards,
             terminals)
-        self.worker_vae_network.copy_to(self.master_vae_network)

@@ -41,9 +41,9 @@ class TanhGaussian(Gaussian, ABC):
         return tf.math.tanh(Gaussian.get_expected_value(
             self, *inputs, **kwargs))
 
-    def get_expected_value_from_prior(
+    def get_expected_value_of_prior(
         self,
         shape,
         **kwargs
     ):
-        return tf.math.tanh(Gaussian.get_expected_value_from_prior(self, shape, **kwargs))
+        return tf.math.tanh(Gaussian.get_expected_value_of_prior(self, shape, **kwargs))
