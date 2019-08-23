@@ -16,6 +16,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
         tau=1e-3,
         optimizer_class=tf.keras.optimizers.Adam,
         optimizer_kwargs={},
+        optimizer_clip_threshold=1.0,
         distribution_class=Gaussian,
         distribution_kwargs={},
         **kwargs
@@ -32,6 +33,7 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
         self.tau = tau
         self.distribution_class = distribution_class
         self.optimizer = optimizer_class(**optimizer_kwargs)
+        self.optimizer_clip_threshold = optimizer_clip_threshold
 
     @abstractmethod
     def call(
@@ -63,7 +65,8 @@ class Network(tf.keras.Model, Distribution, HasGradient, Cloneable, ABC):
         self,
         gradients
     ):
-        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+        self.optimizer.apply_gradients(zip([tf.clip_by_norm(
+            g, self.optimizer_clip_threshold) for g in gradients], self.trainable_variables))
 
     def soft_update(
         self,
