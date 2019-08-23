@@ -21,11 +21,10 @@ from mineral.core.buffers.off_policy_buffer import OffPolicyBuffer
 from mineral.core.samplers.parallel_sampler import ParallelSampler
 
 from mineral.relabelers.goal_conditioned_relabeler import GoalConditionedRelabeler
-from mineral.relabelers.hiro_relabeler import HIRORelabeler
 
 
-hiro_variant = dict(
-    logging_dir="./hiro",
+feudal_net_variant = dict(
+    logging_dir="./feudal_net",
     reward_scale=1.0,
     hidden_size=300,
     tau=0.005,
@@ -36,7 +35,6 @@ hiro_variant = dict(
     discount_weight=0.0,
     max_size=1000,
     time_skip=5,
-    relabeling_samples=5,
     max_path_length=1000,
     num_warm_up_paths=10,
     num_exploration_paths=1,
@@ -46,7 +44,7 @@ hiro_variant = dict(
     num_trains_per_step=1000)
 
 
-def hiro(
+def feudal_net(
     variant,
     env_class,
     observation_key="proprio_observation",
@@ -155,15 +153,11 @@ def hiro(
         monitor=monitor,
         logging_prefix="upper_")
 
-    upper_buffer = HIRORelabeler(
-        lower_policy,
-        PathBuffer(
-            max_size=variant["max_size"],
-            max_path_length=variant["max_path_length"],
-            selector=(lambda x: x[observation_key]),
-            monitor=monitor),
-        observation_selector=observation_selector,
-        num_samples=variant["relabeling_samples"])
+    upper_buffer = PathBuffer(
+        max_size=variant["max_size"],
+        max_path_length=variant["max_path_length"],
+        selector=(lambda x: x[observation_key]),
+        monitor=monitor)
 
     upper_buffer = OffPolicyBuffer(upper_buffer)
 
